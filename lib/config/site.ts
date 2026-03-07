@@ -1,8 +1,8 @@
 import type { HomeStats } from "@/types/dealership";
 
 export const siteConfig = {
-  name: "Summit Drive Motors",
-  shortName: "Summit Drive",
+  name: "Ocean Motors",
+  shortName: "Ocean Motors",
   description:
     "Browse used, imported, and traded-in cars in Mombasa with stronger trust signals, clear pricing, and fast enquiry options.",
   tagline: "Trusted cars. Faster answers. Better buying confidence in Mombasa.",
@@ -10,8 +10,8 @@ export const siteConfig = {
   phoneHref: "tel:+254700123456",
   whatsappNumber: "254700123456",
   whatsappLabel: "WhatsApp sales",
-  email: "hello@summitdrivemotors.demo",
-  salesEmail: "sales@summitdrivemotors.demo",
+  email: "hello@oceanmotors.demo",
+  salesEmail: "sales@oceanmotors.demo",
   address: "Kizingo, Mombasa",
   region: "Mombasa, Kenya",
   hoursLabel: "Mon - Sat, 8:00 AM - 6:00 PM",
@@ -26,7 +26,7 @@ export const siteConfig = {
     pageSize: 9,
   },
   demoAdmin: {
-    email: "admin@summitdrive.demo",
+    email: "admin@oceanmotors.demo",
     password: "demo-admin",
   },
 } as const;

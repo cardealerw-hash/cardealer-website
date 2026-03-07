@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Menu, Phone, X } from "lucide-react";
 import { useState } from "react";
@@ -14,9 +15,14 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/70 bg-[#fff8f2]/90 backdrop-blur">
       <div className="container-shell flex items-center justify-between gap-6 py-4">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-full bg-stone-900 text-white">
-            SD
-          </div>
+          <Image
+            src="/logo.png"
+            alt={`${siteConfig.name} logo`}
+            width={44}
+            height={44}
+            className="size-11 rounded-full border border-border object-cover"
+            priority
+          />
           <div>
             <p className="display-font text-xl leading-none tracking-wide text-stone-900">
               {siteConfig.shortName}

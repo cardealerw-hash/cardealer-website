@@ -29,7 +29,7 @@ export function AdminShell({
             Admin
           </p>
           <h1 className="mt-3 display-font text-3xl text-stone-950">
-            Summit Drive
+            Ocean Motors
           </h1>
           <p className="mt-2 text-sm leading-6 text-stone-600">
             Signed in as {session.name} ({session.mode})
