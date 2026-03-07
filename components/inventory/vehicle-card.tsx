@@ -64,7 +64,7 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
 
         <div className="flex items-center gap-2 text-sm text-stone-600">
           <MapPin className="size-4" />
-          {vehicle.location?.name || "Nairobi"}
+          {vehicle.location?.name || "Mombasa"}
         </div>
 
         <Button asChild className="w-full">

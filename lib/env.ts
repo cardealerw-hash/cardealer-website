@@ -3,7 +3,11 @@ const DEFAULT_SITE_URL = "http://localhost:3000";
 export const env = {
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL,
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+  supabasePublishableKey:
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    "",
+  supabaseSecretKey: process.env.SUPABASE_SECRET_KEY || "",
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || "",
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || "",
@@ -13,7 +17,11 @@ export const env = {
 };
 
 export const hasSupabaseConfig = Boolean(
-  env.supabaseUrl && env.supabaseAnonKey,
+  env.supabaseUrl && env.supabasePublishableKey,
+);
+
+export const hasSupabaseSecretConfig = Boolean(
+  env.supabaseUrl && env.supabaseSecretKey,
 );
 
 export const hasCloudinaryConfig = Boolean(

@@ -6,6 +6,7 @@ describe("mapVehicleFormData", () => {
   it("maps form data into a typed vehicle payload", () => {
     const formData = new FormData();
     formData.set("title", "2020 Toyota Prado");
+    formData.set("stockCode", "kdl 001");
     formData.set("make", "Toyota");
     formData.set("model", "Prado");
     formData.set("year", "2020");
@@ -31,6 +32,7 @@ describe("mapVehicleFormData", () => {
     const result = mapVehicleFormData(formData);
 
     expect(result.title).toBe("2020 Toyota Prado");
+    expect(result.stockCode).toBe("KDL-001");
     expect(result.price).toBe(6500000);
     expect(result.images).toHaveLength(1);
     expect(result.images[0].isHero).toBe(true);

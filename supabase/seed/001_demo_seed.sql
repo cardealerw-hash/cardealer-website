@@ -36,6 +36,7 @@ on conflict (id) do nothing;
 insert into public.vehicles (
   id,
   title,
+  stock_code,
   slug,
   make,
   model,
@@ -60,6 +61,7 @@ insert into public.vehicles (
   (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
     '2020 Toyota Land Cruiser Prado TX-L',
+    'KDL-001',
     '2020-toyota-land-cruiser-prado-tx-l',
     'Toyota',
     'Land Cruiser Prado',
@@ -84,6 +86,7 @@ insert into public.vehicles (
   (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
     '2018 Mazda CX-5 Touring',
+    'KDL-002',
     '2018-mazda-cx-5-touring',
     'Mazda',
     'CX-5',
@@ -108,6 +111,7 @@ insert into public.vehicles (
   (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
     '2019 Nissan X-Trail 20X 4WD',
+    'KDL-003',
     '2019-nissan-x-trail-20x-4wd',
     'Nissan',
     'X-Trail',
@@ -132,6 +136,7 @@ insert into public.vehicles (
   (
     'dddddddd-dddd-dddd-dddd-dddddddddddd',
     '2017 Toyota Fielder Hybrid',
+    'KDL-004',
     '2017-toyota-fielder-hybrid',
     'Toyota',
     'Fielder',

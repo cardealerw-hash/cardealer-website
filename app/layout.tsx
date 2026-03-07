@@ -19,7 +19,7 @@ const displayFont = Playfair_Display({
 });
 
 export const metadata: Metadata = buildMetadata({
-  title: "Cars for Sale in Nairobi",
+  title: "Cars for Sale in Mombasa",
   description: siteConfig.description,
 });
 

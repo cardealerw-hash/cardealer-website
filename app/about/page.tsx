@@ -9,7 +9,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "About",
   description:
-    "Learn how the dealership positions trust, fast response times, and practical support for Nairobi car buyers.",
+    "Learn how the dealership positions trust, fast response times, and practical support for Mombasa car buyers.",
   path: "/about",
 });
 
@@ -93,7 +93,7 @@ export default async function AboutPage() {
         <div className="grid gap-6 md:grid-cols-3">
           {reviews.map((review) => (
             <Card key={review.id} className="rounded-[28px] p-6">
-              <p className="text-sm leading-7 text-stone-700">“{review.quote}”</p>
+              <p className="text-sm leading-7 text-stone-700">&quot;{review.quote}&quot;</p>
               <p className="mt-6 font-semibold text-stone-950">
                 {review.customerName}
               </p>

@@ -36,6 +36,15 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+export function normalizeStockCode(value: string) {
+  return value
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function humanizeStockCategory(category: StockCategory) {
   const labels: Record<StockCategory, string> = {
     new: "New",
@@ -97,6 +106,7 @@ export function asOptionalNumber(value: FormDataEntryValue | null) {
 export function vehicleSearchText(vehicle: Vehicle) {
   return [
     vehicle.title,
+    vehicle.stockCode,
     vehicle.make,
     vehicle.model,
     vehicle.year,

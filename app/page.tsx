@@ -59,10 +59,10 @@ export default async function Home() {
           <div className="space-y-8">
             <div>
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-                Nairobi-first dealership MVP
+                Mombasa dealership stock
               </p>
               <h1 className="display-font text-balance text-5xl leading-tight text-stone-950 sm:text-6xl">
-                Find quality cars in Nairobi without the usual friction.
+                Find quality cars in Mombasa without the usual friction.
               </h1>
               <p className="mt-5 max-w-xl text-lg leading-8 text-stone-600">
                 Used, imported, and traded-in vehicles presented with cleaner
@@ -86,9 +86,12 @@ export default async function Home() {
               >
                 <option value="">Any make</option>
                 <option value="Toyota">Toyota</option>
+                <option value="Land Rover">Land Rover</option>
                 <option value="Mazda">Mazda</option>
                 <option value="Subaru">Subaru</option>
                 <option value="Nissan">Nissan</option>
+                <option value="BMW">BMW</option>
+                <option value="Ford">Ford</option>
               </select>
               <select
                 name="category"
@@ -281,9 +284,18 @@ export default async function Home() {
             description="Social proof works better when it is grounded in real-looking inventory rather than generic claims."
           />
           <div className="grid gap-5 md:grid-cols-3">
-            {collections.sold.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} />
-            ))}
+            {collections.sold.length ? (
+              collections.sold.map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            ) : (
+              <Card className="rounded-[28px] p-6 md:col-span-3">
+                <p className="text-sm leading-7 text-stone-600">
+                  Delivered and sold units will appear here as inventory updates are
+                  published.
+                </p>
+              </Card>
+            )}
           </div>
         </div>
       </section>
@@ -298,7 +310,7 @@ export default async function Home() {
           <div className="grid gap-5 md:grid-cols-3">
             {reviews.map((review) => (
               <Card key={review.id} className="rounded-[28px] p-6">
-                <p className="text-lg leading-8 text-stone-700">“{review.quote}”</p>
+                <p className="text-lg leading-8 text-stone-700">&quot;{review.quote}&quot;</p>
                 <p className="mt-6 font-semibold text-stone-950">
                   {review.customerName}
                 </p>
@@ -323,7 +335,7 @@ export default async function Home() {
                   Ready to shortlist a vehicle or ask about availability?
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-300">
-                  {locations[0]?.name || "Westlands Showroom"} is open during
+                  {locations[0]?.name || "Mombasa Showroom"} is open during
                   business hours, and WhatsApp support is available for fast
                   inventory questions.
                 </p>

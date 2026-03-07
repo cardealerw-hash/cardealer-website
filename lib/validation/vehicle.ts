@@ -13,6 +13,11 @@ export const vehicleImageSchema = z.object({
 export const vehicleFormSchema = z.object({
   id: z.string().trim().optional(),
   title: z.string().trim().min(3, "Enter a vehicle title."),
+  stockCode: z
+    .string()
+    .trim()
+    .min(3, "Enter a stock code.")
+    .regex(/^[A-Z0-9-]+$/, "Use uppercase letters, numbers, and hyphens only."),
   slug: z.string().trim().optional(),
   make: z.string().trim().min(2, "Enter the make."),
   model: z.string().trim().min(1, "Enter the model."),

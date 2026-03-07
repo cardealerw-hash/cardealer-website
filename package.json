@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "cloudinary:sync": "node --env-file=.env.local ./scripts/sync-cloudinary-vehicle-images.mjs",
+    "supabase:check": "node --env-file=.env.local ./scripts/check-supabase-connection.mjs",
+    "supabase:check:write": "node --env-file=.env.local ./scripts/check-supabase-connection.mjs --write-test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

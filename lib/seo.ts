@@ -66,7 +66,7 @@ export function buildAutoDealerJsonLd(locations: Location[]) {
     address: {
       "@type": "PostalAddress",
       streetAddress: siteConfig.address,
-      addressLocality: "Nairobi",
+      addressLocality: siteConfig.region.split(",")[0],
       addressCountry: "KE",
     },
     areaServed: "Kenya",

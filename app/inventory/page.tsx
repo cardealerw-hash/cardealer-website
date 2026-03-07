@@ -17,7 +17,7 @@ import { parseInventoryQuery } from "@/lib/validation/inventory";
 export const metadata: Metadata = buildMetadata({
   title: "Inventory",
   description:
-    "Browse all available used, new, imported, and traded-in vehicles in Nairobi.",
+    "Browse all available used, new, imported, and traded-in vehicles in Mombasa.",
   path: "/inventory",
 });
 

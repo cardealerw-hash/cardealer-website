@@ -184,6 +184,7 @@ export function createVehicleFromInput(
   return {
     id,
     title: input.title,
+    stockCode: input.stockCode,
     slug: input.slug || slugify(input.title),
     make: input.make,
     model: input.model,

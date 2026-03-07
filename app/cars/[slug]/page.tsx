@@ -44,7 +44,7 @@ export async function generateMetadata({
 
   return buildMetadata({
     title: `${vehicle.year} ${vehicle.make} ${vehicle.model} for Sale in ${
-      vehicle.location?.city || "Nairobi"
+      vehicle.location?.city || "Mombasa"
     }`,
     description: vehicle.description,
     path: `/cars/${vehicle.slug}`,
@@ -102,7 +102,7 @@ export default async function VehicleDetailPage({
                 </h1>
                 <div className="mt-5 flex items-center gap-2 text-sm text-stone-600">
                   <MapPin className="size-4" />
-                  {vehicle.location?.name || "Nairobi showroom"}
+                  {vehicle.location?.name || "Mombasa showroom"}
                 </div>
               </div>
 

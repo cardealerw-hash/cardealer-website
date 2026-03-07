@@ -26,6 +26,7 @@ create table public.locations (
 create table public.vehicles (
   id uuid primary key default gen_random_uuid(),
   title text not null,
+  stock_code text not null unique,
   slug text not null unique,
   make text not null,
   model text not null,
@@ -60,6 +61,10 @@ create table public.vehicle_images (
   is_hero boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+create unique index if not exists vehicle_images_vehicle_public_id_key
+on public.vehicle_images (vehicle_id, cloudinary_public_id)
+where cloudinary_public_id is not null;
 
 create table public.leads (
   id uuid primary key default gen_random_uuid(),

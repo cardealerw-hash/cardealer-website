@@ -22,7 +22,8 @@ A production-oriented dealership MVP built with Next.js, TypeScript, Tailwind CS
 ## Environment Variables
 - `NEXT_PUBLIC_SITE_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY`
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
@@ -36,15 +37,30 @@ A production-oriented dealership MVP built with Next.js, TypeScript, Tailwind CS
 
 ## Supabase Setup
 1. Create a new Supabase project.
-2. Run the SQL migration in `supabase/migrations/001_initial_schema.sql`.
+2. Run all SQL migrations in `supabase/migrations/` in order.
 3. Optionally run `supabase/seed/001_demo_seed.sql` for starter data.
-4. Create an auth user for the admin.
-5. Insert that user into `admin_profiles`.
+4. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY` in `.env.local`.
+5. Create an auth user for the admin.
+6. Insert that user into `admin_profiles`.
+
+## Supabase Connection Layer
+- Browser client: `lib/supabase/client.ts`
+- SSR/auth client: `lib/supabase/server.ts`
+- Server-only secret client for scripts: `lib/supabase/admin.ts`
+- SSR auth refresh proxy: `proxy.ts` and `lib/supabase/middleware.ts`
+- Typed database contract: `types/database.ts`
+
+## Supabase Verification
+- Read-only connectivity check: `npm.cmd run supabase:check`
+- Read + write + cleanup check: `npm.cmd run supabase:check:write`
+- The write check inserts a temporary draft vehicle and deletes it immediately after a successful test.
 
 ## Cloudinary Setup
 - Create a Cloudinary environment.
 - Add the cloud name, API key, and API secret to the app environment.
 - Vehicle image uploads use Cloudinary when credentials are present.
+- Folder-to-Supabase sync script: `scripts/sync-cloudinary-vehicle-images.mjs`
+- Usage guide: `scripts/README-cloudinary-sync.md`
 
 ## Resend Setup
 - Create a Resend API key.

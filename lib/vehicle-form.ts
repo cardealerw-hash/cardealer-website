@@ -1,5 +1,10 @@
 import { vehicleFormSchema } from "@/lib/validation/vehicle";
-import { asOptionalNumber, asOptionalString, isTruthy } from "@/lib/utils";
+import {
+  asOptionalNumber,
+  asOptionalString,
+  isTruthy,
+  normalizeStockCode,
+} from "@/lib/utils";
 import type { VehicleFormInput, VehicleImageInput } from "@/types/dealership";
 
 function parseImages(value: string | undefined): VehicleImageInput[] {
@@ -23,6 +28,9 @@ export function mapVehicleFormData(formData: FormData): VehicleFormInput {
   const payload = {
     id: asOptionalString(formData.get("id")),
     title: asOptionalString(formData.get("title")) || "",
+    stockCode: normalizeStockCode(
+      asOptionalString(formData.get("stockCode")) || "",
+    ),
     slug: asOptionalString(formData.get("slug")),
     make: asOptionalString(formData.get("make")) || "",
     model: asOptionalString(formData.get("model")) || "",

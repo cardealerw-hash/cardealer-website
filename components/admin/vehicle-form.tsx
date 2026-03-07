@@ -178,6 +178,15 @@ export function VehicleForm({
             <Input id="title" name="title" defaultValue={vehicle?.title} />
           </div>
           <div>
+            <Label htmlFor="stockCode">Stock code</Label>
+            <Input
+              id="stockCode"
+              name="stockCode"
+              defaultValue={vehicle?.stockCode}
+              placeholder="KDL-001"
+            />
+          </div>
+          <div>
             <Label htmlFor="slug">Slug</Label>
             <Input id="slug" name="slug" defaultValue={vehicle?.slug} />
           </div>

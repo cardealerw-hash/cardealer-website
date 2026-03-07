@@ -44,6 +44,9 @@ export default async function AdminVehiclesPage() {
               <tr key={vehicle.id} className="border-t border-border/70 align-top">
                 <td className="px-6 py-5">
                   <p className="font-semibold text-stone-950">{vehicle.title}</p>
+                  <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-stone-500">
+                    {vehicle.stockCode}
+                  </p>
                   <p className="mt-1 text-stone-600">{vehicle.location?.name || "No location"}</p>
                 </td>
                 <td className="px-6 py-5 text-stone-700">

@@ -35,6 +35,7 @@ function mapSupabaseVehicleRow(row: Record<string, unknown>): Vehicle {
   return {
     id: String(row.id),
     title: String(row.title),
+    stockCode: String(row.stock_code),
     slug: String(row.slug),
     make: String(row.make),
     model: String(row.model),
@@ -101,6 +102,7 @@ export async function getLocations() {
     .order("is_primary", { ascending: false });
 
   if (error) {
+    console.error("[supabase] Failed to fetch locations", error.message);
     return clone(getDemoState().locations);
   }
 
@@ -132,6 +134,7 @@ export async function getReviews() {
     .order("sort_order", { ascending: true });
 
   if (error) {
+    console.error("[supabase] Failed to fetch reviews", error.message);
     return clone(getDemoState().reviews);
   }
 
@@ -160,6 +163,7 @@ export async function getAllVehicles() {
     .order("created_at", { ascending: false });
 
   if (error) {
+    console.error("[supabase] Failed to fetch vehicles", error.message);
     return clone(getDemoState().vehicles);
   }
 
@@ -251,6 +255,7 @@ export async function saveVehicle(input: VehicleFormInput) {
   const { error: vehicleError } = await serverClient.from("vehicles").upsert({
     id: nextVehicle.id,
     title: nextVehicle.title,
+    stock_code: nextVehicle.stockCode,
     slug: nextVehicle.slug,
     make: nextVehicle.make,
     model: nextVehicle.model,
@@ -298,6 +303,15 @@ export async function saveVehicle(input: VehicleFormInput) {
   }
 
   return nextVehicle;
+}
+
+export async function getVehicleByStockCode(stockCode: string) {
+  const vehicles = await getAllVehicles();
+  return (
+    vehicles.find(
+      (vehicle) => vehicle.stockCode.toLowerCase() === stockCode.toLowerCase(),
+    ) || null
+  );
 }
 
 export async function updateVehicleStatus(id: string, status: Vehicle["status"]) {

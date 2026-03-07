@@ -76,6 +76,7 @@ export interface VehicleImage {
 export interface Vehicle {
   id: string;
   title: string;
+  stockCode: string;
   slug: string;
   make: string;
   model: string;
@@ -233,6 +234,7 @@ export interface VehicleImageInput {
 export interface VehicleFormInput {
   id?: string;
   title: string;
+  stockCode: string;
   slug?: string;
   make: string;
   model: string;
