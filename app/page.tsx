@@ -1,13 +1,15 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
   CarFront,
   Clock3,
-  CreditCard,
+  Phone,
   ShieldCheck,
 } from "lucide-react";
 
 import { JsonLd } from "@/components/layout/json-ld";
+import { FloatingWhatsAppButton } from "@/components/marketing/floating-whatsapp-button";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { VehicleCard } from "@/components/inventory/vehicle-card";
 import { Button } from "@/components/ui/button";
@@ -49,109 +51,157 @@ export default async function Home() {
   ]);
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([{ name: "Home", path: "/" }]);
+  const heroVehicle = collections.featured[0];
+  const heroImage =
+    heroVehicle?.heroImageUrl || heroVehicle?.images[0]?.imageUrl || null;
+  const homepageWhatsAppUrl = buildWhatsAppUrl(
+    "Hi, I would like help choosing a vehicle.",
+    siteConfig.whatsappNumber,
+  );
 
   return (
     <>
       <JsonLd data={breadcrumbJsonLd} />
 
-      <section className="section-shell pb-8 pt-12">
-        <div className="container-shell grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div className="space-y-8">
-            <div>
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+      <section className="section-shell pb-8 pt-10">
+        <div className="container-shell space-y-8">
+          <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
+            <div className="space-y-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
                 Mombasa dealership stock
               </p>
-              <h1 className="display-font text-balance text-5xl leading-tight text-stone-950 sm:text-6xl">
+              <h1 className="display-font text-balance text-4xl leading-tight text-stone-950 sm:text-5xl lg:text-6xl">
                 Find quality cars in Mombasa without the usual friction.
               </h1>
-              <p className="mt-5 max-w-xl text-lg leading-8 text-stone-600">
+              <p className="max-w-xl text-base leading-7 text-stone-600 sm:text-lg sm:leading-8">
                 Used, imported, and traded-in vehicles presented with cleaner
                 detail, stronger trust signals, and quick ways to contact sales.
               </p>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button asChild className="h-12 min-w-44">
+                  <Link href="/inventory">
+                    Browse Inventory
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="secondary" className="h-12 min-w-44">
+                  <Link href="/inventory/imported">Explore Imported Units</Link>
+                </Button>
+              </div>
             </div>
 
-            <form
-              action="/inventory"
-              className="surface-card grid gap-4 rounded-[30px] border border-border bg-white/95 p-5 md:grid-cols-[1.3fr_repeat(3,1fr)_auto]"
+            <Card className="overflow-hidden rounded-[32px] border border-stone-900 bg-[linear-gradient(170deg,#1a150f,#0f0d09_60%)] p-4 sm:p-6">
+              <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[radial-gradient(circle_at_20%_20%,rgba(248,190,141,0.24),transparent_52%)] px-4 pt-6 sm:px-8 sm:pt-8">
+                {heroImage ? (
+                  <Image
+                    src={heroImage}
+                    alt={heroVehicle?.title || "Featured car"}
+                    width={1400}
+                    height={900}
+                    priority
+                    className="mx-auto h-auto max-h-[440px] w-full object-contain drop-shadow-[0_24px_40px_rgba(0,0,0,0.45)]"
+                  />
+                ) : (
+                  <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 rounded-[18px] border border-dashed border-white/30 bg-white/5 text-center text-white/80">
+                    <CarFront className="size-10 text-[#f8be8d]" />
+                    <p className="text-sm">
+                      Featured stock image will appear here.
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 rounded-[18px] border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/90">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/60">
+                  Hero vehicle
+                </p>
+                <p className="mt-1 line-clamp-1 font-semibold">
+                  {heroVehicle?.title || "Featured model updates daily"}
+                </p>
+              </div>
+            </Card>
+          </div>
+
+          <form
+            action="/inventory"
+            className="surface-card grid gap-3 rounded-[30px] border border-border bg-white/95 p-4 sm:gap-4 sm:p-5 md:grid-cols-[1.3fr_repeat(3,1fr)_auto]"
+          >
+            <input
+              name="q"
+              placeholder="Search by make, model, or keyword"
+              className="h-12 rounded-2xl border border-border px-4 text-sm outline-none"
+            />
+            <select
+              name="make"
+              className="h-12 rounded-2xl border border-border px-4 text-sm outline-none"
+              defaultValue=""
             >
-              <input
-                name="q"
-                placeholder="Search by make, model, or keyword"
-                className="h-12 rounded-2xl border border-border px-4 text-sm outline-none"
-              />
-              <select
-                name="make"
-                className="h-12 rounded-2xl border border-border px-4 text-sm outline-none"
-                defaultValue=""
-              >
-                <option value="">Any make</option>
-                <option value="Toyota">Toyota</option>
-                <option value="Land Rover">Land Rover</option>
-                <option value="Mazda">Mazda</option>
-                <option value="Subaru">Subaru</option>
-                <option value="Nissan">Nissan</option>
-                <option value="BMW">BMW</option>
-                <option value="Ford">Ford</option>
-              </select>
-              <select
-                name="category"
-                className="h-12 rounded-2xl border border-border px-4 text-sm outline-none"
-                defaultValue=""
-              >
-                <option value="">All categories</option>
-                <option value="used">Used</option>
-                <option value="new">New</option>
-                <option value="imported">Imported</option>
-                <option value="traded-in">Traded-in</option>
-              </select>
-              <select
-                name="sort"
-                className="h-12 rounded-2xl border border-border px-4 text-sm outline-none"
-                defaultValue="latest"
-              >
-                <option value="latest">Latest stock</option>
-                <option value="price-asc">Price: low to high</option>
-                <option value="price-desc">Price: high to low</option>
-              </select>
-              <Button type="submit" className="h-12">
-                Search Inventory
-              </Button>
-            </form>
+              <option value="">Any make</option>
+              <option value="Toyota">Toyota</option>
+              <option value="Land Rover">Land Rover</option>
+              <option value="Mazda">Mazda</option>
+              <option value="Subaru">Subaru</option>
+              <option value="Nissan">Nissan</option>
+              <option value="BMW">BMW</option>
+              <option value="Ford">Ford</option>
+            </select>
+            <select
+              name="category"
+              className="h-12 rounded-2xl border border-border px-4 text-sm outline-none"
+              defaultValue=""
+            >
+              <option value="">All categories</option>
+              <option value="used">Used</option>
+              <option value="new">New</option>
+              <option value="imported">Imported</option>
+              <option value="traded-in">Traded-in</option>
+            </select>
+            <select
+              name="sort"
+              className="h-12 rounded-2xl border border-border px-4 text-sm outline-none"
+              defaultValue="latest"
+            >
+              <option value="latest">Latest stock</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+            </select>
+            <Button type="submit" className="h-12">
+              Search Inventory
+            </Button>
+          </form>
 
-            <div className="grid gap-4 sm:grid-cols-4">
-              <Card className="rounded-[24px] p-5">
-                <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
-                  In stock
-                </p>
-                <p className="mt-3 text-3xl font-semibold text-stone-950">
-                  {homeStats.inStockCount}+
-                </p>
-              </Card>
-              <Card className="rounded-[24px] p-5">
-                <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
-                  Delivered
-                </p>
-                <p className="mt-3 text-3xl font-semibold text-stone-950">
-                  {homeStats.deliveredCount}+
-                </p>
-              </Card>
-              <Card className="rounded-[24px] p-5">
-                <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
-                  Finance partners
-                </p>
-                <p className="mt-3 text-3xl font-semibold text-stone-950">
-                  {homeStats.financePartners}
-                </p>
-              </Card>
-              <Card className="rounded-[24px] p-5">
-                <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
-                  Typical response
-                </p>
-                <p className="mt-3 text-3xl font-semibold text-stone-950">
-                  {homeStats.responseTime}
-                </p>
-              </Card>
-            </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card className="rounded-[24px] p-5">
+              <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+                In stock
+              </p>
+              <p className="mt-3 text-3xl font-semibold text-stone-950">
+                {homeStats.inStockCount}+
+              </p>
+            </Card>
+            <Card className="rounded-[24px] p-5">
+              <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+                Delivered
+              </p>
+              <p className="mt-3 text-3xl font-semibold text-stone-950">
+                {homeStats.deliveredCount}+
+              </p>
+            </Card>
+            <Card className="rounded-[24px] p-5">
+              <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+                Finance partners
+              </p>
+              <p className="mt-3 text-3xl font-semibold text-stone-950">
+                {homeStats.financePartners}
+              </p>
+            </Card>
+            <Card className="rounded-[24px] p-5">
+              <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+                Typical response
+              </p>
+              <p className="mt-3 text-3xl font-semibold text-stone-950">
+                {homeStats.responseTime}
+              </p>
+            </Card>
           </div>
 
           <Card className="rounded-[32px] border border-stone-900 bg-stone-950 p-8 text-white">
@@ -171,10 +221,11 @@ export default async function Home() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
-                  <CreditCard className="size-6 text-[#f8be8d]" />
-                  <p className="mt-4 font-semibold">Finance support</p>
+                  <Phone className="size-6 text-[#f8be8d]" />
+                  <p className="mt-4 font-semibold">Direct call support</p>
                   <p className="mt-2 text-sm text-stone-300">
-                    Short financing enquiries with fast follow-up.
+                    Sales lines stay open for same-day stock checks and viewing
+                    planning.
                   </p>
                 </div>
                 <div className="rounded-[24px] border border-white/10 bg-white/5 p-5">
@@ -185,18 +236,6 @@ export default async function Home() {
                   </p>
                 </div>
               </div>
-              <Button asChild variant="primary">
-                <a
-                  href={buildWhatsAppUrl(
-                    "Hi, I would like help choosing a vehicle.",
-                    siteConfig.whatsappNumber,
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  WhatsApp Sales
-                </a>
-              </Button>
             </div>
           </Card>
         </div>
@@ -207,7 +246,7 @@ export default async function Home() {
           <SectionHeading
             eyebrow="Quick paths"
             title="Browse the categories buyers ask about most"
-            description="The homepage keeps the top stock paths one tap away, so price-sensitive visitors can move into inventory fast."
+            description="Jump straight to used, imported, or traded-in stock and compare options in seconds."
           />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {categoryLinks.map((item) => (
@@ -323,7 +362,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section-shell pb-20">
+      <section className="section-shell pb-28 sm:pb-24">
         <div className="container-shell">
           <Card className="rounded-[34px] border border-stone-900 bg-stone-950 px-8 py-10 text-white">
             <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
@@ -356,6 +395,8 @@ export default async function Home() {
           </Card>
         </div>
       </section>
+
+      <FloatingWhatsAppButton whatsappUrl={homepageWhatsAppUrl} />
     </>
   );
 }
