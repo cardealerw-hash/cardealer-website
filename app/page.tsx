@@ -9,6 +9,10 @@ import {
 
 import { JsonLd } from "@/components/layout/json-ld";
 import { FloatingWhatsAppButton } from "@/components/marketing/floating-whatsapp-button";
+import {
+  HomeHeroVisual,
+  type HeroRailItem,
+} from "@/components/marketing/home-hero-visual";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -116,6 +120,20 @@ function mapVehicleToDeliveredCard(
   };
 }
 
+function mapVehicleToHeroRailItem(vehicle: Vehicle): HeroRailItem {
+  const displayTitle = getShowcaseTitle(vehicle);
+
+  return {
+    id: vehicle.id,
+    title: displayTitle.title,
+    year: displayTitle.year,
+    priceLabel: getShowcasePrice(vehicle.price),
+    imageUrl: vehicle.heroImageUrl || vehicle.images[0]?.imageUrl || null,
+    detailsUrl: buildVehicleUrl(vehicle),
+    stockLabel: getShowcaseStockLabel(vehicle),
+  };
+}
+
 function DeliveredVehicleCard({
   vehicle,
 }: {
@@ -177,6 +195,9 @@ export default async function Home() {
     (vehicle, index, vehicles) =>
       vehicles.findIndex((item) => item.id === vehicle.id) === index,
   );
+  const heroRailItems = featuredShowcaseVehicles
+    .slice(0, 4)
+    .map(mapVehicleToHeroRailItem);
   const deliveredShowcaseVehicles = collections.sold.length
     ? collections.sold
         .slice(0, 3)
@@ -216,18 +237,7 @@ export default async function Home() {
                 </p>
               </div>
 
-              <div className="relative flex min-h-[250px] items-center justify-center sm:min-h-[310px] lg:min-h-[450px]">
-                <div className="absolute inset-x-8 bottom-14 h-24 rounded-full bg-[radial-gradient(circle,_rgba(165,90,42,0.18)_0%,_rgba(165,90,42,0.03)_68%,_transparent_100%)] blur-3xl" />
-                <div className="absolute inset-x-16 bottom-10 h-10 rounded-full bg-stone-950/10 blur-2xl" />
-                <Image
-                  src="/carHero.png"
-                  alt="Toyota Land Cruiser Prado hero"
-                  width={1400}
-                  height={900}
-                  priority
-                  className="relative z-10 mx-auto w-full max-w-[640px] object-contain drop-shadow-[0_28px_34px_rgba(61,39,14,0.16)] lg:translate-x-6"
-                />
-              </div>
+              <HomeHeroVisual items={heroRailItems} />
             </div>
 
             <div className="relative z-20 mt-5 space-y-4 lg:-mt-12">
