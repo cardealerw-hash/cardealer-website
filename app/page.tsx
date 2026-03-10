@@ -17,7 +17,6 @@ import { siteConfig } from "@/lib/config/site";
 import {
   getAllVehicles,
   getHomepageCollections,
-  getLocations,
   getReviews,
 } from "@/lib/data/repository";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
@@ -160,10 +159,9 @@ function DeliveredVehicleCard({
 }
 
 export default async function Home() {
-  const [collections, reviews, locations, vehicles] = await Promise.all([
+  const [collections, reviews, vehicles] = await Promise.all([
     getHomepageCollections(),
     getReviews(),
-    getLocations(),
     getAllVehicles(),
   ]);
 
@@ -325,11 +323,21 @@ export default async function Home() {
         <section className="section-shell">
           <div className="container-shell space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <SectionHeading
-                eyebrow={collections.featured.length ? "Featured listings" : "Latest arrivals"}
-                title="Cars buyers can enquire about in one click"
-                description="Quickly browse vehicles ready for viewing in Mombasa. Tap View Details or contact us instantly on WhatsApp."
-              />
+              <div className="space-y-3">
+                <SectionHeading
+                  eyebrow={collections.featured.length ? "Featured listings" : "Latest arrivals"}
+                  title={collections.featured.length ? "Featured Cars Available Now" : "Latest Cars in Stock"}
+                  description="Quickly browse vehicles ready for viewing in Mombasa. Tap View Details or contact us instantly on WhatsApp."
+                />
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary">
+                    Updated daily
+                  </span>
+                  <span className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-stone-600">
+                    Latest arrivals this week
+                  </span>
+                </div>
+              </div>
               <Button asChild variant="secondary">
                 <Link href="/inventory">Browse all inventory</Link>
               </Button>
@@ -482,13 +490,13 @@ export default async function Home() {
         </section>
 
         <section className="section-shell bg-white/50">
-          <div className="container-shell grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-10">
+          <div className="container-shell space-y-8">
             <SectionHeading
               eyebrow="Testimonials"
               title="Trust-building copy stays close to the buyer journey"
               description="Reviews reinforce responsiveness, clarity, and confidence instead of chasing empty brand language."
             />
-            <div className="grid gap-5 md:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {reviews.map((review) => (
                 <Card key={review.id} className="rounded-[28px] p-6">
                   <p className="text-lg leading-8 text-stone-700">&quot;{review.quote}&quot;</p>
@@ -510,27 +518,27 @@ export default async function Home() {
               <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-400">
-                    Contact strip
+                    Next step
                   </p>
                   <h2 className="mt-4 display-font text-4xl">
-                    Ready to shortlist a vehicle or ask about availability?
+                    Ready to Find Your Next Car?
                   </h2>
                   <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-300">
-                    {locations[0]?.name || "Mombasa dealership"} is open during
-                    business hours, and WhatsApp support is available for fast
-                    inventory questions.
+                    Browse available inventory or speak with our team instantly.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <Button asChild>
-                    <Link href="/inventory">View Inventory</Link>
+                    <Link href="/inventory">Browse Cars</Link>
                   </Button>
                   <Button
                     asChild
-                    variant="secondary"
-                    className="border-white/20 bg-white/10 text-white hover:bg-white/20"
+                    className="bg-[#25d366] text-white shadow-[0_10px_24px_rgba(37,211,102,0.24)] hover:bg-[#1fb85a]"
                   >
-                    <Link href="/contact">Contact Sales</Link>
+                    <a href={homepageWhatsAppUrl} target="_blank" rel="noreferrer">
+                      <WhatsAppIcon className="size-4" />
+                      Chat on WhatsApp
+                    </a>
                   </Button>
                 </div>
               </div>
