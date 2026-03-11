@@ -57,7 +57,9 @@ export function SiteHeader() {
             {siteConfig.phoneDisplay}
           </a>
           <Button asChild size="sm">
-            <Link href="/inventory">View Inventory</Link>
+            <Link href="/inventory" style={{ color: "#ffffff" }}>
+              View Inventory
+            </Link>
           </Button>
         </div>
 

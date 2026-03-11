@@ -9,10 +9,6 @@ import {
 
 import { JsonLd } from "@/components/layout/json-ld";
 import { FloatingWhatsAppButton } from "@/components/marketing/floating-whatsapp-button";
-import {
-  HomeHeroVisual,
-  type HeroMobileItem,
-} from "@/components/marketing/home-hero-visual";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -59,7 +55,7 @@ const deliveredFallbackSeeds: DeliveredFallbackSeed[] = [
 ];
 
 const heroBackgroundImages = [
-  "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1772902438/1_rsugnm.jpg",
+  "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1773256508/mohammad-aqhib-5l2BnpBkAME-unsplash_op0aip.jpg",
   "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1772901994/3_x83v11.jpg",
   "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1772902428/4_mmphkh.jpg",
   "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1772901065/3_gae6fj.jpg",
@@ -127,17 +123,6 @@ function mapVehicleToDeliveredCard(
   };
 }
 
-function mapVehicleToHeroMobileItem(vehicle: Vehicle): HeroMobileItem {
-  const displayTitle = getShowcaseTitle(vehicle);
-
-  return {
-    title: displayTitle.title,
-    year: displayTitle.year,
-    priceLabel: getShowcasePrice(vehicle.price),
-    detailsUrl: buildVehicleUrl(vehicle),
-    stockLabel: getShowcaseStockLabel(vehicle),
-  };
-}
 
 function DeliveredVehicleCard({
   vehicle,
@@ -191,7 +176,7 @@ export default async function Home() {
 
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([{ name: "Home", path: "/" }]);
   const homepageWhatsAppUrl = buildWhatsAppUrl(
-    "Hi, I would like help choosing a vehicle.",
+    "Hi, I am ready to buy a car. Please share your best available options, prices, and the fastest next step on WhatsApp.",
     siteConfig.whatsappNumber,
   );
   const featuredShowcaseVehicles = [
@@ -201,123 +186,192 @@ export default async function Home() {
     (vehicle, index, vehicles) =>
       vehicles.findIndex((item) => item.id === vehicle.id) === index,
   );
-  const heroMobileItem = featuredShowcaseVehicles[0]
-    ? mapVehicleToHeroMobileItem(featuredShowcaseVehicles[0])
-    : null;
+
   const deliveredShowcaseVehicles = collections.sold.length
     ? collections.sold
-        .slice(0, 3)
-        .map((vehicle) => mapVehicleToDeliveredCard(vehicle, "Recently delivered"))
+      .slice(0, 3)
+      .map((vehicle) => mapVehicleToDeliveredCard(vehicle, "Recently delivered"))
     : deliveredFallbackSeeds
-        .map((item) => {
-          const matchedVehicle = vehicles.find(
-            (vehicle) => vehicle.slug === item.vehicleSlug,
-          );
-
-          return matchedVehicle
-            ? mapVehicleToDeliveredCard(matchedVehicle, item.deliveryLabel)
-            : null;
-        })
-        .filter(
-          (vehicle): vehicle is DeliveredVehicleCardData => vehicle !== null,
+      .map((item) => {
+        const matchedVehicle = vehicles.find(
+          (vehicle) => vehicle.slug === item.vehicleSlug,
         );
+
+        return matchedVehicle
+          ? mapVehicleToDeliveredCard(matchedVehicle, item.deliveryLabel)
+          : null;
+      })
+      .filter(
+        (vehicle): vehicle is DeliveredVehicleCardData => vehicle !== null,
+      );
 
   return (
     <>
       <JsonLd data={breadcrumbJsonLd} />
 
       <main className="homepage-flow">
-        <section className="section-shell">
-          <div className="container-shell">
-            <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-start lg:gap-9">
-              <div className="space-y-5 lg:space-y-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.34em] text-primary/80">
-                  Mombasa dealership
-                </p>
-                <h1 className="display-font max-w-2xl text-4xl leading-tight text-stone-950 sm:text-5xl lg:text-6xl">
-                  <span className="block">Browse Cars</span>
-                  <span className="block">Available in</span>
-                  <span className="block overflow-visible">
-                    M
-                    <span className="relative inline-block overflow-visible">
-                      <span className="pointer-events-none absolute inset-[-0.08em] hidden rounded-full border border-primary/10 bg-[radial-gradient(circle,rgba(214,202,188,0.28)_0%,rgba(214,202,188,0.12)_58%,transparent_76%)] lg:block" />
-                      <span className="relative z-10">o</span>
-                      <Image
-                        src="/carHero.png"
-                        alt=""
-                        width={900}
-                        height={580}
-                        sizes="33px"
-                        className="pointer-events-none absolute left-[-0.72em] top-[0.34em] hidden w-[1.18em] max-w-none object-contain drop-shadow-[0_12px_16px_rgba(20,15,11,0.22)] lg:block"
-                      />
-                      <span className="pointer-events-none absolute left-[-0.34em] top-[0.78em] hidden h-[0.1em] w-[0.78em] rounded-full bg-[radial-gradient(circle,rgba(28,22,17,0.18),rgba(28,22,17,0.05)_60%,transparent_100%)] blur-[0.15em] lg:block" />
-                    </span>
-                    mbasa Today.
-                  </span>
-                </h1>
-                <p className="max-w-[36rem] text-base leading-7 text-stone-600 sm:text-lg sm:leading-8">
-                  SUVs, sedans, and imported units ready for inspection. Compare
-                  vehicles, check details, and contact our team instantly.
-                </p>
-              </div>
+        <section className="relative flex min-h-[calc(100svh-5rem)] w-full flex-col justify-center overflow-hidden bg-black pb-8 pt-20 lg:min-h-[calc(100svh-5.5rem)] lg:pb-12 lg:pt-24">
+          {/* Immersive Background Environment */}
+          <div className="absolute inset-0 z-0">
+            <Image
+              src={heroBackgroundImages[0] ?? "/carHero.png"}
+              alt="Premium Dealership Vehicle Background"
+              fill
+              priority
+              quality={90}
+              className="object-cover object-center opacity-85 transition-transform duration-[30s] ease-out hover:scale-[1.05]"
+              sizes="100vw"
+            />
+            {/* Cinematic Gradient Overlays for Depth */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black z-10" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] z-10" />
+          </div>
 
-              <HomeHeroVisual
-                mobileItem={heroMobileItem}
-                backgroundImages={heroBackgroundImages}
-              />
+          <div className="container relative z-20 mx-auto flex w-full flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8 xl:max-w-7xl">
+            <div className="max-w-5xl space-y-5 animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-1000 sm:space-y-6">
+              <h1 className="text-balance text-4xl font-extrabold leading-[0.98] tracking-[-0.05em] text-white sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5rem]">
+                Find the Car <br className="hidden sm:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-stone-200 via-white to-stone-500">
+                  That Feels Right
+                </span>
+              </h1>
+
+              {/* Subheadline */}
+              <p className="mx-auto max-w-3xl text-base font-medium leading-7 text-stone-200 sm:text-lg sm:leading-8 md:text-xl">
+                The right car should feel exciting before the first drive. Start with a vehicle that fits your taste, your routine, and your next move in Mombasa.
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row sm:gap-4">
+                <Button
+                  asChild
+                  size="lg"
+                  className="group relative h-12 overflow-hidden rounded-full border border-[#d18a52] bg-[#c97937] px-7 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(201,121,55,0.34)] transition-all duration-300 hover:bg-[#b9682d] hover:shadow-[0_20px_44px_rgba(201,121,55,0.4)]"
+                >
+                  <Link
+                    href="/inventory"
+                    className="flex items-center gap-2"
+                    style={{ color: "#ffffff" }}
+                  >
+                    Compare Inventory
+                    <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  className="group h-12 rounded-full border border-white/30 bg-white/12 px-7 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(15,23,42,0.22)] backdrop-blur-md transition-all duration-300 hover:border-white/50 hover:bg-white/18"
+                >
+                  <a
+                    href={homepageWhatsAppUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2"
+                    style={{ color: "#ffffff" }}
+                  >
+                    <WhatsAppIcon className="size-5 text-[#25d366] transition-transform group-hover:scale-110 duration-300" />
+                    Get Price on WhatsApp
+                  </a>
+                </Button>
+              </div>
             </div>
 
-            <div className="relative z-20 mt-5 space-y-4 lg:-mt-12">
+            {/* Integrated Floating Search Bar (Glassmorphism) - Redesigned */}
+            <div className="surface-card relative mt-6 w-full max-w-5xl rounded-[2rem] border border-white/10 bg-white/5 p-2.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-150 sm:mt-8 sm:p-3.5">
               <form
                 action="/inventory"
-                className="surface-card grid gap-2 rounded-[28px] border border-white/70 bg-white/92 p-3 shadow-[0_22px_55px_rgba(61,39,14,0.1)] backdrop-blur sm:grid-cols-2 sm:gap-3 sm:p-4 xl:grid-cols-[1.25fr_repeat(3,minmax(0,0.82fr))_auto]"
+                className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_auto]"
               >
-                <input
-                  name="q"
-                  placeholder="Search Toyota, Prado, Land Cruiser..."
-                  className="h-11 rounded-2xl border border-border bg-white/80 px-4 text-sm outline-none transition-colors placeholder:text-stone-400 focus:border-primary/40"
-                />
-                <select
-                  name="make"
-                  className="h-11 rounded-2xl border border-border bg-white/80 px-4 text-sm outline-none transition-colors focus:border-primary/40"
-                  defaultValue=""
-                >
-                  <option value="">Any make</option>
-                  <option value="Toyota">Toyota</option>
-                  <option value="Land Rover">Land Rover</option>
-                  <option value="Mazda">Mazda</option>
-                  <option value="Subaru">Subaru</option>
-                  <option value="Nissan">Nissan</option>
-                  <option value="BMW">BMW</option>
-                  <option value="Ford">Ford</option>
-                </select>
-                <select
-                  name="category"
-                  className="h-11 rounded-2xl border border-border bg-white/80 px-4 text-sm outline-none transition-colors focus:border-primary/40"
-                  defaultValue=""
-                >
-                  <option value="">All categories</option>
-                  <option value="used">Used</option>
-                  <option value="new">New</option>
-                  <option value="imported">Imported</option>
-                  <option value="traded-in">Traded-in</option>
-                </select>
-                <select
-                  name="sort"
-                  className="h-11 rounded-2xl border border-border bg-white/80 px-4 text-sm outline-none transition-colors focus:border-primary/40"
-                  defaultValue="latest"
-                >
-                  <option value="latest">Latest stock</option>
-                  <option value="price-asc">Price: low to high</option>
-                  <option value="price-desc">Price: high to low</option>
-                </select>
+                <div className="relative flex items-center">
+                  <svg className="absolute left-4 h-5 w-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    name="q"
+                    placeholder="Search Make or Model..."
+                    className="h-12 w-full rounded-2xl border border-white/10 bg-white/5 pl-12 pr-4 text-sm text-white outline-none transition-all placeholder:text-stone-400 focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/20"
+                  />
+                </div>
+                <div className="relative flex items-center">
+                  <select
+                    name="make"
+                    className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm text-white outline-none transition-all focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/20 [&>option]:text-black"
+                    defaultValue=""
+                  >
+                    <option value="">Any Make</option>
+                    <option value="Toyota">Toyota</option>
+                    <option value="Land Rover">Land Rover</option>
+                    <option value="Mazda">Mazda</option>
+                    <option value="Subaru">Subaru</option>
+                    <option value="Nissan">Nissan</option>
+                    <option value="BMW">BMW</option>
+                    <option value="Ford">Ford</option>
+                  </select>
+                  <svg className="absolute right-4 h-4 w-4 pointer-events-none text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                <div className="relative flex items-center">
+                  <select
+                    name="category"
+                    className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm text-white outline-none transition-all focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/20 [&>option]:text-black"
+                    defaultValue=""
+                  >
+                    <option value="">All Conditions</option>
+                    <option value="used">Used</option>
+                    <option value="new">New</option>
+                    <option value="imported">Direct Import</option>
+                    <option value="traded-in">Traded-in</option>
+                  </select>
+                  <svg className="absolute right-4 h-4 w-4 pointer-events-none text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                <div className="relative flex items-center">
+                  <select
+                    name="sort"
+                    className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm text-white outline-none transition-all focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/20 [&>option]:text-black"
+                    defaultValue="latest"
+                  >
+                    <option value="latest">Latest Arrivals</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                  </select>
+                  <svg className="absolute right-4 h-4 w-4 pointer-events-none text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
                 <Button
                   type="submit"
-                  className="h-11 px-5 sm:col-span-2 xl:col-span-1"
+                  className="h-12 rounded-2xl border-none bg-white px-8 font-semibold text-stone-950 transition-all duration-300 hover:scale-[1.02] hover:bg-stone-200 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] sm:col-span-2 xl:col-span-1"
                 >
-                  Search Inventory
+                  Search
                 </Button>
               </form>
+            </div>
+
+            {/* Trust Anchor Bar */}
+            <div className="mt-6 grid w-full max-w-4xl grid-cols-2 gap-3 px-2 text-sm font-medium text-stone-300/80 animate-in fade-in duration-1000 delay-300 sm:px-0 md:grid-cols-4">
+              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-colors hover:bg-white/10">
+                <CircleGauge className="size-6 text-stone-400" />
+                <span className="text-center">Low-Mileage Imports</span>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-colors hover:bg-white/10">
+                <Cog className="size-6 text-stone-400" />
+                <span className="text-center">Fully Inspected</span>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-colors hover:bg-white/10">
+                <svg className="size-6 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span className="text-center">Warranty Included</span>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-colors hover:bg-white/10">
+                <Fuel className="size-6 text-stone-400" />
+                <span className="text-center">Flexible Financing</span>
+              </div>
             </div>
 
           </div>
@@ -328,21 +382,25 @@ export default async function Home() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-3">
                 <SectionHeading
-                  eyebrow={collections.featured.length ? "Featured listings" : "Latest arrivals"}
-                  title={collections.featured.length ? "Featured Cars Available Now" : "Latest Cars in Stock"}
-                  description="Quickly browse vehicles ready for viewing in Mombasa. Tap View Details or contact us instantly on WhatsApp."
+                  eyebrow="Inventory"
+                  title={
+                    collections.featured.length
+                      ? "Compare Cars With Clear Prices and Specs"
+                      : "Latest Cars With Clear Prices and Specs"
+                  }
+                  description="Use price, mileage, transmission, fuel type, and condition to shortlist quickly, then open the full details only when a car makes rational sense."
                 />
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary">
                     Updated daily
                   </span>
                   <span className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-stone-600">
-                    Latest arrivals this week
+                    Price + spec snapshots
                   </span>
                 </div>
               </div>
               <Button asChild variant="secondary">
-                <Link href="/inventory">Browse all inventory</Link>
+                <Link href="/inventory">Review Full Inventory</Link>
               </Button>
             </div>
 
@@ -353,7 +411,7 @@ export default async function Home() {
                     vehicle.heroImageUrl || vehicle.images[0]?.imageUrl || null;
                   const detailsUrl = buildVehicleUrl(vehicle);
                   const whatsappUrl = buildWhatsAppUrl(
-                    `Hi, I am interested in the ${vehicle.title}. Please share availability, price, and viewing options.`,
+                    `Hi, I am ready to move on the ${vehicle.title}. Please confirm availability, best price, and the next step to reserve it.`,
                     siteConfig.whatsappNumber,
                   );
                   const displayTitle = getShowcaseTitle(vehicle);
@@ -431,7 +489,7 @@ export default async function Home() {
                             href={whatsappUrl}
                             target="_blank"
                             rel="noreferrer"
-                            aria-label={`WhatsApp about ${vehicle.title}`}
+                            aria-label={`Get price on WhatsApp for ${vehicle.title}`}
                             className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25d366] text-white shadow-[0_8px_18px_rgba(37,211,102,0.22)] transition-colors hover:bg-[#1fb85a]"
                           >
                             <WhatsAppIcon className="size-4.5" />
@@ -525,15 +583,15 @@ export default async function Home() {
                     Next step
                   </p>
                   <h2 className="mt-4 display-font text-4xl">
-                    Ready to Find Your Next Car?
+                    Shortlist With Logic. Close on WhatsApp.
                   </h2>
                   <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-300">
-                    Browse available inventory or speak with our team instantly.
+                    Review inventory first, then message us when you want availability, financing guidance, or the fastest route to reserve the right car.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <Button asChild>
-                    <Link href="/inventory">Browse Cars</Link>
+                    <Link href="/inventory">Review Inventory</Link>
                   </Button>
                   <Button
                     asChild
@@ -541,7 +599,7 @@ export default async function Home() {
                   >
                     <a href={homepageWhatsAppUrl} target="_blank" rel="noreferrer">
                       <WhatsAppIcon className="size-4" />
-                      Chat on WhatsApp
+                      Reserve on WhatsApp
                     </a>
                   </Button>
                 </div>
@@ -551,7 +609,10 @@ export default async function Home() {
         </section>
       </main>
 
-      <FloatingWhatsAppButton whatsappUrl={homepageWhatsAppUrl} />
+      <FloatingWhatsAppButton
+        whatsappUrl={homepageWhatsAppUrl}
+        label="Get Price on WhatsApp"
+      />
     </>
   );
 }
