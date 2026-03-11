@@ -135,38 +135,44 @@ function DeliveredVehicleCard({
   vehicle: DeliveredVehicleCardData;
 }) {
   return (
-    <Card className="group overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-[0_4px_20px_rgba(28,25,23,0.04)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(28,25,23,0.08)]">
-      <div className="relative aspect-[4/3] overflow-hidden bg-stone-200">
-        {vehicle.imageUrl ? (
-          <Image
-            src={vehicle.imageUrl}
-            alt={`${vehicle.year} ${vehicle.title}`}
-            fill
-            sizes="(min-width: 1280px) 194px, (min-width: 768px) 30vw, 100vw"
-            className="object-cover transition-transform duration-500 hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#f5f5f4,white)] px-6 text-center text-sm leading-7 text-stone-500">
-            Photo coming soon
-          </div>
-        )}
-        <div className="absolute left-4 top-4 rounded-full bg-[#10b981]/95 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_8px_20px_rgba(16,185,129,0.22)] backdrop-blur-sm">
-          Delivered
+    <Card className="group relative aspect-[4/5] overflow-hidden rounded-[24px] border border-stone-200/50 bg-stone-900 shadow-[0_4px_20px_rgba(28,25,23,0.06)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(28,25,23,0.12)] sm:aspect-[4/3] lg:aspect-[4/5] xl:aspect-[4/4]">
+      {vehicle.imageUrl ? (
+        <Image
+          src={vehicle.imageUrl}
+          alt={`Delivered ${vehicle.title}`}
+          fill
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+        />
+      ) : (
+        <div className="flex h-full items-center justify-center p-6 text-center text-sm font-medium text-stone-500">
+          Photo coming soon
         </div>
+      )}
+
+      {/* Premium dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-opacity duration-300 group-hover:opacity-90" />
+
+      {/* Delivered Badge */}
+      <div className="absolute left-4 top-4 rounded-md bg-[#10b981] px-2.5 py-1 text-[0.62rem] font-black uppercase tracking-[0.2em] text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)] backdrop-blur-md">
+        Delivered
       </div>
 
-      <div className="space-y-4 p-5 sm:p-6">
-        <div className="space-y-2">
-          <h3 className="text-lg font-bold leading-tight text-stone-950 sm:text-xl">
-            {vehicle.title}
-          </h3>
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-stone-500">
+      {/* Content blocked at bottom */}
+      <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-5">
+        <div className="mb-3">
+          <p className="mb-1 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-stone-300/80">
             {vehicle.year}
           </p>
+          <h3 className="text-[1.15rem] font-bold leading-tight text-white sm:text-[1.25rem]">
+            {vehicle.title}
+          </h3>
         </div>
-        <p className="border-t border-stone-100 pt-4 text-sm font-semibold text-[#0f8b63]">
-          {vehicle.deliveryLabel}
-        </p>
+        <div className="border-t border-white/10 pt-3">
+          <p className="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-[#4ade80]">
+            {vehicle.deliveryLabel}
+          </p>
+        </div>
       </div>
     </Card>
   );
@@ -444,7 +450,7 @@ export default async function Home() {
                   <p className="mt-0.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-stone-500">Direct Imports</p>
                 </div>
               </div>
-              
+
               <div className="group flex items-center justify-start gap-4 rounded-[1.25rem] bg-white p-5 shadow-[0_4px_20px_rgba(28,25,23,0.03)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(28,25,23,0.08)]">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors duration-300 group-hover:bg-primary/10 group-hover:text-primary">
                   <Cog className="size-5" />
@@ -491,14 +497,14 @@ export default async function Home() {
                       ? "Cars Available Now in Mombasa"
                       : "Available Vehicles"
                   }
-                  description="See price, mileage, transmission, fuel type, and condition at a glance before you open the full details or start a WhatsApp conversation."
+                  description="Compare price, mileage, and specs before opening a vehicle."
                 />
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-primary">
                     Updated daily
                   </span>
                   <span className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-stone-600">
-                    Price + spec snapshots
+                    Verified Listings
                   </span>
                 </div>
               </div>
@@ -522,87 +528,82 @@ export default async function Home() {
                   return (
                     <article
                       key={vehicle.id}
-                      className="flex h-full flex-col rounded-[20px] border border-stone-200 bg-white p-2.5 shadow-[0_10px_24px_rgba(28,25,23,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(0,0,0,0.1)]"
+                      className="group flex h-full flex-col overflow-hidden rounded-[24px] border border-stone-200 bg-white shadow-[0_4px_20px_rgba(28,25,23,0.04)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_16px_40px_rgba(28,25,23,0.08)]"
                     >
-                      <div className="relative aspect-[4/3] overflow-hidden rounded-[16px] border border-stone-200 bg-stone-200">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
                         {primaryImage ? (
                           <Image
                             src={primaryImage}
                             alt={vehicle.title}
                             fill
                             sizes="(min-width: 1280px) 353px, (min-width: 768px) 50vw, 100vw"
-                            className="object-cover transition-transform duration-500 hover:scale-[1.03]"
+                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
                           />
                         ) : (
-                          <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#ece7df,#f8f5ef)] px-6 text-center text-sm font-medium text-stone-500">
-                            Gallery coming soon for {vehicle.stockCode}
+                          <div className="flex h-full items-center justify-center px-6 text-center text-sm font-medium text-stone-400">
+                            Gallery coming soon
                           </div>
                         )}
 
-                        <div className="absolute inset-x-0 inset-y-0 bg-gradient-to-t from-black/75 via-black/12 to-black/5" />
-
-                        <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-                          <span className="rounded-full bg-stone-900/84 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white shadow-[0_8px_20px_rgba(28,25,23,0.24)] backdrop-blur-sm">
+                        <div className="absolute left-4 top-4">
+                          <span className="rounded-full bg-stone-900/90 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)] backdrop-blur-md">
                             {getShowcaseStockLabel(vehicle)}
                           </span>
                         </div>
-
-                        <div className="absolute inset-x-0 bottom-0 p-4">
-                          <div className="flex items-end justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-white/78">
-                                {displayTitle.year}
-                              </p>
-                              <h3 className="mt-2 text-[1.05rem] font-bold leading-tight text-white [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden sm:text-[1.12rem]">
-                                {displayTitle.title}
-                              </h3>
-                            </div>
-                            <p className="shrink-0 rounded-full bg-white/92 px-3 py-1.5 text-sm font-bold text-stone-950 shadow-[0_8px_18px_rgba(15,23,42,0.22)]">
-                              {getShowcasePrice(vehicle.price)}
-                            </p>
-                          </div>
-                        </div>
                       </div>
 
-                      <div className="flex flex-1 flex-col gap-3 px-1 pb-1 pt-3">
-                        <div className="flex flex-wrap gap-2 text-[0.82rem] font-medium text-stone-700">
-                          <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5">
-                            <CircleGauge className="size-3.5 shrink-0 text-stone-500" />
-                            <span className="truncate">{getShowcaseEngineLabel(vehicle)}</span>
-                          </span>
-                          <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5">
-                            <Cog className="size-3.5 shrink-0 text-stone-500" />
-                            <span className="truncate">{vehicle.transmission}</span>
-                          </span>
-                          <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5">
-                            <Fuel className="size-3.5 shrink-0 text-stone-500" />
-                            <span className="truncate">{vehicle.fuelType}</span>
-                          </span>
+                      <div className="flex flex-1 flex-col p-5 sm:p-6">
+                        <div className="mb-4 flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-[0.75rem] font-bold uppercase tracking-[0.2em] text-stone-500">
+                              {displayTitle.year}
+                            </p>
+                            <h3 className="mt-1 text-lg font-bold leading-tight text-stone-950 sm:text-xl line-clamp-2">
+                              {displayTitle.title}
+                            </h3>
+                          </div>
+                          <p className="shrink-0 text-right text-lg font-black text-primary sm:text-xl">
+                            {getShowcasePrice(vehicle.price)}
+                          </p>
                         </div>
 
-                        <div className="mt-auto flex items-center gap-2 pt-0.5">
+                        <div className="mb-6 grid grid-cols-3 gap-2 border-t border-stone-100 pt-5 text-sm font-medium text-stone-600">
+                          <div className="flex flex-col items-center gap-1.5 text-center">
+                            <CircleGauge className="size-4 text-stone-400" />
+                            <span className="text-[0.75rem] leading-tight truncate w-full">{getShowcaseEngineLabel(vehicle)}</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1.5 text-center border-l border-stone-100">
+                            <Cog className="size-4 text-stone-400" />
+                            <span className="text-[0.75rem] leading-tight truncate w-full">{vehicle.transmission}</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1.5 text-center border-l border-stone-100">
+                            <Fuel className="size-4 text-stone-400" />
+                            <span className="text-[0.75rem] leading-tight truncate w-full">{vehicle.fuelType}</span>
+                          </div>
+                        </div>
+
+                        <div className="mt-auto grid grid-cols-[1fr_auto_auto] gap-2">
                           <Link
                             href={detailsUrl}
-                            className="inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_10px_20px_rgba(165,90,42,0.22)] transition-colors hover:bg-[#8c4922]"
+                            className="inline-flex h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-[0.85rem] font-semibold !text-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-colors hover:bg-stone-800 hover:!text-white"
                           >
                             View Details
                           </Link>
-
                           <a
                             href={whatsappUrl}
                             target="_blank"
                             rel="noreferrer"
                             aria-label={`Get price on WhatsApp for ${vehicle.title}`}
-                            className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25d366] text-white shadow-[0_8px_18px_rgba(37,211,102,0.22)] transition-colors hover:bg-[#1fb85a]"
+                            className="inline-flex size-11 items-center justify-center rounded-xl bg-[#25d366]/10 text-[#25d366] transition-colors hover:bg-[#25d366] hover:text-white"
                           >
-                            <WhatsAppIcon className="size-4.5" />
+                            <WhatsAppIcon className="size-5" />
                           </a>
                           <a
                             href={siteConfig.phoneHref}
                             aria-label={`Call sales about ${vehicle.title}`}
-                            className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-stone-300 bg-white text-stone-700 transition-colors hover:bg-stone-100"
+                            className="inline-flex size-11 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition-colors hover:bg-stone-50"
                           >
-                            <Phone className="size-4" />
+                            <Phone className="size-[1.1rem]" />
                           </a>
                         </div>
                       </div>
@@ -655,7 +656,7 @@ export default async function Home() {
         </section>
 
         <section className="section-shell">
-          <div className="container-shell grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:gap-12 xl:gap-14">
+          <div className="container-shell grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16 xl:gap-20">
             <div className="max-w-[420px]">
               <SectionHeading
                 eyebrow="Delivered units"

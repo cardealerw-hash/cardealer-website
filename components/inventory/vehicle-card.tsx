@@ -75,7 +75,7 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
           {vehicle.location?.name || "Mombasa"}
         </div>
 
-        <Button asChild className="w-full">
+        <Button asChild className="w-full !text-white hover:!text-white">
           <Link href={`/cars/${vehicle.slug}`}>
             View Details
             <ArrowRight className="size-4" />
