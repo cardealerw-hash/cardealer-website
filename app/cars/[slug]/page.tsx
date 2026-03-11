@@ -152,15 +152,17 @@ export default async function VehicleDetailPage({
       <JsonLd data={vehicleJsonLd} />
       <section className="section-shell pb-28">
         <div className="container-shell space-y-10">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <VehicleGallery
-              key={vehicle.id}
-              images={vehicle.images}
-              heroImageUrl={vehicle.heroImageUrl}
-              title={vehicle.title}
-            />
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <div className="min-w-0">
+              <VehicleGallery
+                key={vehicle.id}
+                images={vehicle.images}
+                heroImageUrl={vehicle.heroImageUrl}
+                title={vehicle.title}
+              />
+            </div>
 
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               <div className="flex flex-wrap gap-2">
                 {detailBadges.map((badge) => (
                   <Badge key={badge.label} variant={badge.variant}>
@@ -198,7 +200,7 @@ export default async function VehicleDetailPage({
                 <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
                   Today&apos;s price
                 </p>
-                <p className="mt-3 text-5xl font-black tracking-[-0.04em] text-stone-950 sm:text-6xl">
+                <p className="mt-3 text-[clamp(2.9rem,6vw,5.25rem)] font-black leading-none tracking-[-0.04em] text-stone-950">
                   {formatCurrency(vehicle.price)}
                 </p>
                 <p className="mt-3 text-sm text-stone-600">
@@ -250,8 +252,8 @@ export default async function VehicleDetailPage({
             </div>
           </div>
 
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="space-y-10">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <div className="min-w-0 space-y-10">
               <Card className="rounded-[28px] p-8">
                 <h2 className="text-2xl font-semibold text-stone-950">
                   Core specifications
@@ -289,7 +291,7 @@ export default async function VehicleDetailPage({
               ) : null}
             </div>
 
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               <div id="contact-panel">
                 <VehicleEnquiryForm
                   vehicleId={vehicle.id}
