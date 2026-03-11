@@ -67,8 +67,8 @@ function getGalleryImageUrl(
   variant: "hero" | "thumb",
 ) {
   return buildCloudinaryTransformedUrl(image.imageUrl, {
-    width: variant === "hero" ? 1600 : 320,
-    height: variant === "hero" ? 1100 : 240,
+    width: variant === "hero" ? 1600 : 360,
+    height: variant === "hero" ? 1200 : 270,
     crop: "fill",
     gravity: "auto",
   });
@@ -106,7 +106,7 @@ export function VehicleGallery({
   return (
     <div className="space-y-4">
       <div className="relative overflow-hidden rounded-[32px] border border-border bg-white">
-        <div className="relative aspect-[16/11] overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden">
           <Image
             src={primaryImage}
             alt={getGalleryAltText(activeImage, activeIndex, title)}
@@ -154,13 +154,13 @@ export function VehicleGallery({
       </div>
 
       {galleryImages.length > 1 ? (
-        <div className="hide-scrollbar flex gap-3 overflow-x-auto pb-1">
+        <div className="hide-scrollbar flex gap-4 overflow-x-auto px-1 pb-2">
           {galleryImages.map((image, index) => (
             <button
               key={image.id}
               type="button"
               className={cn(
-                "relative aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-2xl border bg-white transition-all",
+                "relative aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-2xl border bg-white transition-all",
                 activeImage?.id === image.id
                   ? "border-primary ring-2 ring-primary/20"
                   : "border-border hover:border-stone-300",

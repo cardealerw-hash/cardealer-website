@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { CircleGauge, Cog, Fuel } from "lucide-react";
 
-import { formatCurrency, formatMileage } from "@/lib/utils";
 import { getCategorySummary } from "@/lib/data/filters";
+import { formatCurrency, formatMileage } from "@/lib/utils";
 import type { Vehicle } from "@/types/dealership";
 
 export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
@@ -26,22 +26,21 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
           </div>
         )}
 
-        {/* Badges Overlay */}
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           {vehicle.featured ? (
-             <span className="rounded-full bg-stone-900/90 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)] backdrop-blur-md">
-                Featured
-             </span>
+            <span className="rounded-full bg-stone-900/90 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)] backdrop-blur-md">
+              Featured
+            </span>
           ) : null}
           {vehicle.negotiable ? (
-             <span className="rounded-full bg-stone-900/90 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-stone-200 shadow-[0_4px_12px_rgba(0,0,0,0.15)] backdrop-blur-md">
-                Negotiable
-             </span>
+            <span className="rounded-full bg-stone-900/90 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-stone-200 shadow-[0_4px_12px_rgba(0,0,0,0.15)] backdrop-blur-md">
+              Negotiable
+            </span>
           ) : null}
           {vehicle.status === "sold" ? (
-             <span className="rounded-full bg-[#10b981]/95 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)] backdrop-blur-md">
-                Sold
-             </span>
+            <span className="rounded-full bg-[#10b981]/95 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)] backdrop-blur-md">
+              Sold
+            </span>
           ) : null}
         </div>
       </div>
@@ -50,33 +49,33 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[0.75rem] font-bold uppercase tracking-[0.2em] text-stone-500">
-              {vehicle.year} • {getCategorySummary(vehicle)}
+              {vehicle.year} - {getCategorySummary(vehicle)}
             </p>
-            <h3 className="mt-1 text-lg font-bold leading-tight text-stone-950 sm:text-xl line-clamp-2">
+            <h3 className="mt-1 line-clamp-2 text-lg font-bold leading-tight text-stone-950 sm:text-xl">
               {vehicle.title}
             </h3>
           </div>
-          <p className="shrink-0 text-right text-lg font-black text-primary sm:text-xl">
-             {formatCurrency(vehicle.price)}
+          <p className="shrink-0 text-right text-lg font-black text-stone-950 sm:text-xl">
+            {formatCurrency(vehicle.price)}
           </p>
         </div>
 
         <div className="mb-6 grid grid-cols-3 gap-2 border-t border-stone-100 pt-5 text-sm font-medium text-stone-600">
           <div className="flex flex-col items-center gap-1.5 text-center">
             <CircleGauge className="size-4 text-stone-400" />
-            <span className="text-[0.75rem] leading-tight truncate w-full">
+            <span className="w-full truncate text-[0.75rem] leading-tight">
               {vehicle.mileage > 0 ? formatMileage(vehicle.mileage) : "0 km"}
             </span>
           </div>
-          <div className="flex flex-col items-center gap-1.5 text-center border-l border-stone-100">
+          <div className="flex flex-col items-center gap-1.5 border-l border-stone-100 text-center">
             <Cog className="size-4 text-stone-400" />
-            <span className="text-[0.75rem] leading-tight truncate w-full">
+            <span className="w-full truncate text-[0.75rem] leading-tight">
               {vehicle.transmission}
             </span>
           </div>
-          <div className="flex flex-col items-center gap-1.5 text-center border-l border-stone-100">
+          <div className="flex flex-col items-center gap-1.5 border-l border-stone-100 text-center">
             <Fuel className="size-4 text-stone-400" />
-            <span className="text-[0.75rem] leading-tight truncate w-full">
+            <span className="w-full truncate text-[0.75rem] leading-tight">
               {vehicle.fuelType}
             </span>
           </div>

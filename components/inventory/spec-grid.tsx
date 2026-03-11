@@ -13,13 +13,18 @@ export function SpecGrid({ vehicle }: { vehicle: Vehicle }) {
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-2">
       {specs.map((spec) => (
-        <div key={spec.label} className="rounded-3xl border border-border bg-stone-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+        <div
+          key={spec.label}
+          className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4"
+        >
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-stone-500">
             {spec.label}
           </p>
-          <p className="mt-2 text-sm font-medium text-stone-900">{spec.value}</p>
+          <p className="mt-2 text-lg font-semibold tracking-[-0.02em] text-stone-950">
+            {spec.value}
+          </p>
         </div>
       ))}
     </div>

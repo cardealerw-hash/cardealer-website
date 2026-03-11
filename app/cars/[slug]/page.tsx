@@ -4,8 +4,7 @@ import { MapPin, Phone } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { JsonLd } from "@/components/layout/json-ld";
-import { LeadCaptureForm } from "@/components/forms/lead-capture-form";
-import { TestDriveForm } from "@/components/forms/test-drive-form";
+import { VehicleEnquiryForm } from "@/components/forms/vehicle-enquiry-form";
 import { MobileCtaBar } from "@/components/inventory/mobile-cta-bar";
 import { SpecGrid } from "@/components/inventory/spec-grid";
 import { VehicleCard } from "@/components/inventory/vehicle-card";
@@ -24,7 +23,12 @@ import {
   buildMetadata,
   buildVehicleJsonLd,
 } from "@/lib/seo";
-import { buildWhatsAppUrl, formatCurrency, formatMileage } from "@/lib/utils";
+import {
+  buildWhatsAppUrl,
+  formatCurrency,
+  formatMileage,
+  humanizeStockCategory,
+} from "@/lib/utils";
 
 function buildQuickFacts(vehicle: NonNullable<Awaited<ReturnType<typeof getVehicleBySlug>>>) {
   return [
@@ -52,6 +56,38 @@ function buildBuyerSummary(
       : "Ask sales for current pricing, finance guidance, and the fastest next step.",
     `Reference stock code ${vehicle.stockCode} when you call or message for faster assistance.`,
   ];
+}
+
+function buildDetailBadges(
+  vehicle: NonNullable<Awaited<ReturnType<typeof getVehicleBySlug>>>,
+) {
+  const stockLabel = (() => {
+    switch (vehicle.stockCategory) {
+      case "available_for_importation":
+        return "Available to import";
+      case "traded_in":
+        return "Traded-in unit";
+      default:
+        return `${humanizeStockCategory(vehicle.stockCategory)} stock`;
+    }
+  })();
+
+  return [
+    vehicle.featured
+      ? { label: "Featured", variant: "muted" as const }
+      : null,
+    vehicle.negotiable
+      ? { label: "Negotiable", variant: "accent" as const }
+      : null,
+    { label: stockLabel, variant: "default" as const },
+  ].filter(
+    (
+      value,
+    ): value is {
+      label: string;
+      variant: "default" | "accent" | "muted";
+    } => Boolean(value),
+  );
 }
 
 export async function generateMetadata({
@@ -107,6 +143,8 @@ export default async function VehicleDetailPage({
   const photoCount = vehicle.images.length || (vehicle.heroImageUrl ? 1 : 0);
   const quickFacts = buildQuickFacts(vehicle);
   const buyerSummary = buildBuyerSummary(vehicle, photoCount);
+  const detailBadges = buildDetailBadges(vehicle);
+  const baseVehiclePath = `/cars/${vehicle.slug}`;
 
   return (
     <>
@@ -124,13 +162,11 @@ export default async function VehicleDetailPage({
 
             <div className="space-y-6">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="default">
-                  {vehicle.stockCategory.replaceAll("_", " ")}
-                </Badge>
-                {vehicle.negotiable ? (
-                  <Badge variant="accent">Negotiable</Badge>
-                ) : null}
-                {vehicle.featured ? <Badge variant="muted">Featured</Badge> : null}
+                {detailBadges.map((badge) => (
+                  <Badge key={badge.label} variant={badge.variant}>
+                    {badge.label}
+                  </Badge>
+                ))}
               </div>
 
               <div>
@@ -158,33 +194,37 @@ export default async function VehicleDetailPage({
                 </div>
               </div>
 
-              <Card className="rounded-[28px] p-6">
+              <Card className="rounded-[28px] border-stone-200 bg-[linear-gradient(180deg,#fffaf5_0%,#ffffff_100%)] p-7 shadow-[0_18px_40px_rgba(41,26,7,0.08)]">
                 <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
                   Today&apos;s price
                 </p>
-                <p className="mt-3 text-4xl font-bold text-stone-950">
+                <p className="mt-3 text-5xl font-black tracking-[-0.04em] text-stone-950 sm:text-6xl">
                   {formatCurrency(vehicle.price)}
                 </p>
                 <p className="mt-3 text-sm text-stone-600">
-                  Price reflects current stock positioning. Use the primary CTAs
-                  below for negotiation, financing questions, or viewing
-                  confirmation.
+                  The fastest path is WhatsApp. Use the secondary actions only if
+                  you already know the next step you want.
                 </p>
                 <div className="mt-6 grid gap-3">
-                  <Button asChild className="w-full">
-                    <a href="#quote-form">Get Today&apos;s Price</a>
-                  </Button>
-                  <Button asChild variant="secondary" className="w-full">
-                    <a href="#test-drive-form">Book Test Drive / Viewing</a>
-                  </Button>
-                  <Button asChild variant="dark" className="w-full">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full shadow-[0_18px_40px_rgba(185,106,43,0.28)]"
+                  >
                     <a href={whatsappUrl} target="_blank" rel="noreferrer">
                       <WhatsAppIcon className="size-4" />
                       WhatsApp This Car
                     </a>
                   </Button>
+                  <Button asChild variant="dark" className="w-full">
+                    <Link href={`${baseVehiclePath}?intent=viewing#contact-panel`}>
+                      Book Test Drive / Viewing
+                    </Link>
+                  </Button>
                   <Button asChild variant="secondary" className="w-full">
-                    <Link href={`/financing?vehicle=${vehicle.slug}`}>
+                    <Link
+                      href={`${baseVehiclePath}?intent=financing#contact-panel`}
+                    >
                       Ask About Financing
                     </Link>
                   </Button>
@@ -240,7 +280,7 @@ export default async function VehicleDetailPage({
                   <h2 className="text-2xl font-semibold text-stone-950">
                     Similar vehicles
                   </h2>
-                  <div className="grid gap-6 lg:grid-cols-3">
+                  <div className="grid gap-8 lg:grid-cols-3">
                     {similarVehicles.map((item) => (
                       <VehicleCard key={item.id} vehicle={item} />
                     ))}
@@ -250,19 +290,8 @@ export default async function VehicleDetailPage({
             </div>
 
             <div className="space-y-6">
-              <div id="quote-form">
-                <LeadCaptureForm
-                  title="Get today's price"
-                  description="Ask about availability, negotiation, and current deal terms for this vehicle."
-                  leadType="quote"
-                  source="Vehicle detail page"
-                  vehicleId={vehicle.id}
-                  vehicleTitle={vehicle.title}
-                  submitLabel="Request Quote"
-                />
-              </div>
-              <div id="test-drive-form">
-                <TestDriveForm
+              <div id="contact-panel">
+                <VehicleEnquiryForm
                   vehicleId={vehicle.id}
                   vehicleTitle={vehicle.title}
                   source="Vehicle detail page"
