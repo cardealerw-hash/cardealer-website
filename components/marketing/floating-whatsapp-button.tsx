@@ -34,13 +34,13 @@ export function FloatingWhatsAppButton({
       target="_blank"
       rel="noreferrer"
       aria-label={label}
-      className={`fixed bottom-6 right-6 z-50 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#25D366] px-4 text-[0.82rem] font-bold text-white shadow-[0_8px_20px_rgba(20,75,44,0.25)] transition-all duration-300 hover:scale-[1.03] hover:bg-[#1fb85a] ${
+      className={`fixed bottom-6 right-6 z-50 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[#25D366] px-3.5 text-[0.78rem] font-bold text-white shadow-[0_8px_18px_rgba(20,75,44,0.18)] transition-all duration-300 hover:scale-[1.03] hover:bg-[#1fb85a] ${
         isVisible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-4 opacity-0"
       }`}
     >
-      <WhatsAppIcon className="size-5 shrink-0" />
+      <WhatsAppIcon className="size-4.5 shrink-0" />
       <span className="hidden sm:inline">{label}</span>
     </a>
   );

@@ -155,16 +155,16 @@ function DeliveredVehicleCard({
         </div>
       </div>
 
-      <div className="space-y-3 p-5">
-        <div>
+      <div className="space-y-4 p-5 sm:p-6">
+        <div className="space-y-2">
           <h3 className="text-lg font-bold leading-tight text-stone-950 sm:text-xl">
             {vehicle.title}
           </h3>
-          <p className="mt-1 text-sm font-medium uppercase tracking-[0.2em] text-stone-500">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-stone-500">
             {vehicle.year}
           </p>
         </div>
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#10b981] pt-1 border-t border-stone-100">
+        <p className="border-t border-stone-100 pt-4 text-sm font-semibold text-[#0f8b63]">
           {vehicle.deliveryLabel}
         </p>
       </div>
@@ -195,7 +195,9 @@ export default async function Home() {
   const deliveredShowcaseVehicles = collections.sold.length
     ? collections.sold
       .slice(0, 3)
-      .map((vehicle) => mapVehicleToDeliveredCard(vehicle, "Recently delivered"))
+      .map((vehicle) =>
+        mapVehicleToDeliveredCard(vehicle, "Recently delivered in Mombasa"),
+      )
     : deliveredFallbackSeeds
       .map((item) => {
         const matchedVehicle = vehicles.find(
@@ -591,9 +593,9 @@ export default async function Home() {
 
         <section className="section-shell bg-stone-50/50">
           <div className="container-shell grid gap-6 lg:grid-cols-2">
-            <Card className="group flex flex-col justify-between rounded-[30px] p-7 sm:p-9 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(0,0,0,0.06)]">
-              <div>
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Card className="group flex h-full flex-col justify-between rounded-[30px] border border-stone-200 p-7 shadow-[0_8px_26px_rgba(28,25,23,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#e5d3c7] hover:shadow-[0_16px_36px_rgba(28,25,23,0.09)] sm:p-9">
+              <div className="flex flex-1 flex-col">
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F3E9E2] text-primary">
                   <Landmark className="size-6" />
                 </div>
                 <SectionHeading
@@ -602,16 +604,16 @@ export default async function Home() {
                   description="Ask about deposit options, monthly payment plans, and the next steps before you commit to a vehicle."
                 />
               </div>
-              <div className="mt-8">
+              <div className="mt-8 pt-2">
                 <Button asChild>
                   <Link href="/financing">Ask About Financing</Link>
                 </Button>
               </div>
             </Card>
-            
-            <Card className="group flex flex-col justify-between rounded-[30px] p-7 sm:p-9 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_36px_rgba(0,0,0,0.06)]">
-              <div>
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+
+            <Card className="group flex h-full flex-col justify-between rounded-[30px] border border-stone-200 p-7 shadow-[0_8px_26px_rgba(28,25,23,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#e5d3c7] hover:shadow-[0_16px_36px_rgba(28,25,23,0.09)] sm:p-9">
+              <div className="flex flex-1 flex-col">
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F3E9E2] text-primary">
                   <ArrowRightLeft className="size-6" />
                 </div>
                 <SectionHeading
@@ -620,7 +622,7 @@ export default async function Home() {
                   description="Share your current car details and our team will guide you on valuation, top-up options, and the next step toward your next vehicle."
                 />
               </div>
-              <div className="mt-8">
+              <div className="mt-8 pt-2">
                 <Button asChild>
                   <Link href="/trade-in">Value Your Trade</Link>
                 </Button>
@@ -630,13 +632,15 @@ export default async function Home() {
         </section>
 
         <section className="section-shell">
-          <div className="container-shell grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10">
-            <SectionHeading
-              eyebrow="Delivered units"
-              title="Recently Delivered Cars in Mombasa"
-              description="Real cars delivered to real buyers in Mombasa."
-            />
-            <div className="grid gap-5 md:grid-cols-3">
+          <div className="container-shell grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:gap-12 xl:gap-14">
+            <div className="max-w-[420px]">
+              <SectionHeading
+                eyebrow="Delivered units"
+                title="Recently Delivered Cars in Mombasa"
+                description="Real cars delivered to real buyers in Mombasa."
+              />
+            </div>
+            <div className="grid gap-8 md:grid-cols-3">
               {deliveredShowcaseVehicles.map((vehicle) => (
                 <DeliveredVehicleCard key={vehicle.id} vehicle={vehicle} />
               ))}
