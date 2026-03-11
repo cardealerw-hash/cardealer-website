@@ -432,26 +432,49 @@ export default async function Home() {
         </section>
 
         {/* Feature Highlights Row */}
-        <section className="border-b border-stone-200 bg-white">
-          <div className="container mx-auto px-4 py-14 sm:px-6 sm:py-14 lg:px-8 xl:max-w-7xl">
-            <div className="grid w-full grid-cols-2 gap-6 text-sm font-medium text-stone-600 md:grid-cols-4">
-              <div className="flex flex-col items-center justify-center gap-3 p-5 transition-all duration-200 ease-out hover:-translate-y-[3px]">
-                <CircleGauge className="size-6 text-primary transition-colors duration-200 hover:text-[#8c4922]" />
-                <span className="text-center font-semibold text-stone-900">Low-Mileage Imports</span>
+        <section className="border-b border-stone-200 bg-stone-50/60">
+          <div className="container mx-auto px-4 py-10 sm:px-6 lg:px-8 xl:max-w-7xl">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+              <div className="group flex items-center justify-start gap-4 rounded-[1.25rem] bg-white p-5 shadow-[0_4px_20px_rgba(28,25,23,0.03)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(28,25,23,0.08)]">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors duration-300 group-hover:bg-primary/10 group-hover:text-primary">
+                  <CircleGauge className="size-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold tracking-tight text-stone-950">Low Mileage</h4>
+                  <p className="mt-0.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-stone-500">Direct Imports</p>
+                </div>
               </div>
-              <div className="flex flex-col items-center justify-center gap-3 p-5 transition-all duration-200 ease-out hover:-translate-y-[3px]">
-                <Cog className="size-6 text-primary transition-colors duration-200 hover:text-[#8c4922]" />
-                <span className="text-center font-semibold text-stone-900">Fully Inspected</span>
+              
+              <div className="group flex items-center justify-start gap-4 rounded-[1.25rem] bg-white p-5 shadow-[0_4px_20px_rgba(28,25,23,0.03)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(28,25,23,0.08)]">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors duration-300 group-hover:bg-primary/10 group-hover:text-primary">
+                  <Cog className="size-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold tracking-tight text-stone-950">Fully Inspected</h4>
+                  <p className="mt-0.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-stone-500">100% Verified</p>
+                </div>
               </div>
-              <div className="flex flex-col items-center justify-center gap-3 p-5 transition-all duration-200 ease-out hover:-translate-y-[3px]">
-                <svg className="size-6 text-primary transition-colors duration-200 hover:text-[#8c4922]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span className="text-center font-semibold text-stone-900">Warranty Included</span>
+
+              <div className="group flex items-center justify-start gap-4 rounded-[1.25rem] bg-white p-5 shadow-[0_4px_20px_rgba(28,25,23,0.03)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(28,25,23,0.08)]">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors duration-300 group-hover:bg-primary/10 group-hover:text-primary">
+                  <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-bold tracking-tight text-stone-950">Warranty Support</h4>
+                  <p className="mt-0.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-stone-500">Quality assured</p>
+                </div>
               </div>
-              <div className="flex flex-col items-center justify-center gap-3 p-5 transition-all duration-200 ease-out hover:-translate-y-[3px]">
-                <Fuel className="size-6 text-primary transition-colors duration-200 hover:text-[#8c4922]" />
-                <span className="text-center font-semibold text-stone-900">Flexible Financing</span>
+
+              <div className="group flex items-center justify-start gap-4 rounded-[1.25rem] bg-white p-5 shadow-[0_4px_20px_rgba(28,25,23,0.03)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(28,25,23,0.08)]">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-stone-100 text-stone-950 transition-colors duration-300 group-hover:bg-primary/10 group-hover:text-primary">
+                  <Fuel className="size-5" />
+                </div>
+                <div>
+                  <h4 className="font-bold tracking-tight text-stone-950">Flexible Financing</h4>
+                  <p className="mt-0.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-stone-500">Easy conditions</p>
+                </div>
               </div>
             </div>
           </div>
