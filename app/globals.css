@@ -109,6 +109,15 @@ button {
   text-wrap: balance;
 }
 
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes hero-zoom {
   from {
     transform: scale(1);

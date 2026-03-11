@@ -12,6 +12,7 @@ import {
 import { JsonLd } from "@/components/layout/json-ld";
 import { FloatingWhatsAppButton } from "@/components/marketing/floating-whatsapp-button";
 import { SectionHeading } from "@/components/marketing/section-heading";
+import { TestimonialsCarousel } from "@/components/marketing/testimonials-carousel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
@@ -312,78 +313,114 @@ export default async function Home() {
                 </span>
               </div>
             </div>
-
-            {/* Integrated Floating Search Bar (Glassmorphism) - Redesigned */}
-            <div className="surface-card relative mt-6 w-full max-w-5xl rounded-[2rem] border border-white/10 bg-white/5 p-2.5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-150 sm:mt-8 sm:p-3.5">
+            {/* Premium Unified Search Bar (Pill Design) */}
+            <div className="relative mt-10 w-full max-w-5xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-150 xl:mt-14">
               <form
                 action="/inventory"
-                className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-[1.5fr_1fr_1fr_1fr_auto]"
+                className="flex flex-col items-stretch rounded-[1.5rem] bg-white p-2 sm:rounded-[2rem] md:flex-row md:items-center md:rounded-full md:p-2.5 shadow-[0_20px_40px_rgba(0,0,0,0.25)] ring-1 ring-white/50 backdrop-blur-md"
               >
-                <div className="relative flex items-center">
-                  <svg className="absolute left-4 h-5 w-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <input
-                    name="q"
-                    placeholder="Search Make or Model..."
-                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-12 pr-4 text-sm outline-none transition-all placeholder:text-stone-400 text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:shadow-[0_0_15px_rgba(0,0,0,0.5)]"
-                  />
+                {/* Keyword Search */}
+                <div className="group relative flex flex-1 items-center px-4 py-3 sm:px-6 md:py-2 transition-colors hover:bg-stone-50 md:rounded-full">
+                  <div className="absolute inset-y-0 left-4 flex items-center sm:left-6">
+                    <svg className="h-5 w-5 text-stone-400 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <div className="w-full pl-8 sm:pl-10">
+                    <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-stone-900">Keyword</label>
+                    <input
+                      name="q"
+                      placeholder="Search make or model..."
+                      className="w-full truncate bg-transparent p-0 text-sm font-semibold text-stone-700 placeholder:font-medium placeholder:text-stone-400 outline-none border-none focus:ring-0 sm:text-base mt-0.5"
+                    />
+                  </div>
                 </div>
-                <div className="relative flex items-center">
-                  <select
-                    name="make"
-                    className="h-14 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm outline-none transition-all text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:shadow-[0_0_15px_rgba(0,0,0,0.5)] [&>option]:text-black"
-                    defaultValue=""
+
+                <div className="hidden h-10 w-px bg-stone-200 md:block" />
+
+                {/* Make Select */}
+                <div className="group relative flex flex-1 items-center px-4 py-3 sm:px-6 md:py-2 transition-colors hover:bg-stone-50 md:rounded-full cursor-pointer">
+                  <div className="w-full pr-6">
+                    <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-stone-900">Make</label>
+                    <select
+                      name="make"
+                      className="w-full appearance-none bg-transparent p-0 text-sm font-semibold text-stone-700 outline-none border-none focus:ring-0 sm:text-base cursor-pointer mt-0.5"
+                      defaultValue=""
+                    >
+                      <option value="">Any Make</option>
+                      <option value="Toyota">Toyota</option>
+                      <option value="Land Rover">Land Rover</option>
+                      <option value="Mazda">Mazda</option>
+                      <option value="Subaru">Subaru</option>
+                      <option value="Nissan">Nissan</option>
+                      <option value="BMW">BMW</option>
+                      <option value="Ford">Ford</option>
+                    </select>
+                  </div>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none sm:right-6">
+                    <svg className="h-4 w-4 text-stone-400 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="hidden h-10 w-px bg-stone-200 md:block" />
+
+                {/* Condition Select */}
+                <div className="group relative flex flex-1 items-center px-4 py-3 sm:px-6 md:py-2 transition-colors hover:bg-stone-50 md:rounded-full cursor-pointer">
+                  <div className="w-full pr-6">
+                    <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-stone-900">Condition</label>
+                    <select
+                      name="category"
+                      className="w-full appearance-none bg-transparent p-0 text-sm font-semibold text-stone-700 outline-none border-none focus:ring-0 sm:text-base cursor-pointer mt-0.5"
+                      defaultValue=""
+                    >
+                      <option value="">All Conditions</option>
+                      <option value="used">Local Used</option>
+                      <option value="new">Brand New</option>
+                      <option value="imported">Direct Import</option>
+                      <option value="traded-in">Traded-in</option>
+                    </select>
+                  </div>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none sm:right-6">
+                    <svg className="h-4 w-4 text-stone-400 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="hidden h-10 w-px bg-stone-200 md:block" />
+
+                {/* Sort Select */}
+                <div className="group relative flex flex-1 items-center px-4 py-3 sm:px-6 md:py-2 transition-colors hover:bg-stone-50 md:rounded-full cursor-pointer">
+                  <div className="w-full pr-6">
+                    <label className="block text-[0.65rem] font-bold uppercase tracking-wider text-stone-900">Sort By</label>
+                    <select
+                      name="sort"
+                      className="w-full appearance-none bg-transparent p-0 text-sm font-semibold text-stone-700 outline-none border-none focus:ring-0 sm:text-base cursor-pointer mt-0.5"
+                      defaultValue="latest"
+                    >
+                      <option value="latest">Latest Arrivals</option>
+                      <option value="price-asc">Price: Low to High</option>
+                      <option value="price-desc">Price: High to Low</option>
+                    </select>
+                  </div>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none sm:right-6">
+                    <svg className="h-4 w-4 text-stone-400 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Submit Form */}
+                <div className="mt-2 w-full px-2 pb-2 md:mt-0 md:w-auto md:px-0 md:pb-0">
+                  <Button
+                    type="submit"
+                    className="h-14 w-full rounded-[1.125rem] bg-primary px-8 text-base font-bold text-white shadow-xl transition-all duration-300 hover:scale-[1.02] hover:bg-[#8c4922] hover:shadow-2xl md:h-[4.25rem] md:w-auto md:rounded-full"
                   >
-                    <option value="">Any Make</option>
-                    <option value="Toyota">Toyota</option>
-                    <option value="Land Rover">Land Rover</option>
-                    <option value="Mazda">Mazda</option>
-                    <option value="Subaru">Subaru</option>
-                    <option value="Nissan">Nissan</option>
-                    <option value="BMW">BMW</option>
-                    <option value="Ford">Ford</option>
-                  </select>
-                  <svg className="absolute right-4 h-4 w-4 pointer-events-none text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                    Search
+                  </Button>
                 </div>
-                <div className="relative flex items-center">
-                  <select
-                    name="category"
-                    className="h-14 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm outline-none transition-all text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:shadow-[0_0_15px_rgba(0,0,0,0.5)] [&>option]:text-black"
-                    defaultValue=""
-                  >
-                    <option value="">All Conditions</option>
-                    <option value="used">Used</option>
-                    <option value="new">New</option>
-                    <option value="imported">Direct Import</option>
-                    <option value="traded-in">Traded-in</option>
-                  </select>
-                  <svg className="absolute right-4 h-4 w-4 pointer-events-none text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <div className="relative flex items-center">
-                  <select
-                    name="sort"
-                    className="h-14 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm outline-none transition-all text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:shadow-[0_0_15px_rgba(0,0,0,0.5)] [&>option]:text-black"
-                    defaultValue="latest"
-                  >
-                    <option value="latest">Latest Arrivals</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                  </select>
-                  <svg className="absolute right-4 h-4 w-4 pointer-events-none text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <Button
-                  type="submit"
-                  className="h-14 rounded-2xl border-none bg-white px-8 font-semibold text-stone-950 transition-all duration-300 hover:scale-[1.02] hover:bg-stone-200 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] sm:col-span-2 xl:col-span-1"
-                >
-                  Search
-                </Button>
               </form>
             </div>
 
@@ -597,7 +634,8 @@ export default async function Home() {
               title="Trust-building copy stays close to the buyer journey"
               description="Reviews reinforce responsiveness, clarity, and confidence instead of chasing empty brand language."
             />
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <TestimonialsCarousel reviews={reviews} />
+            <div className="hidden gap-5 md:grid md:grid-cols-2 xl:grid-cols-3">
               {reviews.map((review) => (
                 <Card key={review.id} className="rounded-[28px] p-6">
                   <p className="text-lg leading-8 text-stone-700">&quot;{review.quote}&quot;</p>
