@@ -219,41 +219,37 @@ export default async function Home() {
               fill
               priority
               quality={90}
-              className="object-cover object-center opacity-85 transition-transform duration-[30s] ease-out hover:scale-[1.05]"
+              className="object-cover object-[75%_center] opacity-85 transition-transform duration-[30s] ease-out hover:scale-[1.05]"
               sizes="100vw"
             />
             {/* Cinematic Gradient Overlays for Depth */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black z-10" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] z-10" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black z-10" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.5)_100%)] z-10" />
           </div>
 
           <div className="container relative z-20 mx-auto flex w-full flex-col items-center justify-center px-4 text-center sm:px-6 lg:px-8 xl:max-w-7xl">
-            <div className="max-w-5xl space-y-5 animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-1000 sm:space-y-6">
-              <h1 className="text-balance text-4xl font-extrabold leading-[0.98] tracking-[-0.05em] text-white sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5rem]">
-                Find the Car <br className="hidden sm:block" />
+            <div className="max-w-5xl space-y-5 animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-1000 sm:space-y-6">              {/* Conversion-optimized Headline */}
+              <h1 className="text-5xl font-extrabold tracking-tighter text-white sm:text-6xl md:text-7xl lg:text-8xl leading-[1.05]">
+                Premium Imported <br className="hidden sm:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-stone-200 via-white to-stone-500">
-                  That Feels Right
+                  Cars in Mombasa
                 </span>
               </h1>
 
               {/* Subheadline */}
-              <p className="mx-auto max-w-3xl text-base font-medium leading-7 text-stone-200 sm:text-lg sm:leading-8 md:text-xl">
-                The right car should feel exciting before the first drive. Start with a vehicle that fits your taste, your routine, and your next move in Mombasa.
+              <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-stone-300 sm:text-xl md:text-2xl">
+                Discover a curated collection of premium SUVs and sedans. Transparent pricing, flexible financing, and a flawless journey from showroom to driveway.
               </p>
 
               {/* Action Buttons */}
-              <div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row sm:gap-4">
+              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row pt-4">
                 <Button
                   asChild
                   size="lg"
-                  className="group relative h-12 overflow-hidden rounded-full border border-[#d18a52] bg-[#c97937] px-7 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(201,121,55,0.34)] transition-all duration-300 hover:bg-[#b9682d] hover:shadow-[0_20px_44px_rgba(201,121,55,0.4)]"
+                  className="group relative h-14 overflow-hidden rounded-full bg-white px-8 text-base font-semibold text-black transition-all hover:bg-stone-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(255,255,255,0.2)] duration-300"
                 >
-                  <Link
-                    href="/inventory"
-                    className="flex items-center gap-2"
-                    style={{ color: "#ffffff" }}
-                  >
-                    Compare Inventory
+                  <Link href="/inventory" className="flex items-center gap-2">
+                    Explore Collection
                     <svg className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -262,19 +258,20 @@ export default async function Home() {
                 <Button
                   asChild
                   size="lg"
-                  className="group h-12 rounded-full border border-white/30 bg-white/12 px-7 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(15,23,42,0.22)] backdrop-blur-md transition-all duration-300 hover:border-white/50 hover:bg-white/18"
+                  className="group h-14 rounded-full border border-white/20 bg-black/40 px-8 text-base font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:-translate-y-0.5 hover:border-white/40 hover:shadow-[0_8px_20px_rgba(255,255,255,0.05)] duration-300"
                 >
-                  <a
-                    href={homepageWhatsAppUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2"
-                    style={{ color: "#ffffff" }}
-                  >
+                  <a href={homepageWhatsAppUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2">
                     <WhatsAppIcon className="size-5 text-[#25d366] transition-transform group-hover:scale-110 duration-300" />
-                    Get Price on WhatsApp
+                    Contact Sales
                   </a>
                 </Button>
+              </div>
+
+              {/* Trust Strip */}
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-white/80 lowercase tracking-wider sm:gap-6">
+                <span className="flex items-center gap-1.5"><span className="text-[#25d366]">✔</span> Trusted Mombasa Dealer</span>
+                <span className="flex items-center gap-1.5"><span className="text-[#25d366]">✔</span> Fully Inspected Vehicles</span>
+                <span className="flex items-center gap-1.5"><span className="text-[#25d366]">✔</span> Fast WhatsApp Response</span>
               </div>
             </div>
 
@@ -291,13 +288,13 @@ export default async function Home() {
                   <input
                     name="q"
                     placeholder="Search Make or Model..."
-                    className="h-12 w-full rounded-2xl border border-white/10 bg-white/5 pl-12 pr-4 text-sm text-white outline-none transition-all placeholder:text-stone-400 focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/20"
+                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-12 pr-4 text-sm outline-none transition-all placeholder:text-stone-400 text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:shadow-[0_0_15px_rgba(0,0,0,0.5)]"
                   />
                 </div>
                 <div className="relative flex items-center">
                   <select
                     name="make"
-                    className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm text-white outline-none transition-all focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/20 [&>option]:text-black"
+                    className="h-14 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm outline-none transition-all text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:shadow-[0_0_15px_rgba(0,0,0,0.5)] [&>option]:text-black"
                     defaultValue=""
                   >
                     <option value="">Any Make</option>
@@ -316,7 +313,7 @@ export default async function Home() {
                 <div className="relative flex items-center">
                   <select
                     name="category"
-                    className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm text-white outline-none transition-all focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/20 [&>option]:text-black"
+                    className="h-14 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm outline-none transition-all text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:shadow-[0_0_15px_rgba(0,0,0,0.5)] [&>option]:text-black"
                     defaultValue=""
                   >
                     <option value="">All Conditions</option>
@@ -332,7 +329,7 @@ export default async function Home() {
                 <div className="relative flex items-center">
                   <select
                     name="sort"
-                    className="h-12 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm text-white outline-none transition-all focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/20 [&>option]:text-black"
+                    className="h-14 w-full appearance-none rounded-2xl border border-white/10 bg-white/5 px-5 text-sm outline-none transition-all text-white focus:border-primary focus:bg-white/10 focus:ring-1 focus:ring-primary focus:shadow-[0_0_15px_rgba(0,0,0,0.5)] [&>option]:text-black"
                     defaultValue="latest"
                   >
                     <option value="latest">Latest Arrivals</option>
@@ -345,39 +342,43 @@ export default async function Home() {
                 </div>
                 <Button
                   type="submit"
-                  className="h-12 rounded-2xl border-none bg-white px-8 font-semibold text-stone-950 transition-all duration-300 hover:scale-[1.02] hover:bg-stone-200 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] sm:col-span-2 xl:col-span-1"
+                  className="h-14 rounded-2xl border-none bg-white px-8 font-semibold text-stone-950 transition-all duration-300 hover:scale-[1.02] hover:bg-stone-200 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] sm:col-span-2 xl:col-span-1"
                 >
                   Search
                 </Button>
               </form>
             </div>
 
-            {/* Trust Anchor Bar */}
-            <div className="mt-6 grid w-full max-w-4xl grid-cols-2 gap-3 px-2 text-sm font-medium text-stone-300/80 animate-in fade-in duration-1000 delay-300 sm:px-0 md:grid-cols-4">
-              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-colors hover:bg-white/10">
-                <CircleGauge className="size-6 text-stone-400" />
-                <span className="text-center">Low-Mileage Imports</span>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-colors hover:bg-white/10">
-                <Cog className="size-6 text-stone-400" />
-                <span className="text-center">Fully Inspected</span>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-colors hover:bg-white/10">
-                <svg className="size-6 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span className="text-center">Warranty Included</span>
-              </div>
-              <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/5 p-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-colors hover:bg-white/10">
-                <Fuel className="size-6 text-stone-400" />
-                <span className="text-center">Flexible Financing</span>
-              </div>
-            </div>
-
           </div>
         </section>
 
-        <section className="section-shell">
+        {/* Feature Highlights Row */}
+        <section className="border-b border-stone-200 bg-white">
+          <div className="container mx-auto xl:max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+            <div className="grid w-full grid-cols-2 md:grid-cols-4 gap-6 text-sm font-medium text-stone-600">
+              <div className="flex flex-col items-center justify-center gap-3 p-4">
+                <CircleGauge className="size-6 text-primary" />
+                <span className="text-center font-semibold text-stone-900">Low-Mileage Imports</span>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-3 p-4">
+                <Cog className="size-6 text-primary" />
+                <span className="text-center font-semibold text-stone-900">Fully Inspected</span>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-3 p-4">
+                <svg className="size-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span className="text-center font-semibold text-stone-900">Warranty Included</span>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-3 p-4">
+                <Fuel className="size-6 text-primary" />
+                <span className="text-center font-semibold text-stone-900">Flexible Financing</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section-shell pt-16">
           <div className="container-shell space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-3">
@@ -419,9 +420,9 @@ export default async function Home() {
                   return (
                     <article
                       key={vehicle.id}
-                      className="flex h-full flex-col rounded-[20px] border border-stone-200 bg-white p-2.5 shadow-[0_10px_24px_rgba(28,25,23,0.05)]"
+                      className="flex h-full flex-col rounded-[20px] border border-stone-200 bg-white p-2.5 shadow-[0_10px_24px_rgba(28,25,23,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(0,0,0,0.1)]"
                     >
-                      <div className="relative aspect-square overflow-hidden rounded-[16px] border border-stone-200 bg-stone-200">
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-[16px] border border-stone-200 bg-stone-200">
                         {primaryImage ? (
                           <Image
                             src={primaryImage}
