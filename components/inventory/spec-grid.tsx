@@ -2,14 +2,14 @@ import type { Vehicle } from "@/types/dealership";
 
 export function SpecGrid({ vehicle }: { vehicle: Vehicle }) {
   const specs = [
-    { label: "Year", value: vehicle.year },
-    { label: "Mileage", value: `${vehicle.mileage.toLocaleString()} km` },
-    { label: "Transmission", value: vehicle.transmission },
-    { label: "Fuel type", value: vehicle.fuelType },
-    { label: "Drive type", value: vehicle.driveType || "Not specified" },
-    { label: "Body type", value: vehicle.bodyType || "Not specified" },
-    { label: "Engine", value: vehicle.engineCapacity || "Not specified" },
-    { label: "Color", value: vehicle.color || "Not specified" },
+    { label: "Model year", value: vehicle.year },
+    { label: "Distance driven", value: `${vehicle.mileage.toLocaleString()} km` },
+    { label: "Drive style", value: vehicle.transmission },
+    { label: "Fuel", value: vehicle.fuelType },
+    { label: "Road setup", value: vehicle.driveType || "Not specified" },
+    { label: "Body style", value: vehicle.bodyType || "Not specified" },
+    { label: "Power", value: vehicle.engineCapacity || "Not specified" },
+    { label: "Exterior colour", value: vehicle.color || "Not specified" },
   ];
 
   return (

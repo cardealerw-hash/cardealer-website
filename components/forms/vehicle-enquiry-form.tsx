@@ -35,35 +35,35 @@ const intentMeta: Record<
   }
 > = {
   quote: {
-    label: "Ask About Price",
-    title: "Ask about price or availability",
+    label: "Price & Availability",
+    title: "Get the best price and next step",
     description:
-      "Use one short form for price, availability, or a walk-around video.",
-    submitLabel: "Send Enquiry",
-    messageLabel: "What do you need?",
+      "Ask for the best price, confirm availability, or request a walk-around video.",
+    submitLabel: "Send to Sales",
+    messageLabel: "How can we help?",
     messagePlaceholder:
-      "Ask about the best price, current availability, or request a quick walk-around video.",
+      "Ask for the best price, confirm availability, or request a quick walk-around video.",
     leadType: "quote",
   },
   viewing: {
-    label: "Book Viewing",
-    title: "Book a viewing or test drive",
+    label: "Book a Visit",
+    title: "Book your viewing",
     description:
-      "Share the preferred day and time and sales will confirm the slot quickly.",
-    submitLabel: "Book Viewing",
-    messageLabel: "Timing notes",
+      "Share the day and time that suit you and sales will lock it in quickly.",
+    submitLabel: "Reserve My Visit",
+    messageLabel: "Best time for you",
     messagePlaceholder:
-      "Tell us your preferred day, time, and any viewing notes before you visit.",
+      "Tell us the day and time that work best, plus anything you want ready before you arrive.",
   },
   financing: {
-    label: "Financing Info",
-    title: "Ask about financing",
+    label: "Payment Options",
+    title: "Ask about payment options",
     description:
-      "Ask about deposit, repayment options, and the next step for this vehicle.",
-    submitLabel: "Request Financing Info",
-    messageLabel: "Financing question",
+      "Check deposit guidance, monthly plan options, and the fastest way to move forward.",
+    submitLabel: "Show Me My Options",
+    messageLabel: "Your budget plan",
     messagePlaceholder:
-      "Tell us what you want to know about deposit, monthly plan, or approval steps.",
+      "Tell us what you want to know about deposit, monthly budget, or approval steps.",
     leadType: "financing",
   },
 };
@@ -113,7 +113,7 @@ export function VehicleEnquiryForm({
     <Card className="rounded-[28px] p-5 lg:p-6">
       <div className="mb-5">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
-          Quick enquiry
+          Talk to sales
         </p>
         <h3 className="mt-3 text-2xl font-semibold text-stone-950">
           Ask about this vehicle

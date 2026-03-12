@@ -32,10 +32,12 @@ import {
 
 function buildQuickFacts(vehicle: NonNullable<Awaited<ReturnType<typeof getVehicleBySlug>>>) {
   return [
-    `${vehicle.transmission} transmission`,
-    `${vehicle.fuelType} fuel`,
-    vehicle.bodyType ? `${vehicle.bodyType} body` : null,
-    vehicle.mileage > 0 ? formatMileage(vehicle.mileage) : null,
+    vehicle.transmission === "Automatic"
+      ? "Easy automatic drive"
+      : `${vehicle.transmission} drive`,
+    `${vehicle.fuelType} power`,
+    vehicle.bodyType ? `${vehicle.bodyType} style` : null,
+    vehicle.mileage > 0 ? `${formatMileage(vehicle.mileage)} driven` : null,
   ].filter((value): value is string => Boolean(value));
 }
 
@@ -45,16 +47,16 @@ function buildBuyerSummary(
 ) {
   return [
     vehicle.condition
-      ? `Condition listed as ${vehicle.condition}.`
-      : "Condition details available on request.",
+      ? `Presented as ${vehicle.condition}.`
+      : "Condition details are available on request.",
     photoCount
-      ? `Gallery includes ${photoCount} photo${photoCount === 1 ? "" : "s"} so buyers can review the car before they call.`
+      ? `${photoCount} photo${photoCount === 1 ? "" : "s"} included so you can review the car before speaking to sales.`
       : "Fresh photos can be shared directly on WhatsApp while the gallery is being updated.",
     `Available for viewing at ${vehicle.location?.name || "our Mombasa showroom"}.`,
     vehicle.negotiable
-      ? "Price discussion is available after viewing and inspection."
-      : "Ask sales for current pricing, finance guidance, and the fastest next step.",
-    `Reference stock code ${vehicle.stockCode} when you call or message for faster assistance.`,
+      ? "There is room for a serious offer after viewing."
+      : "Ask sales for the best next step on price or payment.",
+    `Quote ref ${vehicle.stockCode} when you call or message for faster help.`,
   ];
 }
 
@@ -62,13 +64,22 @@ function buildOverviewHighlights(
   vehicle: NonNullable<Awaited<ReturnType<typeof getVehicleBySlug>>>,
 ) {
   return [
-    vehicle.mileage > 0
-      ? `Mileage currently listed at ${formatMileage(vehicle.mileage)}.`
-      : null,
+    vehicle.bodyType
+      ? `${vehicle.bodyType} comfort with ${
+          vehicle.transmission === "Automatic"
+            ? "easy automatic driving"
+            : `${vehicle.transmission.toLowerCase()} control`
+        }.`
+      : `${
+          vehicle.transmission === "Automatic"
+            ? "Easy automatic driving"
+            : `${vehicle.transmission} drive`
+        } with ${vehicle.fuelType.toLowerCase()} power.`,
     vehicle.engineCapacity
-      ? `${vehicle.engineCapacity} engine paired with ${vehicle.transmission.toLowerCase()} transmission.`
-      : `${vehicle.transmission} transmission with ${vehicle.fuelType.toLowerCase()} power.`,
-    vehicle.condition ? `${vehicle.condition} condition noted on the listing.` : null,
+      ? `Strong ${vehicle.engineCapacity} power for confident town driving and longer trips.`
+      : `${vehicle.fuelType} power for buyers who want an easy everyday drive.`,
+    vehicle.mileage > 0 ? `Shown at ${formatMileage(vehicle.mileage)} on the listing.` : null,
+    vehicle.condition ? `Presented as ${vehicle.condition}.` : null,
     `Available for viewing at ${vehicle.location?.name || "our Mombasa showroom"}.`,
   ].filter((value): value is string => Boolean(value));
 }
@@ -79,11 +90,11 @@ function buildDetailBadges(
   const stockLabel = (() => {
     switch (vehicle.stockCategory) {
       case "available_for_importation":
-        return "Available to import";
+        return "Ready to import";
       case "traded_in":
-        return "Traded-in unit";
+        return "Trade-in offer";
       default:
-        return `${humanizeStockCategory(vehicle.stockCategory)} stock`;
+        return humanizeStockCategory(vehicle.stockCategory);
     }
   })();
 
@@ -215,7 +226,7 @@ export default async function VehicleDetailPage({
                     {vehicle.location?.name || "Mombasa showroom"}
                   </div>
                   <span className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
-                    Stock code {vehicle.stockCode}
+                    Ref {vehicle.stockCode}
                   </span>
                 </div>
               </div>
@@ -254,7 +265,7 @@ export default async function VehicleDetailPage({
                   </Button>
                   <Button asChild variant="secondary" className="w-full">
                     <Link href={`${baseVehiclePath}?intent=viewing#contact-panel`}>
-                      Book Test Drive / Viewing
+                      Book a Visit / Test Drive
                     </Link>
                   </Button>
                   <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1 text-sm font-semibold text-stone-600">
@@ -262,7 +273,7 @@ export default async function VehicleDetailPage({
                       href={`${baseVehiclePath}?intent=financing#contact-panel`}
                       className="transition-colors hover:text-stone-950 hover:underline"
                     >
-                      Ask About Financing
+                      See Payment Options
                     </Link>
                     <Link
                       href={`/trade-in?vehicle=${vehicle.slug}`}
@@ -274,7 +285,7 @@ export default async function VehicleDetailPage({
                 </div>
                 <div className="mt-5 border-t border-stone-200/80 pt-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
-                    Before you enquire
+                    Why buyers move quickly
                   </p>
                   <ul className="mt-3 space-y-2 text-sm leading-6 text-stone-600">
                     {buyerHighlights.map((item) => (
@@ -294,10 +305,10 @@ export default async function VehicleDetailPage({
               <div className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] xl:gap-10">
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
-                    Vehicle details
+                    Buyer guide
                   </p>
                   <h2 className="mt-3 text-2xl font-semibold text-stone-950">
-                    Core specifications
+                    Highlights buyers ask for
                   </h2>
                   <div className="mt-5">
                     <SpecGrid vehicle={vehicle} />
@@ -306,7 +317,7 @@ export default async function VehicleDetailPage({
 
                 <div className="min-w-0 border-t border-stone-200 pt-7 xl:border-l xl:border-t-0 xl:pl-8 xl:pt-0">
                   <h2 className="mt-3 text-2xl font-semibold text-stone-950">
-                    What to expect
+                    Why this one stands out
                   </h2>
                   <ul className="mt-5 space-y-2.5 text-sm leading-7 text-stone-600">
                     {overviewHighlights.map((item) => (
@@ -317,8 +328,8 @@ export default async function VehicleDetailPage({
                     ))}
                   </ul>
                   <p className="pt-3 text-sm font-medium text-stone-700">
-                    Reference stock code {vehicle.stockCode} when you call or
-                    message so the team can move faster.
+                    Mention ref {vehicle.stockCode} when you call or message and
+                    sales will move faster.
                   </p>
                 </div>
               </div>
