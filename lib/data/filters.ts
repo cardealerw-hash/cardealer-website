@@ -15,6 +15,67 @@ import type {
   VehicleImage,
 } from "@/types/dealership";
 
+function createUuid() {
+  const randomUuid = globalThis.crypto?.randomUUID?.bind(globalThis.crypto);
+
+  if (!randomUuid) {
+    throw new Error("crypto.randomUUID is unavailable in this runtime.");
+  }
+
+  return randomUuid();
+}
+
+function isUuid(value: string | undefined | null) {
+  if (!value) {
+    return false;
+  }
+
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
+}
+
+function shiftMapValue<T>(map: Map<string, T[]>, key: string) {
+  const values = map.get(key);
+
+  if (!values?.length) {
+    return undefined;
+  }
+
+  const [value, ...rest] = values;
+
+  if (rest.length) {
+    map.set(key, rest);
+  } else {
+    map.delete(key);
+  }
+
+  return value;
+}
+
+function buildExistingImageLookup(existing: Vehicle | undefined) {
+  const byCloudinaryPublicId = new Map<string, VehicleImage[]>();
+  const byImageUrl = new Map<string, VehicleImage[]>();
+
+  for (const image of existing?.images || []) {
+    if (image.cloudinaryPublicId) {
+      const images = byCloudinaryPublicId.get(image.cloudinaryPublicId) || [];
+      images.push(image);
+      byCloudinaryPublicId.set(image.cloudinaryPublicId, images);
+      continue;
+    }
+
+    const images = byImageUrl.get(image.imageUrl) || [];
+    images.push(image);
+    byImageUrl.set(image.imageUrl, images);
+  }
+
+  return {
+    byCloudinaryPublicId,
+    byImageUrl,
+  };
+}
+
 export function categoryMatches(
   vehicle: Vehicle,
   category?: InventoryQuery["category"],
@@ -213,20 +274,33 @@ export function createVehicleFromInput(
   existing: Vehicle | undefined,
   locations: Location[],
 ) {
-  const id = input.id || `veh-${slugify(`${input.title}-${Date.now()}`)}`;
+  const id = input.id || createUuid();
   const timestamp = new Date().toISOString();
   const location = locations.find((item) => item.id === input.locationId) || null;
-  const images: VehicleImage[] = input.images.map((image, index) => ({
-    id: `${id}-image-${index + 1}`,
-    vehicleId: id,
-    imageUrl: image.imageUrl,
-    altText:
-      image.altText || `${input.title} ${index === 0 ? "hero view" : `view ${index + 1}`}`,
-    cloudinaryPublicId: image.cloudinaryPublicId || null,
-    sortOrder: image.sortOrder,
-    isHero: image.isHero,
-    createdAt: existing?.createdAt || timestamp,
-  }));
+  const existingImageLookup = buildExistingImageLookup(existing);
+  const images: VehicleImage[] = input.images.map((image, index) => {
+    const matchedImage = image.cloudinaryPublicId
+      ? shiftMapValue(
+          existingImageLookup.byCloudinaryPublicId,
+          image.cloudinaryPublicId,
+        )
+      : shiftMapValue(existingImageLookup.byImageUrl, image.imageUrl);
+    const persistedMatchedImage =
+      matchedImage && isUuid(matchedImage.id) ? matchedImage : null;
+
+    return {
+      id: persistedMatchedImage?.id || createUuid(),
+      vehicleId: id,
+      imageUrl: image.imageUrl,
+      altText:
+        image.altText ||
+        `${input.title} ${index === 0 ? "hero view" : `view ${index + 1}`}`,
+      cloudinaryPublicId: image.cloudinaryPublicId || null,
+      sortOrder: image.sortOrder,
+      isHero: image.isHero,
+      createdAt: persistedMatchedImage?.createdAt || timestamp,
+    };
+  });
 
   const heroImage = images.find((image) => image.isHero) || images[0];
 
