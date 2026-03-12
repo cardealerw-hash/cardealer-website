@@ -5,7 +5,6 @@ import { mapVehicleFormData } from "@/lib/vehicle-form";
 function buildVehicleFormData() {
   const formData = new FormData();
   formData.set("title", "2020 Toyota Prado");
-  formData.set("stockCode", "kdl 001");
   formData.set("make", "Toyota");
   formData.set("model", "Prado");
   formData.set("year", "2020");
@@ -40,7 +39,8 @@ describe("mapVehicleFormData", () => {
     const result = mapVehicleFormData(formData);
 
     expect(result.title).toBe("2020 Toyota Prado");
-    expect(result.stockCode).toBe("KDL-001");
+    expect(result.stockCode).toBe("2020-TOY-PRA");
+    expect(result.slug).toBe("2020-toyota-prado");
     expect(result.price).toBe(6500000);
     expect(result.images).toHaveLength(1);
     expect(result.images[0].isHero).toBe(true);
@@ -99,5 +99,32 @@ describe("mapVehicleFormData", () => {
     );
 
     expect(() => mapVehicleFormData(formData)).toThrowError(/staged files/i);
+  });
+
+  it("does not surface a stock-code error when the source fields are invalid", () => {
+    const formData = buildVehicleFormData();
+    formData.set("title", "");
+    formData.set("make", "");
+    formData.set("year", "");
+
+    let thrownError: {
+      flatten: () => { fieldErrors: Record<string, string[] | undefined> };
+    } | null = null;
+
+    try {
+      mapVehicleFormData(formData);
+    } catch (error) {
+      thrownError = error as {
+        flatten: () => { fieldErrors: Record<string, string[] | undefined> };
+      };
+    }
+
+    expect(thrownError).not.toBeNull();
+
+    const fieldErrors = thrownError!.flatten().fieldErrors;
+    expect(fieldErrors.stockCode).toBeUndefined();
+    expect(fieldErrors.title).toBeDefined();
+    expect(fieldErrors.make).toBeDefined();
+    expect(fieldErrors.year).toBeDefined();
   });
 });

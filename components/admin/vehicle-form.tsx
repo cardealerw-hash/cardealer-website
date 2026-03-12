@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Textarea } from "@/components/ui/textarea";
-import { normalizeStockCode, slugify } from "@/lib/utils";
 import type { ActionState, Location, Vehicle } from "@/types/dealership";
 
 type EditableImage = {
@@ -66,35 +65,6 @@ function makeEditableImages(vehicle?: Vehicle | null): EditableImage[] {
   }));
 }
 
-function buildStockCodeTokens(value: string, maxTokens: number) {
-  return value
-    .split(/[^a-zA-Z0-9]+/)
-    .map((token) => token.trim().toUpperCase())
-    .filter(Boolean)
-    .slice(0, maxTokens)
-    .map((token) => token.slice(0, 3));
-}
-
-function buildSuggestedStockCode({
-  year,
-  make,
-  model,
-}: {
-  year: string;
-  make: string;
-  model: string;
-}) {
-  return normalizeStockCode(
-    [
-      year.trim(),
-      ...buildStockCodeTokens(make, 1),
-      ...buildStockCodeTokens(model, 2),
-    ]
-      .filter(Boolean)
-      .join("-"),
-  ).slice(0, 24);
-}
-
 function getImageLabel(imageUrl: string, fallbackIndex: number) {
   try {
     const pathname = new URL(imageUrl).pathname;
@@ -139,34 +109,15 @@ export function VehicleForm({
   );
   const [uploadError, setUploadError] = useState("");
   const [manualImageUrl, setManualImageUrl] = useState("");
-  const initialSuggestedSlug = slugify(vehicle?.title || "");
-  const initialSuggestedStockCode = buildSuggestedStockCode({
-    year: vehicle?.year ? String(vehicle.year) : "",
-    make: vehicle?.make || "",
-    model: vehicle?.model || "",
-  });
   const [title, setTitle] = useState(vehicle?.title || "");
   const [make, setMake] = useState(vehicle?.make || "");
   const [model, setModel] = useState(vehicle?.model || "");
   const [year, setYear] = useState(vehicle?.year ? String(vehicle.year) : "");
-  const [slug, setSlug] = useState(vehicle?.slug || "");
-  const [stockCode, setStockCode] = useState(vehicle?.stockCode || "");
-  const [isSlugCustomized, setIsSlugCustomized] = useState(
-    Boolean(vehicle?.slug && vehicle.slug !== initialSuggestedSlug),
-  );
-  const [isStockCodeCustomized, setIsStockCodeCustomized] = useState(
-    Boolean(vehicle?.stockCode && vehicle.stockCode !== initialSuggestedStockCode),
-  );
   const filePickerRef = useRef<HTMLInputElement>(null);
   const stagedFilesInputRef = useRef<HTMLInputElement>(null);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const pendingFilesRef = useRef<PendingFile[]>([]);
 
-  const suggestedSlug = useMemo(() => slugify(title), [title]);
-  const suggestedStockCode = useMemo(
-    () => buildSuggestedStockCode({ year, make, model }),
-    [year, make, model],
-  );
   const serializedImages = useMemo(() => JSON.stringify(images), [images]);
 
   function normalizeImages(nextImages: EditableImage[]) {
@@ -230,18 +181,6 @@ export function VehicleForm({
 
     stagedFilesInputRef.current.files = transfer.files;
   }
-
-  useEffect(() => {
-    if (!isSlugCustomized) {
-      setSlug(suggestedSlug);
-    }
-  }, [isSlugCustomized, suggestedSlug]);
-
-  useEffect(() => {
-    if (!isStockCodeCustomized) {
-      setStockCode(suggestedStockCode);
-    }
-  }, [isStockCodeCustomized, suggestedStockCode]);
 
   useEffect(() => {
     syncStagedFiles(images, pendingFiles);
@@ -401,7 +340,7 @@ export function VehicleForm({
 
         <FormSection
           title="Basics"
-          description="Keep the key listing fields fast to fill. Stock code and slug can follow your core details automatically."
+          description="Keep the key listing fields fast to fill. The reference code and vehicle URL are managed automatically."
         >
           <div className="grid gap-4 xl:grid-cols-3">
             <div className="xl:col-span-2">
@@ -445,69 +384,9 @@ export function VehicleForm({
                 placeholder="Land Cruiser V8"
               />
             </div>
-            <div>
-              <div className="flex items-center justify-between gap-3">
-                <Label htmlFor="stockCode">Stock code</Label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStockCode(suggestedStockCode);
-                    setIsStockCodeCustomized(false);
-                  }}
-                  className="text-xs font-semibold text-primary disabled:text-stone-400"
-                  disabled={!suggestedStockCode}
-                >
-                  Use suggested
-                </button>
-              </div>
-              <Input
-                id="stockCode"
-                name="stockCode"
-                value={stockCode}
-                onChange={(event) => {
-                  const nextValue = normalizeStockCode(event.target.value);
-                  setStockCode(nextValue);
-                  setIsStockCodeCustomized(nextValue !== suggestedStockCode);
-                }}
-                placeholder="2018-RAN-VOG"
-              />
-              <p className="mt-2 text-xs leading-6 text-stone-500">
-                {suggestedStockCode
-                  ? `Suggested from year, make, and model: ${suggestedStockCode}`
-                  : "Add year, make, and model to generate a starting stock code."}
-              </p>
-            </div>
-            <div className="xl:col-span-2">
-              <div className="flex items-center justify-between gap-3">
-                <Label htmlFor="slug">Slug</Label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSlug(suggestedSlug);
-                    setIsSlugCustomized(false);
-                  }}
-                  className="text-xs font-semibold text-primary disabled:text-stone-400"
-                  disabled={!suggestedSlug}
-                >
-                  Use suggested
-                </button>
-              </div>
-              <Input
-                id="slug"
-                name="slug"
-                value={slug}
-                onChange={(event) => {
-                  const nextValue = slugify(event.target.value);
-                  setSlug(nextValue);
-                  setIsSlugCustomized(nextValue !== suggestedSlug);
-                }}
-                placeholder="2018-range-rover-vogue"
-              />
-              <p className="mt-2 text-xs leading-6 text-stone-500">
-                {suggestedSlug
-                  ? `Generated from the title: ${suggestedSlug}`
-                  : "The URL slug will follow the title once you start typing."}
-              </p>
+            <div className="rounded-3xl border border-dashed border-border/70 bg-stone-50 px-4 py-3 text-sm text-stone-600 xl:col-span-3">
+              The system keeps the stock code and public vehicle URL in sync
+              automatically when you save this listing.
             </div>
           </div>
         </FormSection>

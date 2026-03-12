@@ -12,8 +12,10 @@ import {
   uploadVehicleImageFromUrl,
 } from "@/lib/cloudinary";
 import { mapVehicleFormData } from "@/lib/vehicle-form";
+import { resolveVehicleIdentifiers } from "@/lib/data/filters";
 import {
   deleteVehicle,
+  getAdminVehicles,
   getVehicleById,
   saveVehicle,
   syncVehicleImagesFromCloudinary,
@@ -269,11 +271,25 @@ export async function saveVehicleAction(
 
   try {
     const input = mapVehicleFormData(formData);
+    const adminVehicles = await getAdminVehicles();
+    const currentVehicle = adminVehicles.find((vehicle) => vehicle.id === input.id);
+    const resolvedIdentifiers = resolveVehicleIdentifiers(
+      {
+        ...input,
+        stockCode: currentVehicle?.stockCode || input.stockCode,
+        slug: currentVehicle?.slug || input.slug,
+      },
+      adminVehicles,
+    );
     const pendingFiles = formData.getAll("pendingFiles").filter(
       (entry): entry is File => entry instanceof File,
     );
+    const inputWithResolvedIdentifiers = {
+      ...input,
+      ...resolvedIdentifiers,
+    };
     const finalized = await finalizeVehicleImages(
-      input,
+      inputWithResolvedIdentifiers,
       pendingFiles,
       uploadedPublicIds,
       {
@@ -283,7 +299,7 @@ export async function saveVehicleAction(
     );
 
     const inputWithUploadedImages = {
-      ...input,
+      ...inputWithResolvedIdentifiers,
       images: finalized.finalizedImages,
     };
     vehicle = await saveVehicle(inputWithUploadedImages, {

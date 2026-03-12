@@ -1,5 +1,10 @@
 import { siteConfig } from "@/lib/config/site";
-import { humanizeStockCategory, slugify, vehicleSearchText } from "@/lib/utils";
+import {
+  humanizeStockCategory,
+  normalizeStockCode,
+  slugify,
+  vehicleSearchText,
+} from "@/lib/utils";
 import type {
   InventoryFacets,
   InventoryQuery,
@@ -156,6 +161,50 @@ export function paginateVehicles(items: Vehicle[], query: InventoryQuery): Inven
     totalPages,
     facets: buildFacets(items),
     filters: query,
+  };
+}
+
+function buildUniqueValue(
+  baseValue: string,
+  usedValues: Set<string>,
+  normalizeValue: (value: string) => string,
+) {
+  const normalizedBaseValue = normalizeValue(baseValue);
+
+  if (!normalizedBaseValue || !usedValues.has(normalizedBaseValue)) {
+    return normalizedBaseValue;
+  }
+
+  let suffix = 2;
+
+  while (true) {
+    const candidate = normalizeValue(`${normalizedBaseValue}-${suffix}`);
+
+    if (!usedValues.has(candidate)) {
+      return candidate;
+    }
+
+    suffix += 1;
+  }
+}
+
+export function resolveVehicleIdentifiers(
+  input: Pick<VehicleFormInput, "id" | "title" | "stockCode" | "slug">,
+  vehicles: Pick<Vehicle, "id" | "stockCode" | "slug">[],
+) {
+  const otherVehicles = vehicles.filter((vehicle) => vehicle.id !== input.id);
+  const usedStockCodes = new Set(
+    otherVehicles.map((vehicle) => normalizeStockCode(vehicle.stockCode)),
+  );
+  const usedSlugs = new Set(otherVehicles.map((vehicle) => slugify(vehicle.slug)));
+
+  return {
+    stockCode: buildUniqueValue(
+      input.stockCode,
+      usedStockCodes,
+      normalizeStockCode,
+    ),
+    slug: buildUniqueValue(input.slug || input.title, usedSlugs, slugify),
   };
 }
 

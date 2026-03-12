@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => {
     uploadVehicleImageFromUrl: vi.fn(),
     deleteCloudinaryAssets: vi.fn(),
     mapVehicleFormData: vi.fn(),
+    getAdminVehicles: vi.fn(),
     saveVehicle: vi.fn(),
     redirect: vi.fn(),
     revalidatePath: vi.fn(),
@@ -59,6 +60,7 @@ vi.mock("@/lib/vehicle-form", () => ({
 
 vi.mock("@/lib/data/repository", () => ({
   deleteVehicle: vi.fn(),
+  getAdminVehicles: mocks.getAdminVehicles,
   getVehicleById: vi.fn(),
   saveVehicle: mocks.saveVehicle,
   syncVehicleImagesFromCloudinary: vi.fn(),
@@ -100,6 +102,7 @@ describe("saveVehicleAction", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.envState.hasCloudinaryConfig = true;
+    mocks.getAdminVehicles.mockResolvedValue([]);
   });
 
   it("cleans up uploaded assets if a later staged file upload fails", async () => {
@@ -226,6 +229,113 @@ describe("saveVehicleAction", () => {
             cloudinaryPublicId: null,
           }),
         ],
+      }),
+      { forceDemo: false },
+    );
+  });
+
+  it("derives unique stock codes and slugs before uploading and saving", async () => {
+    mocks.requireAdminSession.mockResolvedValue({
+      mode: "supabase",
+      email: "admin@example.com",
+      name: "Admin",
+    });
+    mocks.getAdminVehicles.mockResolvedValue([
+      {
+        id: "existing-vehicle",
+        stockCode: "2020-TOY-PRA",
+        slug: "2020-toyota-prado",
+      },
+    ]);
+    mocks.mapVehicleFormData.mockReturnValue(
+      buildVehicleInput({
+        stockCode: "2020-TOY-PRA",
+        slug: "2020-toyota-prado",
+        images: [
+          {
+            imageUrl: "https://example.com/car.jpg",
+            sourceUrl: "https://example.com/car.jpg",
+            sortOrder: 0,
+            isHero: true,
+            uploadState: "pending_url",
+          },
+        ],
+      }),
+    );
+    mocks.uploadVehicleImageFromUrl.mockResolvedValue({
+      secureUrl: "https://cdn.example.com/car.jpg",
+      publicId: "cloudinary-car",
+    });
+    mocks.saveVehicle.mockResolvedValue({
+      slug: "2020-toyota-prado-2",
+    });
+
+    await saveVehicleAction({ success: false, message: "" }, new FormData());
+
+    expect(mocks.uploadVehicleImageFromUrl).toHaveBeenCalledWith(
+      "https://example.com/car.jpg",
+      {
+        stockCode: "2020-TOY-PRA-2",
+      },
+    );
+    expect(mocks.saveVehicle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stockCode: "2020-TOY-PRA-2",
+        slug: "2020-toyota-prado-2",
+      }),
+      { forceDemo: false },
+    );
+  });
+
+  it("keeps the current stock code and slug when editing an existing vehicle", async () => {
+    mocks.requireAdminSession.mockResolvedValue({
+      mode: "supabase",
+      email: "admin@example.com",
+      name: "Admin",
+    });
+    mocks.getAdminVehicles.mockResolvedValue([
+      {
+        id: "vehicle-1",
+        stockCode: "KDL-001",
+        slug: "2020-toyota-prado",
+      },
+    ]);
+    mocks.mapVehicleFormData.mockReturnValue(
+      buildVehicleInput({
+        id: "vehicle-1",
+        stockCode: "2020-TOY-PRA",
+        slug: "2020-toyota-prado-updated",
+        images: [
+          {
+            imageUrl: "https://example.com/car.jpg",
+            sourceUrl: "https://example.com/car.jpg",
+            sortOrder: 0,
+            isHero: true,
+            uploadState: "pending_url",
+          },
+        ],
+      }),
+    );
+    mocks.uploadVehicleImageFromUrl.mockResolvedValue({
+      secureUrl: "https://cdn.example.com/car.jpg",
+      publicId: "cloudinary-car",
+    });
+    mocks.saveVehicle.mockResolvedValue({
+      slug: "2020-toyota-prado",
+    });
+
+    await saveVehicleAction({ success: false, message: "" }, new FormData());
+
+    expect(mocks.uploadVehicleImageFromUrl).toHaveBeenCalledWith(
+      "https://example.com/car.jpg",
+      {
+        stockCode: "KDL-001",
+      },
+    );
+    expect(mocks.saveVehicle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stockCode: "KDL-001",
+        slug: "2020-toyota-prado",
       }),
       { forceDemo: false },
     );

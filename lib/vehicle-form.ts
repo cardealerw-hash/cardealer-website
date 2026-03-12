@@ -4,6 +4,7 @@ import {
   asOptionalString,
   isTruthy,
   normalizeStockCode,
+  slugify,
 } from "@/lib/utils";
 import type { VehicleFormInput, VehicleImageInput } from "@/types/dealership";
 
@@ -55,17 +56,53 @@ function parseImages(value: string | undefined): VehicleImageInput[] {
   }
 }
 
+function buildStockCodeTokens(value: string, maxTokens: number) {
+  return value
+    .split(/[^a-zA-Z0-9]+/)
+    .map((token) => token.trim().toUpperCase())
+    .filter(Boolean)
+    .slice(0, maxTokens)
+    .map((token) => token.slice(0, 3));
+}
+
+function buildDerivedStockCode({
+  year,
+  make,
+  model,
+}: {
+  year: number;
+  make: string;
+  model: string;
+}) {
+  return normalizeStockCode(
+    [
+      year > 0 ? String(year) : "",
+      ...buildStockCodeTokens(make, 1),
+      ...buildStockCodeTokens(model, 2),
+    ]
+      .filter(Boolean)
+      .join("-"),
+  ).slice(0, 24);
+}
+
 export function mapVehicleFormData(formData: FormData): VehicleFormInput {
+  const title = asOptionalString(formData.get("title")) || "";
+  const make = asOptionalString(formData.get("make")) || "";
+  const model = asOptionalString(formData.get("model")) || "";
+  const year = asOptionalNumber(formData.get("year")) || 0;
+  const derivedStockCode =
+    buildDerivedStockCode({ year, make, model }) ||
+    normalizeStockCode(title) ||
+    "AUTO-STOCK";
+
   const payload = {
     id: asOptionalString(formData.get("id")),
-    title: asOptionalString(formData.get("title")) || "",
-    stockCode: normalizeStockCode(
-      asOptionalString(formData.get("stockCode")) || "",
-    ),
-    slug: asOptionalString(formData.get("slug")),
-    make: asOptionalString(formData.get("make")) || "",
-    model: asOptionalString(formData.get("model")) || "",
-    year: asOptionalNumber(formData.get("year")) || 0,
+    title,
+    stockCode: derivedStockCode,
+    slug: slugify(title) || undefined,
+    make,
+    model,
+    year,
     condition: asOptionalString(formData.get("condition")) || "",
     price: asOptionalNumber(formData.get("price")) || 0,
     negotiable: isTruthy(formData.get("negotiable")),
