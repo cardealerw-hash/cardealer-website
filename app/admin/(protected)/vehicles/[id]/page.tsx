@@ -21,8 +21,8 @@ export default async function AdminEditVehiclePage({
 
   return (
     <div className="space-y-6">
-      <CloudinarySyncCard vehicleId={vehicle.id} stockCode={vehicle.stockCode} />
       <VehicleForm locations={locations} vehicle={vehicle} />
+      <CloudinarySyncCard vehicleId={vehicle.id} stockCode={vehicle.stockCode} />
     </div>
   );
 }

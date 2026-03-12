@@ -5,11 +5,13 @@ import { ArrowUp, ImagePlus, Star, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
 import { saveVehicleAction } from "@/lib/actions/admin-actions";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Textarea } from "@/components/ui/textarea";
+import { normalizeStockCode, slugify } from "@/lib/utils";
 import type { ActionState, Location, Vehicle } from "@/types/dealership";
 
 type EditableImage = {
@@ -31,6 +33,20 @@ type PendingFile = {
 };
 
 const initialState: ActionState = { success: false, message: "" };
+const selectClassName =
+  "h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-stone-900";
+
+const conditionOptions = [
+  "Foreign used",
+  "Locally used",
+  "Brand new",
+  "Trade-in unit",
+];
+
+const transmissionOptions = ["Automatic", "Manual", "CVT"];
+const fuelTypeOptions = ["Petrol", "Diesel", "Hybrid", "Electric"];
+const driveTypeOptions = ["2WD", "4WD", "AWD", "RWD", "FWD"];
+const bodyTypeOptions = ["SUV", "Sedan", "Pickup", "Hatchback", "Van", "Coupe"];
 
 function makeEditableImages(vehicle?: Vehicle | null): EditableImage[] {
   if (!vehicle) {
@@ -50,6 +66,66 @@ function makeEditableImages(vehicle?: Vehicle | null): EditableImage[] {
   }));
 }
 
+function buildStockCodeTokens(value: string, maxTokens: number) {
+  return value
+    .split(/[^a-zA-Z0-9]+/)
+    .map((token) => token.trim().toUpperCase())
+    .filter(Boolean)
+    .slice(0, maxTokens)
+    .map((token) => token.slice(0, 3));
+}
+
+function buildSuggestedStockCode({
+  year,
+  make,
+  model,
+}: {
+  year: string;
+  make: string;
+  model: string;
+}) {
+  return normalizeStockCode(
+    [
+      year.trim(),
+      ...buildStockCodeTokens(make, 1),
+      ...buildStockCodeTokens(model, 2),
+    ]
+      .filter(Boolean)
+      .join("-"),
+  ).slice(0, 24);
+}
+
+function getImageLabel(imageUrl: string, fallbackIndex: number) {
+  try {
+    const pathname = new URL(imageUrl).pathname;
+    const filename = pathname.split("/").pop();
+
+    return filename || `Image ${fallbackIndex + 1}`;
+  } catch {
+    return `Image ${fallbackIndex + 1}`;
+  }
+}
+
+function FormSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-4 border-t border-border/70 pt-6 first:border-t-0 first:pt-0">
+      <div className="space-y-1">
+        <h3 className="text-base font-semibold text-stone-950">{title}</h3>
+        <p className="text-sm text-stone-600">{description}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
 export function VehicleForm({
   locations,
   vehicle,
@@ -63,16 +139,35 @@ export function VehicleForm({
   );
   const [uploadError, setUploadError] = useState("");
   const [manualImageUrl, setManualImageUrl] = useState("");
+  const initialSuggestedSlug = slugify(vehicle?.title || "");
+  const initialSuggestedStockCode = buildSuggestedStockCode({
+    year: vehicle?.year ? String(vehicle.year) : "",
+    make: vehicle?.make || "",
+    model: vehicle?.model || "",
+  });
+  const [title, setTitle] = useState(vehicle?.title || "");
+  const [make, setMake] = useState(vehicle?.make || "");
+  const [model, setModel] = useState(vehicle?.model || "");
+  const [year, setYear] = useState(vehicle?.year ? String(vehicle.year) : "");
+  const [slug, setSlug] = useState(vehicle?.slug || "");
   const [stockCode, setStockCode] = useState(vehicle?.stockCode || "");
+  const [isSlugCustomized, setIsSlugCustomized] = useState(
+    Boolean(vehicle?.slug && vehicle.slug !== initialSuggestedSlug),
+  );
+  const [isStockCodeCustomized, setIsStockCodeCustomized] = useState(
+    Boolean(vehicle?.stockCode && vehicle.stockCode !== initialSuggestedStockCode),
+  );
   const filePickerRef = useRef<HTMLInputElement>(null);
   const stagedFilesInputRef = useRef<HTMLInputElement>(null);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const pendingFilesRef = useRef<PendingFile[]>([]);
 
-  const serializedImages = useMemo(
-    () => JSON.stringify(images),
-    [images],
+  const suggestedSlug = useMemo(() => slugify(title), [title]);
+  const suggestedStockCode = useMemo(
+    () => buildSuggestedStockCode({ year, make, model }),
+    [year, make, model],
   );
+  const serializedImages = useMemo(() => JSON.stringify(images), [images]);
 
   function normalizeImages(nextImages: EditableImage[]) {
     let pendingFileOrder = 0;
@@ -106,16 +201,23 @@ export function VehicleForm({
     });
   }
 
-  function syncStagedFiles(nextImages: EditableImage[], nextPendingFiles: PendingFile[]) {
+  function syncStagedFiles(
+    nextImages: EditableImage[],
+    nextPendingFiles: PendingFile[],
+  ) {
     if (!stagedFilesInputRef.current || typeof DataTransfer === "undefined") {
       return;
     }
 
     const transfer = new DataTransfer();
-    const pendingFileLookup = new Map(nextPendingFiles.map((item) => [item.id, item]));
+    const pendingFileLookup = new Map(
+      nextPendingFiles.map((item) => [item.id, item]),
+    );
 
     nextImages
-      .filter((image) => image.uploadState === "pending_file" && image.pendingFileId)
+      .filter(
+        (image) => image.uploadState === "pending_file" && image.pendingFileId,
+      )
       .forEach((image) => {
         const pendingFile = image.pendingFileId
           ? pendingFileLookup.get(image.pendingFileId)
@@ -130,6 +232,18 @@ export function VehicleForm({
   }
 
   useEffect(() => {
+    if (!isSlugCustomized) {
+      setSlug(suggestedSlug);
+    }
+  }, [isSlugCustomized, suggestedSlug]);
+
+  useEffect(() => {
+    if (!isStockCodeCustomized) {
+      setStockCode(suggestedStockCode);
+    }
+  }, [isStockCodeCustomized, suggestedStockCode]);
+
+  useEffect(() => {
     syncStagedFiles(images, pendingFiles);
   }, [images, pendingFiles]);
 
@@ -139,7 +253,9 @@ export function VehicleForm({
 
   useEffect(() => {
     return () => {
-      pendingFilesRef.current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      pendingFilesRef.current.forEach((item) =>
+        URL.revokeObjectURL(item.previewUrl),
+      );
     };
   }, []);
 
@@ -147,6 +263,17 @@ export function VehicleForm({
     const nextUrl = manualImageUrl.trim();
 
     if (!nextUrl) {
+      return;
+    }
+
+    try {
+      const parsedUrl = new URL(nextUrl);
+
+      if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+        throw new Error("Use an http or https image URL.");
+      }
+    } catch {
+      setUploadError("Use a valid image URL before staging it.");
       return;
     }
 
@@ -172,6 +299,7 @@ export function VehicleForm({
     if (!files?.length) {
       return;
     }
+
     setUploadError("");
 
     const nextPendingFiles = Array.from(files).map((file) => {
@@ -210,7 +338,10 @@ export function VehicleForm({
     setImages((current) => {
       const removedImage = current[index];
 
-      if (removedImage?.uploadState === "pending_file" && removedImage.pendingFileId) {
+      if (
+        removedImage?.uploadState === "pending_file" &&
+        removedImage.pendingFileId
+      ) {
         setPendingFiles((pendingCurrent) => {
           const target = pendingCurrent.find(
             (item) => item.id === removedImage.pendingFileId,
@@ -220,7 +351,9 @@ export function VehicleForm({
             URL.revokeObjectURL(target.previewUrl);
           }
 
-          return pendingCurrent.filter((item) => item.id !== removedImage.pendingFileId);
+          return pendingCurrent.filter(
+            (item) => item.id !== removedImage.pendingFileId,
+          );
         });
       }
 
@@ -254,195 +387,316 @@ export function VehicleForm({
   }
 
   return (
-    <Card className="rounded-[28px] p-6">
-      <form action={formAction} className="space-y-8">
+    <Card className="rounded-[28px] p-5 sm:p-6">
+      <form action={formAction} className="space-y-7">
         <input type="hidden" name="id" value={vehicle?.id || ""} />
         <input type="hidden" name="imagesJson" value={serializedImages} />
-        <input ref={stagedFilesInputRef} type="file" name="pendingFiles" multiple className="hidden" />
+        <input
+          ref={stagedFilesInputRef}
+          type="file"
+          name="pendingFiles"
+          multiple
+          className="hidden"
+        />
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" defaultValue={vehicle?.title} />
+        <FormSection
+          title="Basics"
+          description="Keep the key listing fields fast to fill. Stock code and slug can follow your core details automatically."
+        >
+          <div className="grid gap-4 xl:grid-cols-3">
+            <div className="xl:col-span-2">
+              <Label htmlFor="title">Listing title</Label>
+              <Input
+                id="title"
+                name="title"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="2018 Range Rover Vogue"
+              />
+            </div>
+            <div>
+              <Label htmlFor="year">Year</Label>
+              <Input
+                id="year"
+                name="year"
+                type="number"
+                value={year}
+                onChange={(event) => setYear(event.target.value)}
+                placeholder="2018"
+              />
+            </div>
+            <div>
+              <Label htmlFor="make">Make</Label>
+              <Input
+                id="make"
+                name="make"
+                value={make}
+                onChange={(event) => setMake(event.target.value)}
+                placeholder="Toyota"
+              />
+            </div>
+            <div>
+              <Label htmlFor="model">Model</Label>
+              <Input
+                id="model"
+                name="model"
+                value={model}
+                onChange={(event) => setModel(event.target.value)}
+                placeholder="Land Cruiser V8"
+              />
+            </div>
+            <div>
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="stockCode">Stock code</Label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStockCode(suggestedStockCode);
+                    setIsStockCodeCustomized(false);
+                  }}
+                  className="text-xs font-semibold text-primary disabled:text-stone-400"
+                  disabled={!suggestedStockCode}
+                >
+                  Use suggested
+                </button>
+              </div>
+              <Input
+                id="stockCode"
+                name="stockCode"
+                value={stockCode}
+                onChange={(event) => {
+                  const nextValue = normalizeStockCode(event.target.value);
+                  setStockCode(nextValue);
+                  setIsStockCodeCustomized(nextValue !== suggestedStockCode);
+                }}
+                placeholder="2018-RAN-VOG"
+              />
+              <p className="mt-2 text-xs leading-6 text-stone-500">
+                {suggestedStockCode
+                  ? `Suggested from year, make, and model: ${suggestedStockCode}`
+                  : "Add year, make, and model to generate a starting stock code."}
+              </p>
+            </div>
+            <div className="xl:col-span-2">
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="slug">Slug</Label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSlug(suggestedSlug);
+                    setIsSlugCustomized(false);
+                  }}
+                  className="text-xs font-semibold text-primary disabled:text-stone-400"
+                  disabled={!suggestedSlug}
+                >
+                  Use suggested
+                </button>
+              </div>
+              <Input
+                id="slug"
+                name="slug"
+                value={slug}
+                onChange={(event) => {
+                  const nextValue = slugify(event.target.value);
+                  setSlug(nextValue);
+                  setIsSlugCustomized(nextValue !== suggestedSlug);
+                }}
+                placeholder="2018-range-rover-vogue"
+              />
+              <p className="mt-2 text-xs leading-6 text-stone-500">
+                {suggestedSlug
+                  ? `Generated from the title: ${suggestedSlug}`
+                  : "The URL slug will follow the title once you start typing."}
+              </p>
+            </div>
           </div>
-          <div>
-            <Label htmlFor="stockCode">Stock code</Label>
-            <Input
-              id="stockCode"
-              name="stockCode"
-              value={stockCode}
-              onChange={(event) => setStockCode(event.target.value)}
-              placeholder="CAR-001"
-            />
-            <p className="mt-2 text-xs leading-6 text-stone-500">
-              Match this to the Cloudinary asset folder for the car, such as{" "}
-              <strong>car-001</strong> or <strong>KDJ-001</strong>. You can save
-              the vehicle first and sync the gallery later from the edit page.
-            </p>
-          </div>
-          <div>
-            <Label htmlFor="slug">Slug</Label>
-            <Input id="slug" name="slug" defaultValue={vehicle?.slug} />
-          </div>
-          <div>
-            <Label htmlFor="make">Make</Label>
-            <Input id="make" name="make" defaultValue={vehicle?.make} />
-          </div>
-          <div>
-            <Label htmlFor="model">Model</Label>
-            <Input id="model" name="model" defaultValue={vehicle?.model} />
-          </div>
-          <div>
-            <Label htmlFor="year">Year</Label>
-            <Input id="year" name="year" type="number" defaultValue={vehicle?.year} />
-          </div>
-          <div>
-            <Label htmlFor="condition">Condition</Label>
-            <Input
-              id="condition"
-              name="condition"
-              defaultValue={vehicle?.condition}
-              placeholder="Foreign used"
-            />
-          </div>
-          <div>
-            <Label htmlFor="price">Price</Label>
-            <Input
-              id="price"
-              name="price"
-              type="number"
-              defaultValue={vehicle?.price}
-            />
-          </div>
-          <div>
-            <Label htmlFor="mileage">Mileage</Label>
-            <Input
-              id="mileage"
-              name="mileage"
-              type="number"
-              defaultValue={vehicle?.mileage}
-            />
-          </div>
-          <div>
-            <Label htmlFor="transmission">Transmission</Label>
-            <Input
-              id="transmission"
-              name="transmission"
-              defaultValue={vehicle?.transmission}
-            />
-          </div>
-          <div>
-            <Label htmlFor="fuelType">Fuel type</Label>
-            <Input id="fuelType" name="fuelType" defaultValue={vehicle?.fuelType} />
-          </div>
-          <div>
-            <Label htmlFor="driveType">Drive type</Label>
-            <Input id="driveType" name="driveType" defaultValue={vehicle?.driveType || ""} />
-          </div>
-          <div>
-            <Label htmlFor="bodyType">Body type</Label>
-            <Input id="bodyType" name="bodyType" defaultValue={vehicle?.bodyType || ""} />
-          </div>
-          <div>
-            <Label htmlFor="engineCapacity">Engine capacity</Label>
-            <Input
-              id="engineCapacity"
-              name="engineCapacity"
-              defaultValue={vehicle?.engineCapacity || ""}
-            />
-          </div>
-          <div>
-            <Label htmlFor="color">Color</Label>
-            <Input id="color" name="color" defaultValue={vehicle?.color || ""} />
-          </div>
-          <div>
-            <Label htmlFor="stockCategory">Stock category</Label>
-            <select
-              id="stockCategory"
-              name="stockCategory"
-              defaultValue={vehicle?.stockCategory || "used"}
-              className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm"
-            >
-              <option value="new">New</option>
-              <option value="used">Used</option>
-              <option value="imported">Imported</option>
-              <option value="available_for_importation">
-                Available for importation
-              </option>
-              <option value="traded_in">Traded-in</option>
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="status">Status</Label>
-            <select
-              id="status"
-              name="status"
-              defaultValue={vehicle?.status || "draft"}
-              className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm"
-            >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-              <option value="sold">Sold</option>
-              <option value="unpublished">Unpublished</option>
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="locationId">Location</Label>
-            <select
-              id="locationId"
-              name="locationId"
-              defaultValue={vehicle?.locationId || ""}
-              className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm"
-            >
-              <option value="">Select location</option>
-              {locations.map((location) => (
-                <option key={location.id} value={location.id}>
-                  {location.name}
+        </FormSection>
+
+        <FormSection
+          title="Listing setup"
+          description="These fields control how the vehicle appears in admin and on the live site."
+        >
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div>
+              <Label htmlFor="price">Price</Label>
+              <Input
+                id="price"
+                name="price"
+                type="number"
+                defaultValue={vehicle?.price}
+              />
+            </div>
+            <div>
+              <Label htmlFor="condition">Condition</Label>
+              <Input
+                id="condition"
+                name="condition"
+                defaultValue={vehicle?.condition}
+                list="vehicle-condition-options"
+                placeholder="Foreign used"
+              />
+            </div>
+            <div>
+              <Label htmlFor="locationId">Location</Label>
+              <select
+                id="locationId"
+                name="locationId"
+                defaultValue={vehicle?.locationId || ""}
+                className={selectClassName}
+              >
+                <option value="">Select location</option>
+                {locations.map((location) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <select
+                id="status"
+                name="status"
+                defaultValue={vehicle?.status || "draft"}
+                className={selectClassName}
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="sold">Sold</option>
+                <option value="unpublished">Unpublished</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="stockCategory">Stock category</Label>
+              <select
+                id="stockCategory"
+                name="stockCategory"
+                defaultValue={vehicle?.stockCategory || "used"}
+                className={selectClassName}
+              >
+                <option value="new">New</option>
+                <option value="used">Used</option>
+                <option value="imported">Imported</option>
+                <option value="available_for_importation">
+                  Available for importation
                 </option>
-              ))}
-            </select>
+                <option value="traded_in">Traded-in</option>
+              </select>
+            </div>
+            <label className="flex items-center gap-3 rounded-2xl border border-border bg-stone-50 px-4 py-3 text-sm font-medium text-stone-700">
+              <input
+                type="checkbox"
+                name="featured"
+                defaultChecked={vehicle?.featured}
+                className="size-4"
+              />
+              Featured listing
+            </label>
+            <label className="flex items-center gap-3 rounded-2xl border border-border bg-stone-50 px-4 py-3 text-sm font-medium text-stone-700">
+              <input
+                type="checkbox"
+                name="negotiable"
+                defaultChecked={vehicle?.negotiable}
+                className="size-4"
+              />
+              Price negotiable
+            </label>
           </div>
-          <label className="flex items-center gap-3 rounded-2xl border border-border bg-stone-50 px-4 py-3 text-sm font-medium text-stone-700">
-            <input
-              type="checkbox"
-              name="featured"
-              defaultChecked={vehicle?.featured}
-              className="size-4"
-            />
-            Featured listing
-          </label>
-          <label className="flex items-center gap-3 rounded-2xl border border-border bg-stone-50 px-4 py-3 text-sm font-medium text-stone-700">
-            <input
-              type="checkbox"
-              name="negotiable"
-              defaultChecked={vehicle?.negotiable}
-              className="size-4"
-            />
-            Price negotiable
-          </label>
-        </div>
+        </FormSection>
 
-        <div>
-          <Label htmlFor="description">Description</Label>
+        <FormSection
+          title="Vehicle details"
+          description="Use the common options for speed, but keep the fields open for custom entries when needed."
+        >
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div>
+              <Label htmlFor="mileage">Mileage</Label>
+              <Input
+                id="mileage"
+                name="mileage"
+                type="number"
+                defaultValue={vehicle?.mileage}
+              />
+            </div>
+            <div>
+              <Label htmlFor="transmission">Transmission</Label>
+              <Input
+                id="transmission"
+                name="transmission"
+                defaultValue={vehicle?.transmission}
+                list="vehicle-transmission-options"
+                placeholder="Automatic"
+              />
+            </div>
+            <div>
+              <Label htmlFor="fuelType">Fuel type</Label>
+              <Input
+                id="fuelType"
+                name="fuelType"
+                defaultValue={vehicle?.fuelType}
+                list="vehicle-fuel-options"
+                placeholder="Petrol"
+              />
+            </div>
+            <div>
+              <Label htmlFor="driveType">Drive type</Label>
+              <Input
+                id="driveType"
+                name="driveType"
+                defaultValue={vehicle?.driveType || ""}
+                list="vehicle-drive-options"
+                placeholder="4WD"
+              />
+            </div>
+            <div>
+              <Label htmlFor="bodyType">Body type</Label>
+              <Input
+                id="bodyType"
+                name="bodyType"
+                defaultValue={vehicle?.bodyType || ""}
+                list="vehicle-body-options"
+                placeholder="SUV"
+              />
+            </div>
+            <div>
+              <Label htmlFor="engineCapacity">Engine capacity</Label>
+              <Input
+                id="engineCapacity"
+                name="engineCapacity"
+                defaultValue={vehicle?.engineCapacity || ""}
+                placeholder="4700cc"
+              />
+            </div>
+            <div>
+              <Label htmlFor="color">Color</Label>
+              <Input
+                id="color"
+                name="color"
+                defaultValue={vehicle?.color || ""}
+                placeholder="White"
+              />
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection
+          title="Description"
+          description="Keep the copy short and sales-led so the website reads cleanly."
+        >
           <Textarea
             id="description"
             name="description"
             defaultValue={vehicle?.description}
-            className="min-h-40"
+            className="min-h-32"
+            placeholder="Highlight condition, standout features, viewing location, and the strongest reason to enquire."
           />
-        </div>
+        </FormSection>
 
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm font-semibold text-stone-950">Gallery images</p>
-            <p className="mt-2 text-sm leading-7 text-stone-600">
-              Add files or URLs now, then they only go to Cloudinary when you
-              save the vehicle. Save without images and sync the folder from the
-              edit screen afterwards if you prefer.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4 md:flex-row md:items-end">
+        <FormSection
+          title="Gallery"
+          description="Stage files or URLs here. They only upload to Cloudinary when you save the vehicle."
+        >
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
             <div className="flex-1">
               <Label htmlFor="manual-image">Stage image from URL</Label>
               <Input
@@ -473,94 +727,148 @@ export function VehicleForm({
             </label>
           </div>
 
-          {uploadError ? <p className="text-sm text-red-600">{uploadError}</p> : null}
+          {uploadError ? (
+            <p className="text-sm text-red-600">{uploadError}</p>
+          ) : null}
 
           {images.length ? (
-            <div className="grid gap-4">
-              {images.map((image, index) => (
-                <div
-                  key={`${image.imageUrl}-${index}`}
-                  className="flex flex-col gap-4 rounded-3xl border border-border bg-stone-50 p-4 md:flex-row md:items-center"
-                >
-                  <div className="relative h-24 w-full overflow-hidden rounded-2xl md:w-40">
-                    <Image
-                      src={image.imageUrl}
-                      alt={image.altText || "Vehicle image"}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-stone-800">{image.imageUrl}</p>
-                    <p className="mt-1 text-xs font-medium uppercase tracking-[0.18em] text-stone-500">
-                      {image.uploadState === "pending_file" || image.uploadState === "pending_url"
-                        ? "Uploads on save"
-                        : "Saved image"}
-                    </p>
-                    <Input
-                      placeholder="Alt text"
-                      value={image.altText || ""}
-                      onChange={(event) =>
-                        setImages((current) =>
-                          current.map((item, itemIndex) =>
-                            itemIndex === index
-                              ? { ...item, altText: event.target.value }
-                              : item,
-                          ),
-                        )
-                      }
-                      className="mt-3"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      className="inline-flex size-10 items-center justify-center rounded-full border border-border"
-                      onClick={() => setHero(index)}
-                      aria-label="Set hero image"
-                    >
-                      <Star
-                        className={`size-4 ${
-                          image.isHero ? "fill-primary text-primary" : "text-stone-500"
-                        }`}
+            <div className="grid gap-3">
+              {images.map((image, index) => {
+                const isPending =
+                  image.uploadState === "pending_file" ||
+                  image.uploadState === "pending_url";
+
+                return (
+                  <div
+                    key={`${image.imageUrl}-${index}`}
+                    className="grid gap-3 rounded-[24px] border border-border bg-white p-3 md:grid-cols-[112px_minmax(0,1fr)_auto] md:items-center"
+                  >
+                    <div className="relative h-20 overflow-hidden rounded-2xl bg-stone-100">
+                      <Image
+                        src={image.imageUrl}
+                        alt={image.altText || "Vehicle image"}
+                        fill
+                        sizes="(max-width: 767px) 100vw, 112px"
+                        className="object-cover"
                       />
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex size-10 items-center justify-center rounded-full border border-border"
-                      onClick={() => moveImageUp(index)}
-                      aria-label="Move image up"
-                    >
-                      <ArrowUp className="size-4 text-stone-500" />
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex size-10 items-center justify-center rounded-full border border-border"
-                      onClick={() => removeImage(index)}
-                      aria-label="Remove image"
-                    >
-                      <Trash2 className="size-4 text-stone-500" />
-                    </button>
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-stone-900">
+                          {getImageLabel(image.imageUrl, index)}
+                        </p>
+                        {image.isHero ? <Badge variant="accent">Hero</Badge> : null}
+                        <Badge variant={isPending ? "muted" : "success"}>
+                          {isPending ? "Uploads on save" : "Saved"}
+                        </Badge>
+                      </div>
+                      <p className="mt-1 truncate text-xs text-stone-500">
+                        {image.imageUrl}
+                      </p>
+                      <Input
+                        placeholder="Alt text"
+                        value={image.altText || ""}
+                        onChange={(event) =>
+                          setImages((current) =>
+                            current.map((item, itemIndex) =>
+                              itemIndex === index
+                                ? { ...item, altText: event.target.value }
+                                : item,
+                            ),
+                          )
+                        }
+                        className="mt-3 h-10"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 md:justify-end">
+                      <button
+                        type="button"
+                        className="inline-flex size-10 items-center justify-center rounded-full border border-border"
+                        onClick={() => setHero(index)}
+                        aria-label="Set hero image"
+                      >
+                        <Star
+                          className={`size-4 ${
+                            image.isHero
+                              ? "fill-primary text-primary"
+                              : "text-stone-500"
+                          }`}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        className="inline-flex size-10 items-center justify-center rounded-full border border-border"
+                        onClick={() => moveImageUp(index)}
+                        aria-label="Move image up"
+                      >
+                        <ArrowUp className="size-4 text-stone-500" />
+                      </button>
+                      <button
+                        type="button"
+                        className="inline-flex size-10 items-center justify-center rounded-full border border-border"
+                        onClick={() => removeImage(index)}
+                        aria-label="Remove image"
+                      >
+                        <Trash2 className="size-4 text-stone-500" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
-            <div className="rounded-[24px] border border-dashed border-border bg-stone-50 px-5 py-8 text-sm leading-7 text-stone-600">
-              No gallery images yet. You can save the vehicle now and sync the
-              Cloudinary folder from the edit screen, or upload images after the
-              stock code is set.
+            <div className="rounded-[24px] border border-dashed border-border bg-stone-50 px-5 py-7 text-sm leading-7 text-stone-600">
+              No gallery images yet. You can save the vehicle first, then pull
+              the Cloudinary folder later, or stage images now and upload them
+              with the save action.
             </div>
           )}
-        </div>
+        </FormSection>
 
         {state.message ? (
-          <p className={`text-sm ${state.success ? "text-emerald-700" : "text-red-600"}`}>
+          <p
+            className={`text-sm ${
+              state.success ? "text-emerald-700" : "text-red-600"
+            }`}
+          >
             {state.message}
           </p>
         ) : null}
 
-        <SubmitButton className="w-full sm:w-auto">Save Vehicle</SubmitButton>
+        <div className="flex flex-col gap-3 border-t border-border/70 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-stone-600">
+            Save once when the listing copy and gallery are ready.
+          </p>
+          <SubmitButton className="w-full sm:w-auto">Save Vehicle</SubmitButton>
+        </div>
+
+        <datalist id="vehicle-condition-options">
+          {conditionOptions.map((option) => (
+            <option key={option} value={option} />
+          ))}
+        </datalist>
+        <datalist id="vehicle-transmission-options">
+          {transmissionOptions.map((option) => (
+            <option key={option} value={option} />
+          ))}
+        </datalist>
+        <datalist id="vehicle-fuel-options">
+          {fuelTypeOptions.map((option) => (
+            <option key={option} value={option} />
+          ))}
+        </datalist>
+        <datalist id="vehicle-drive-options">
+          {driveTypeOptions.map((option) => (
+            <option key={option} value={option} />
+          ))}
+        </datalist>
+        <datalist id="vehicle-body-options">
+          {bodyTypeOptions.map((option) => (
+            <option key={option} value={option} />
+          ))}
+        </datalist>
       </form>
     </Card>
   );
