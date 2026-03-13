@@ -4,18 +4,31 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminSession, signInDemoAdmin, signOutAdmin } from "@/lib/auth";
-import { allowDemoAdmin, hasSupabaseConfig } from "@/lib/env";
+import { allowDemoAdmin, hasCloudinaryConfig, hasSupabaseConfig } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { mapVehicleFormData } from "@/lib/vehicle-form";
+import {
+  deleteCloudinaryAssets,
+  uploadVehicleImageFromUrl,
+} from "@/lib/cloudinary";
+import { isRepositoryUnavailableError } from "@/lib/data/errors";
+import { resolveVehicleIdentifiers } from "@/lib/data/filters";
 import {
   deleteVehicle,
+  getAdminVehicles,
   getVehicleById,
   saveVehicle,
   syncVehicleImagesFromCloudinary,
   toggleVehicleFeatured,
+  updateLeadInboxState,
   updateVehicleStatus,
 } from "@/lib/data/repository";
-import type { ActionState } from "@/types/dealership";
+import { mapVehicleFormData } from "@/lib/vehicle-form";
+import type {
+  ActionState,
+  LeadInboxSourceType,
+  LeadWorkflowStatus,
+  VehicleFormInput,
+} from "@/types/dealership";
 
 function validationErrorState(error: {
   flatten: () => { fieldErrors: Record<string, string[]> };
@@ -24,6 +37,122 @@ function validationErrorState(error: {
     success: false,
     message: "Please review the highlighted fields and try again.",
     fieldErrors: error.flatten().fieldErrors,
+  };
+}
+
+function actionFailure(message: string, fieldErrors?: Record<string, string[]>) {
+  return {
+    success: false,
+    message,
+    ...(fieldErrors ? { fieldErrors } : {}),
+  } satisfies ActionState;
+}
+
+function actionSuccess(message: string, redirectTo?: string) {
+  return {
+    success: true,
+    message,
+    ...(redirectTo ? { redirectTo } : {}),
+  } satisfies ActionState;
+}
+
+class VehicleSaveActionError extends Error {}
+
+function parseNewUploadPublicIds(formData: FormData) {
+  const raw = String(formData.get("newUploadPublicIdsJson") || "[]");
+
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed)
+      ? [
+          ...new Set(
+            parsed.filter((value): value is string => typeof value === "string"),
+          ),
+        ]
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+async function cleanupUploadedVehicleImages(publicIds: string[]) {
+  if (!publicIds.length) {
+    return;
+  }
+
+  try {
+    await deleteCloudinaryAssets(publicIds);
+  } catch (error) {
+    console.warn(
+      "[cloudinary] Unable to clean up uploaded vehicle images after a failed save.",
+      error instanceof Error ? error.message : error,
+    );
+  }
+}
+
+async function finalizeVehicleImages(
+  input: VehicleFormInput,
+  uploadedPublicIds: string[],
+  options: { canUploadToCloudinary: boolean },
+) {
+  const finalizedImages: VehicleFormInput["images"] = [];
+
+  for (const image of input.images) {
+    if (image.uploadState === "pending_url") {
+      if (!image.sourceUrl) {
+        throw new VehicleSaveActionError(
+          "One staged image URL is missing. Add it again and save.",
+        );
+      }
+
+      if (!options.canUploadToCloudinary) {
+        finalizedImages.push({
+          ...image,
+          imageUrl: image.sourceUrl,
+          cloudinaryPublicId: null,
+          uploadState: "uploaded",
+          sourceUrl: null,
+        });
+        continue;
+      }
+
+      try {
+        const uploaded = await uploadVehicleImageFromUrl(image.sourceUrl, {
+          stockCode: input.stockCode,
+        });
+
+        uploadedPublicIds.push(uploaded.publicId);
+        finalizedImages.push({
+          ...image,
+          imageUrl: uploaded.secureUrl,
+          cloudinaryPublicId: uploaded.publicId,
+          uploadState: "uploaded",
+          sourceUrl: null,
+        });
+      } catch (error) {
+        throw new VehicleSaveActionError(
+          error instanceof Error ? error.message : "Image upload failed.",
+        );
+      }
+
+      continue;
+    }
+
+    if (image.uploadState !== "uploaded") {
+      throw new VehicleSaveActionError(
+        "One image is still unresolved. Add it again and save.",
+      );
+    }
+
+    finalizedImages.push({
+      ...image,
+      uploadState: "uploaded",
+      sourceUrl: null,
+    });
+  }
+
+  return {
+    finalizedImages,
   };
 }
 
@@ -40,6 +169,11 @@ function revalidateVehiclePaths(slug?: string) {
   }
 }
 
+export async function cleanupUploadedVehicleImagesAction(publicIds: string[]) {
+  await requireAdminSession();
+  await cleanupUploadedVehicleImages(publicIds);
+}
+
 export async function loginAdminAction(
   _prevState: ActionState,
   formData: FormData,
@@ -48,10 +182,7 @@ export async function loginAdminAction(
   const password = String(formData.get("password") || "").trim();
 
   if (!email || !password) {
-    return {
-      success: false,
-      message: "Enter both email and password.",
-    };
+    return actionFailure("Enter both email and password.");
   }
 
   if (allowDemoAdmin) {
@@ -63,25 +194,22 @@ export async function loginAdminAction(
   }
 
   if (!hasSupabaseConfig) {
-    return {
-      success: false,
-      message: allowDemoAdmin
-        ? "Use the documented demo admin credentials."
+    return actionFailure(
+      allowDemoAdmin
+        ? "Local demo admin is enabled. Sign in with the configured local demo credentials."
         : "Supabase auth is not configured.",
-    };
+    );
   }
 
   const supabase = await createSupabaseServerClient();
-
   const { error } = await supabase!.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return {
-      success: false,
-      message: allowDemoAdmin
-        ? "Login failed. Use the local demo admin credentials or finish Supabase admin setup."
+    return actionFailure(
+      allowDemoAdmin
+        ? "Login failed. Use the configured local demo credentials or finish Supabase admin setup."
         : "Login failed. Check the credentials and try again.",
-    };
+    );
   }
 
   const {
@@ -97,12 +225,11 @@ export async function loginAdminAction(
   if (profileError || !profile) {
     await supabase!.auth.signOut();
 
-    return {
-      success: false,
-      message: profileError
+    return actionFailure(
+      profileError
         ? "Supabase admin access is not ready yet. Use the local demo admin or complete the admin_profiles setup."
         : "This account does not have admin access.",
-    };
+    );
   }
 
   redirect("/admin/vehicles");
@@ -118,67 +245,158 @@ export async function saveVehicleAction(
   formData: FormData,
 ): Promise<ActionState> {
   const session = await requireAdminSession();
+  const uploadedPublicIds = parseNewUploadPublicIds(formData);
+  let vehicle: Awaited<ReturnType<typeof saveVehicle>>;
+  let isEditing = false;
 
   try {
     const input = mapVehicleFormData(formData);
-    const vehicle = await saveVehicle(input, {
+    isEditing = Boolean(input.id);
+    const adminVehicles = await getAdminVehicles({
       forceDemo: session.mode === "demo",
     });
-    revalidateVehiclePaths(vehicle.slug);
-    revalidatePath("/admin/vehicles");
-    redirect("/admin/vehicles");
+    const currentVehicle = adminVehicles.find((item) => item.id === input.id);
+    const resolvedIdentifiers = resolveVehicleIdentifiers(
+      {
+        ...input,
+        stockCode: currentVehicle?.stockCode || input.stockCode,
+        slug: currentVehicle?.slug || input.slug,
+      },
+      adminVehicles,
+    );
+    const inputWithResolvedIdentifiers = {
+      ...input,
+      ...resolvedIdentifiers,
+    };
+    const finalized = await finalizeVehicleImages(
+      inputWithResolvedIdentifiers,
+      uploadedPublicIds,
+      {
+        canUploadToCloudinary: hasCloudinaryConfig,
+      },
+    );
+    const inputWithUploadedImages = {
+      ...inputWithResolvedIdentifiers,
+      images: finalized.finalizedImages,
+    };
+
+    vehicle = await saveVehicle(inputWithUploadedImages, {
+      forceDemo: session.mode === "demo",
+    });
   } catch (error) {
+    await cleanupUploadedVehicleImages(uploadedPublicIds);
+
     if (error instanceof Error && "flatten" in error) {
       return validationErrorState(
         error as unknown as { flatten: () => { fieldErrors: Record<string, string[]> } },
       );
     }
 
-    return {
-      success: false,
-      message: "We could not save the vehicle right now.",
-    };
+    if (error instanceof VehicleSaveActionError) {
+      return actionFailure(error.message);
+    }
+
+    if (isRepositoryUnavailableError(error)) {
+      return actionFailure(error.message);
+    }
+
+    return actionFailure("We could not save the vehicle right now.");
+  }
+
+  revalidateVehiclePaths(vehicle.slug);
+  revalidatePath("/admin/vehicles");
+  revalidatePath(`/admin/vehicles/${vehicle.id}`);
+  return isEditing
+    ? actionSuccess("Vehicle saved successfully.")
+    : actionSuccess(
+        "Vehicle created successfully.",
+        `/admin/vehicles/${vehicle.id}?saved=1`,
+      );
+}
+
+export async function setVehicleStatusAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    const session = await requireAdminSession();
+    const id = String(formData.get("id") || "");
+    const status = String(formData.get("status") || "") as
+      | "draft"
+      | "published"
+      | "sold"
+      | "unpublished";
+
+    if (!id || !status) {
+      return actionFailure("Select a vehicle and status before trying again.");
+    }
+
+    const vehicle = await updateVehicleStatus(id, status, {
+      forceDemo: session.mode === "demo",
+    });
+    revalidateVehiclePaths(vehicle?.slug);
+    revalidatePath("/admin/vehicles");
+    return actionSuccess("Vehicle status updated.");
+  } catch (error) {
+    return actionFailure(
+      error instanceof Error ? error.message : "Vehicle status could not be updated.",
+    );
   }
 }
 
-export async function setVehicleStatusAction(formData: FormData) {
-  const session = await requireAdminSession();
+export async function toggleVehicleFeaturedAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    const session = await requireAdminSession();
+    const id = String(formData.get("id") || "");
 
-  const id = String(formData.get("id") || "");
-  const status = String(formData.get("status") || "") as
-    | "draft"
-    | "published"
-    | "sold"
-    | "unpublished";
+    if (!id) {
+      return actionFailure("Vehicle id is required.");
+    }
 
-  const vehicle = await updateVehicleStatus(id, status, {
-    forceDemo: session.mode === "demo",
-  });
-  revalidateVehiclePaths(vehicle?.slug);
-  revalidatePath("/admin/vehicles");
+    const vehicle = await toggleVehicleFeatured(id, {
+      forceDemo: session.mode === "demo",
+    });
+    revalidateVehiclePaths(vehicle?.slug);
+    revalidatePath("/admin/vehicles");
+    return actionSuccess("Vehicle featured state updated.");
+  } catch (error) {
+    return actionFailure(
+      error instanceof Error
+        ? error.message
+        : "Vehicle featured state could not be updated.",
+    );
+  }
 }
 
-export async function toggleVehicleFeaturedAction(formData: FormData) {
-  const session = await requireAdminSession();
+export async function deleteVehicleAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    const session = await requireAdminSession();
+    const id = String(formData.get("id") || "");
 
-  const id = String(formData.get("id") || "");
-  const vehicle = await toggleVehicleFeatured(id, {
-    forceDemo: session.mode === "demo",
-  });
-  revalidateVehiclePaths(vehicle?.slug);
-  revalidatePath("/admin/vehicles");
-}
+    if (!id) {
+      return actionFailure("Vehicle id is required.");
+    }
 
-export async function deleteVehicleAction(formData: FormData) {
-  const session = await requireAdminSession();
-
-  const id = String(formData.get("id") || "");
-  const vehicle = await getVehicleById(id);
-  await deleteVehicle(id, {
-    forceDemo: session.mode === "demo",
-  });
-  revalidateVehiclePaths(vehicle?.slug);
-  revalidatePath("/admin/vehicles");
+    const vehicle = await getVehicleById(id, {
+      forceDemo: session.mode === "demo",
+    });
+    await deleteVehicle(id, {
+      forceDemo: session.mode === "demo",
+    });
+    revalidateVehiclePaths(vehicle?.slug);
+    revalidatePath("/admin/vehicles");
+    return actionSuccess("Vehicle deleted.");
+  } catch (error) {
+    return actionFailure(
+      error instanceof Error ? error.message : "Vehicle deletion failed.",
+    );
+  }
 }
 
 export async function syncVehicleImagesAction(
@@ -189,10 +407,7 @@ export async function syncVehicleImagesAction(
   const id = String(formData.get("id") || "");
 
   if (!id) {
-    return {
-      success: false,
-      message: "Vehicle id is required for image sync.",
-    };
+    return actionFailure("Vehicle id is required for image sync.");
   }
 
   try {
@@ -204,17 +419,51 @@ export async function syncVehicleImagesAction(
     revalidatePath("/admin/vehicles");
     revalidatePath(`/admin/vehicles/${id}`);
 
-    return {
-      success: true,
-      message: `Synced ${result.syncedCount} image(s) from Cloudinary folder "${result.assetFolder}".`,
-    };
+    return actionSuccess(
+      `Synced ${result.syncedCount} image(s) from Cloudinary folder "${result.assetFolder}".`,
+    );
   } catch (error) {
-    return {
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : "Cloudinary folder sync failed.",
-    };
+    return actionFailure(
+      error instanceof Error ? error.message : "Cloudinary folder sync failed.",
+    );
+  }
+}
+
+export async function updateLeadInboxStateAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    const session = await requireAdminSession();
+    const sourceId = String(formData.get("sourceId") || "");
+    const sourceType = String(formData.get("sourceType") || "") as LeadInboxSourceType;
+    const status = String(formData.get("status") || "") as LeadWorkflowStatus;
+
+    if (!sourceId || !sourceType || !status) {
+      return actionFailure("Select a lead status before trying again.");
+    }
+
+    await updateLeadInboxState(
+      {
+        sourceId,
+        sourceType,
+        status,
+      },
+      {
+        forceDemo: session.mode === "demo",
+      },
+    );
+
+    revalidatePath("/admin/leads");
+
+    if (status === "contacted") {
+      return actionSuccess("Lead marked as contacted.");
+    }
+
+    return actionSuccess("Lead status updated.");
+  } catch (error) {
+    return actionFailure(
+      error instanceof Error ? error.message : "Lead status could not be updated.",
+    );
   }
 }

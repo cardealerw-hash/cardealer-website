@@ -1,87 +1,92 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MapPin } from "lucide-react";
+import { CircleGauge, Cog, Fuel } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { formatCurrency, formatMileage } from "@/lib/utils";
 import { getCategorySummary } from "@/lib/data/filters";
+import { formatCurrency, formatMileage } from "@/lib/utils";
 import type { Vehicle } from "@/types/dealership";
 
 export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   const primaryImage = vehicle.heroImageUrl || vehicle.images[0]?.imageUrl;
 
   return (
-    <Card className="overflow-hidden rounded-[28px]">
-      <div className="relative aspect-[16/11] overflow-hidden">
+    <article className="group flex h-full flex-col overflow-hidden rounded-[24px] border border-border bg-surface shadow-[0_12px_30px_rgba(28,35,43,0.05)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(28,35,43,0.08)]">
+      <div className="relative aspect-[4/3] overflow-hidden bg-surface-elevated">
         {primaryImage ? (
           <Image
             src={primaryImage}
             alt={vehicle.title}
             fill
-            className="object-cover"
+            sizes="(min-width: 1280px) 353px, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#f5f5f4,white)] px-6 text-center text-sm leading-7 text-stone-500">
-            Gallery coming soon for {vehicle.stockCode}
+          <div className="flex h-full items-center justify-center px-6 text-center text-sm font-medium text-text-secondary">
+            Gallery coming soon
           </div>
         )}
+
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          {vehicle.featured ? <Badge variant="default">Featured</Badge> : null}
-          {vehicle.negotiable ? <Badge variant="accent">Negotiable</Badge> : null}
-          {vehicle.status === "sold" ? <Badge variant="success">Sold</Badge> : null}
+          {vehicle.featured ? (
+            <Badge variant="default" className="bg-accent/92 px-3 py-1.5 text-[0.65rem] tracking-[0.18em] shadow-none">
+              Featured
+            </Badge>
+          ) : null}
+          {vehicle.negotiable ? (
+            <Badge variant="muted" className="px-3 py-1.5 text-[0.65rem] tracking-[0.18em] shadow-none">
+              Negotiable
+            </Badge>
+          ) : null}
+          {vehicle.status === "sold" ? (
+            <Badge variant="success" className="px-3 py-1.5 text-[0.65rem] tracking-[0.18em] shadow-none">
+              Sold
+            </Badge>
+          ) : null}
         </div>
       </div>
 
-      <div className="space-y-5 p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-              {getCategorySummary(vehicle)}
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[0.75rem] font-bold uppercase tracking-[0.18em] text-text-secondary">
+              {vehicle.year} - {getCategorySummary(vehicle)}
             </p>
-            <h3 className="mt-2 text-xl font-semibold text-stone-950">
+            <h3 className="mt-1 line-clamp-2 text-lg font-semibold leading-tight text-text-primary sm:text-xl">
               {vehicle.title}
             </h3>
           </div>
-          <p className="text-right text-xl font-bold text-stone-950">
+          <p className="shrink-0 text-right text-lg font-black text-accent sm:text-xl">
             {formatCurrency(vehicle.price)}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 rounded-3xl bg-stone-100 p-4 text-sm text-stone-700">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-stone-500">Mileage</p>
-            <p className="mt-1 font-medium">{formatMileage(vehicle.mileage)}</p>
+        <div className="mb-6 grid grid-cols-3 gap-2 border-t border-border/70 pt-5 text-sm font-medium text-text-secondary">
+          <div className="flex flex-col items-center gap-1.5 text-center">
+            <CircleGauge className="size-4 text-text-secondary/70" />
+            <span className="w-full truncate text-[0.75rem] leading-tight">
+              {vehicle.mileage > 0 ? formatMileage(vehicle.mileage) : "0 km"}
+            </span>
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-stone-500">
-              Transmission
-            </p>
-            <p className="mt-1 font-medium">{vehicle.transmission}</p>
+          <div className="flex flex-col items-center gap-1.5 border-l border-border/70 text-center">
+            <Cog className="size-4 text-text-secondary/70" />
+            <span className="w-full truncate text-[0.75rem] leading-tight">
+              {vehicle.transmission}
+            </span>
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-stone-500">Fuel</p>
-            <p className="mt-1 font-medium">{vehicle.fuelType}</p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-stone-500">Year</p>
-            <p className="mt-1 font-medium">{vehicle.year}</p>
+          <div className="flex flex-col items-center gap-1.5 border-l border-border/70 text-center">
+            <Fuel className="size-4 text-text-secondary/70" />
+            <span className="w-full truncate text-[0.75rem] leading-tight">
+              {vehicle.fuelType}
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-stone-600">
-          <MapPin className="size-4" />
-          {vehicle.location?.name || "Mombasa"}
-        </div>
-
-        <Button asChild className="w-full">
-          <Link href={`/cars/${vehicle.slug}`}>
-            View Details
-            <ArrowRight className="size-4" />
-          </Link>
+        <Button asChild className="mt-auto h-11 w-full rounded-xl text-[0.85rem]">
+          <Link href={`/cars/${vehicle.slug}`}>View Details</Link>
         </Button>
       </div>
-    </Card>
+    </article>
   );
 }

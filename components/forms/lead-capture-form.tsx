@@ -4,10 +4,12 @@ import { useActionState } from "react";
 
 import { submitLeadAction } from "@/lib/actions/public-actions";
 import { Card } from "@/components/ui/card";
+import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Textarea } from "@/components/ui/textarea";
+import { getActionFieldState } from "@/components/forms/action-form-field-helpers";
 import type { ActionState, LeadType } from "@/types/dealership";
 
 const initialState: ActionState = { success: false, message: "" };
@@ -32,12 +34,17 @@ export function LeadCaptureForm({
   className?: string;
 }) {
   const [state, formAction] = useActionState(submitLeadAction, initialState);
+  const formId = `lead-capture-${leadType}`;
+  const nameField = getActionFieldState(state, formId, "name");
+  const phoneField = getActionFieldState(state, formId, "phone");
+  const emailField = getActionFieldState(state, formId, "email");
+  const messageField = getActionFieldState(state, formId, "message");
 
   return (
     <Card className={`rounded-[24px] p-6 ${className}`}>
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-stone-900">{title}</h3>
-        <p className="mt-2 text-sm leading-6 text-stone-600">{description}</p>
+        <h3 className="text-xl font-semibold text-text-primary">{title}</h3>
+        <p className="mt-2 text-sm leading-6 text-text-secondary">{description}</p>
       </div>
 
       <form action={formAction} className="space-y-4">
@@ -48,18 +55,26 @@ export function LeadCaptureForm({
 
         <div>
           <Label htmlFor={`${leadType}-name`}>Full name</Label>
-          <Input id={`${leadType}-name`} name="name" placeholder="Your full name" />
-          {state.fieldErrors?.name ? (
-            <p className="mt-2 text-sm text-red-600">{state.fieldErrors.name[0]}</p>
-          ) : null}
+          <Input
+            id={`${leadType}-name`}
+            name="name"
+            placeholder="Your full name"
+            required
+            {...nameField.inputProps}
+          />
+          <FieldError id={nameField.errorId} error={nameField.error} />
         </div>
 
         <div>
           <Label htmlFor={`${leadType}-phone`}>Phone</Label>
-          <Input id={`${leadType}-phone`} name="phone" placeholder="+254..." />
-          {state.fieldErrors?.phone ? (
-            <p className="mt-2 text-sm text-red-600">{state.fieldErrors.phone[0]}</p>
-          ) : null}
+          <Input
+            id={`${leadType}-phone`}
+            name="phone"
+            placeholder="+254..."
+            required
+            {...phoneField.inputProps}
+          />
+          <FieldError id={phoneField.errorId} error={phoneField.error} />
         </div>
 
         <div>
@@ -69,10 +84,9 @@ export function LeadCaptureForm({
             name="email"
             type="email"
             placeholder="Optional email address"
+            {...emailField.inputProps}
           />
-          {state.fieldErrors?.email ? (
-            <p className="mt-2 text-sm text-red-600">{state.fieldErrors.email[0]}</p>
-          ) : null}
+          <FieldError id={emailField.errorId} error={emailField.error} />
         </div>
 
         <div>
@@ -81,14 +95,17 @@ export function LeadCaptureForm({
             id={`${leadType}-message`}
             name="message"
             placeholder="Tell us what you need and we will respond quickly."
+            {...messageField.inputProps}
           />
+          <FieldError id={messageField.errorId} error={messageField.error} />
         </div>
 
         {state.message ? (
           <p
             className={`text-sm ${
-              state.success ? "text-emerald-700" : "text-red-600"
+              state.success ? "text-success" : "text-danger"
             }`}
+            role={state.success ? undefined : "alert"}
           >
             {state.message}
           </p>

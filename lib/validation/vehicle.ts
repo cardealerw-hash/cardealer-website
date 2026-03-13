@@ -2,13 +2,36 @@ import { z } from "zod";
 
 import { stockCategories, vehicleStatuses } from "@/types/dealership";
 
-export const vehicleImageSchema = z.object({
-  imageUrl: z.string().url("Use a valid image URL."),
+const nullishSchema = z.union([z.null(), z.undefined()]);
+const httpImageUrlSchema = z
+  .string()
+  .trim()
+  .url("Use a valid image URL.")
+  .refine((value) => /^https?:\/\//i.test(value), "Use a valid image URL.");
+const vehicleImageBaseSchema = z.object({
   altText: z.string().trim().optional(),
-  cloudinaryPublicId: z.string().trim().optional(),
   sortOrder: z.number().int().min(0),
   isHero: z.boolean(),
 });
+
+const uploadedVehicleImageSchema = vehicleImageBaseSchema.extend({
+  uploadState: z.literal("uploaded"),
+  imageUrl: httpImageUrlSchema,
+  cloudinaryPublicId: z.string().trim().min(1).optional().nullable(),
+  sourceUrl: nullishSchema,
+});
+
+const pendingUrlVehicleImageSchema = vehicleImageBaseSchema.extend({
+  uploadState: z.literal("pending_url"),
+  imageUrl: httpImageUrlSchema,
+  sourceUrl: httpImageUrlSchema,
+  cloudinaryPublicId: nullishSchema,
+});
+
+export const vehicleImageSchema = z.discriminatedUnion("uploadState", [
+  uploadedVehicleImageSchema,
+  pendingUrlVehicleImageSchema,
+]);
 
 export const vehicleFormSchema = z.object({
   id: z.string().trim().optional(),

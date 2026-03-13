@@ -1,9 +1,24 @@
+import "server-only";
+
 import { v2 as cloudinary } from "cloudinary";
 
 import { env, hasCloudinaryConfig } from "@/lib/env";
 import { normalizeStockCode } from "@/lib/utils";
+import {
+  getVehicleAssetFolder,
+  SUPPORTED_IMAGE_FORMATS,
+} from "@/lib/vehicle-image-upload";
 
-const SUPPORTED_IMAGE_FORMATS = new Set(["jpg", "jpeg", "png", "webp"]);
+export {
+  getVehicleAssetFolder,
+  SUPPORTED_IMAGE_FORMATS,
+  SUPPORTED_IMAGE_MIME_TYPES,
+  validateVehicleImageUpload,
+  VEHICLE_IMAGE_UPLOAD_MAX_BYTES,
+  VEHICLE_IMAGE_UPLOAD_MAX_FILES,
+} from "@/lib/vehicle-image-upload";
+
+const SUPPORTED_IMAGE_FORMAT_SET = new Set(SUPPORTED_IMAGE_FORMATS);
 
 type CloudinaryAssetResource = {
   public_id?: string;
@@ -19,6 +34,36 @@ export type CloudinaryVehicleAsset = {
   assetFolder: string;
   filename: string;
 };
+
+export function buildVehicleImageUploadSignature(options: { stockCode?: string } = {}) {
+  if (!hasCloudinaryConfig) {
+    throw new Error("Cloudinary is not configured.");
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const assetFolder = getVehicleAssetFolder(options.stockCode);
+  const signedParams = {
+    allowed_formats: SUPPORTED_IMAGE_FORMATS.join(","),
+    asset_folder: assetFolder,
+    timestamp,
+    unique_filename: true,
+    use_filename: true,
+  };
+  const signature = cloudinary.utils.api_sign_request(
+    signedParams,
+    env.cloudinaryApiSecret,
+  );
+
+  return {
+    allowedFormats: [...SUPPORTED_IMAGE_FORMATS],
+    apiKey: env.cloudinaryApiKey,
+    assetFolder,
+    cloudName: env.cloudinaryCloudName,
+    signature,
+    timestamp,
+    uploadUrl: `https://api.cloudinary.com/v1_1/${env.cloudinaryCloudName}/image/upload`,
+  };
+}
 
 if (hasCloudinaryConfig) {
   cloudinary.config({
@@ -77,7 +122,9 @@ async function withRetries<T>(
 }
 
 function isSupportedImageAsset(resource: CloudinaryAssetResource) {
-  return SUPPORTED_IMAGE_FORMATS.has(String(resource.format || "").toLowerCase());
+  return SUPPORTED_IMAGE_FORMAT_SET.has(
+    String(resource.format || "").toLowerCase() as (typeof SUPPORTED_IMAGE_FORMATS)[number],
+  );
 }
 
 function getAssetStem(resource: CloudinaryAssetResource) {
@@ -211,17 +258,12 @@ export async function uploadVehicleImage(
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const normalizedStockCode = options.stockCode
-    ? normalizeStockCode(options.stockCode)
-    : "";
 
   return new Promise<{ secureUrl: string; publicId: string }>(
     (resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
-          asset_folder: normalizedStockCode
-            ? normalizedStockCode.toLowerCase()
-            : "unsorted-vehicles",
+          asset_folder: getVehicleAssetFolder(options.stockCode),
           resource_type: "image",
           use_filename: true,
           unique_filename: true,
@@ -242,4 +284,94 @@ export async function uploadVehicleImage(
       stream.end(buffer);
     },
   );
+}
+
+export async function uploadVehicleImageFromUrl(
+  sourceUrl: string,
+  options: { stockCode?: string } = {},
+) {
+  if (!hasCloudinaryConfig) {
+    throw new Error("Cloudinary is not configured.");
+  }
+
+  let parsedUrl: URL;
+
+  try {
+    parsedUrl = new URL(sourceUrl);
+  } catch {
+    throw new Error("Use a valid image URL.");
+  }
+
+  if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+    throw new Error("Use an http or https image URL.");
+  }
+
+  const result = await withRetries(
+    () =>
+      cloudinary.uploader.upload(parsedUrl.toString(), {
+        asset_folder: getVehicleAssetFolder(options.stockCode),
+        resource_type: "image",
+        use_filename: true,
+        unique_filename: true,
+      }),
+    `importing Cloudinary image from ${parsedUrl.hostname}`,
+  );
+
+  if (!result.secure_url || !result.public_id) {
+    throw new Error("Image import failed.");
+  }
+
+  return {
+    secureUrl: result.secure_url,
+    publicId: result.public_id,
+  };
+}
+
+export async function deleteCloudinaryAssets(publicIds: string[]) {
+  if (!hasCloudinaryConfig || !publicIds.length) {
+    return {
+      deletedCount: 0,
+      missingCount: 0,
+    };
+  }
+
+  let deletedCount = 0;
+  let missingCount = 0;
+  const uniqueIds = [...new Set(publicIds.filter(Boolean))];
+
+  for (let index = 0; index < uniqueIds.length; index += 100) {
+    const batch = uniqueIds.slice(index, index + 100);
+    const result = await withRetries(
+      () =>
+        cloudinary.api.delete_resources(batch, {
+          resource_type: "image",
+          type: "upload",
+        }),
+      "deleting Cloudinary vehicle images",
+    );
+    const deletedMap = (result.deleted || {}) as Record<string, string>;
+
+    for (const publicId of batch) {
+      const status = deletedMap[publicId];
+
+      if (status === "deleted") {
+        deletedCount += 1;
+        continue;
+      }
+
+      if (status === "not_found") {
+        missingCount += 1;
+        continue;
+      }
+
+      throw new Error(
+        `Cloudinary could not remove asset "${publicId}". Status: ${status || "unknown"}.`,
+      );
+    }
+  }
+
+  return {
+    deletedCount,
+    missingCount,
+  };
 }

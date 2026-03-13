@@ -34,35 +34,30 @@ export function CloudinarySyncCard({
   }, [router, state.success]);
 
   return (
-    <Card className="rounded-[28px] border border-border bg-stone-50 p-6">
+    <Card className="rounded-[24px] border border-border bg-stone-50 p-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+          <p className="text-sm font-semibold text-stone-950">
             Cloudinary folder sync
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-stone-950">
-            Pull gallery images from the stock-code folder
-          </h2>
-          <p className="mt-3 text-sm leading-7 text-stone-600">
-            This replaces the current gallery with images from the Cloudinary
-            folder that matches the stock code, such as <strong>{stockCode}</strong>{" "}
-            or <strong>{stockCode.toLowerCase()}</strong>. Save text changes first,
-            then sync the folder when you want the gallery refreshed.
+          <p className="mt-1 text-sm leading-6 text-stone-600">
+            Replace the saved gallery with the images already living inside{" "}
+            <strong>{stockCode}</strong> after your listing details are saved.
           </p>
         </div>
 
         <form action={formAction} className="shrink-0">
           <input type="hidden" name="id" value={vehicleId} />
-          <SubmitButton>
+          <SubmitButton className="w-full sm:w-auto">
             <Images className="size-4" />
-            Sync Folder Images
+            Sync folder images
           </SubmitButton>
         </form>
       </div>
 
       {state.message ? (
         <p
-          className={`mt-4 text-sm ${
+          className={`mt-3 text-sm ${
             state.success ? "text-emerald-700" : "text-red-600"
           }`}
         >

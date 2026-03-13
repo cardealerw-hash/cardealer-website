@@ -3,21 +3,25 @@ export function SectionHeading({
   title,
   description,
   align = "left",
+  as = "h2",
 }: {
   eyebrow: string;
   title: string;
   description: string;
   align?: "left" | "center";
+  as?: "h1" | "h2";
 }) {
+  const HeadingTag = as;
+
   return (
     <div className={align === "center" ? "mx-auto max-w-2xl text-center" : ""}>
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.28em] text-accent">
         {eyebrow}
       </p>
-      <h2 className="display-font text-balance text-3xl text-stone-950 sm:text-4xl">
+      <HeadingTag className="text-balance text-3xl font-semibold tracking-tight text-text-primary sm:text-[2.25rem]">
         {title}
-      </h2>
-      <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
+      </HeadingTag>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-text-secondary sm:text-base">
         {description}
       </p>
     </div>

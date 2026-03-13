@@ -2,24 +2,29 @@ import type { Vehicle } from "@/types/dealership";
 
 export function SpecGrid({ vehicle }: { vehicle: Vehicle }) {
   const specs = [
-    { label: "Year", value: vehicle.year },
-    { label: "Mileage", value: `${vehicle.mileage.toLocaleString()} km` },
-    { label: "Transmission", value: vehicle.transmission },
-    { label: "Fuel type", value: vehicle.fuelType },
-    { label: "Drive type", value: vehicle.driveType || "Not specified" },
-    { label: "Body type", value: vehicle.bodyType || "Not specified" },
-    { label: "Engine", value: vehicle.engineCapacity || "Not specified" },
-    { label: "Color", value: vehicle.color || "Not specified" },
+    { label: "Model year", value: vehicle.year },
+    { label: "Distance driven", value: `${vehicle.mileage.toLocaleString()} km` },
+    { label: "Drive style", value: vehicle.transmission },
+    { label: "Fuel", value: vehicle.fuelType },
+    { label: "Road setup", value: vehicle.driveType || "Not specified" },
+    { label: "Body style", value: vehicle.bodyType || "Not specified" },
+    { label: "Power", value: vehicle.engineCapacity || "Not specified" },
+    { label: "Exterior colour", value: vehicle.color || "Not specified" },
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-5 sm:grid-cols-2">
       {specs.map((spec) => (
-        <div key={spec.label} className="rounded-3xl border border-border bg-stone-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+        <div
+          key={spec.label}
+          className="rounded-3xl border border-border bg-surface-elevated px-5 py-4"
+        >
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-text-secondary">
             {spec.label}
           </p>
-          <p className="mt-2 text-sm font-medium text-stone-900">{spec.value}</p>
+          <p className="mt-2 text-lg font-semibold tracking-[-0.02em] text-text-primary">
+            {spec.value}
+          </p>
         </div>
       ))}
     </div>

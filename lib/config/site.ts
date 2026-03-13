@@ -1,14 +1,30 @@
 import type { HomeStats } from "@/types/dealership";
 
+const dealershipContactNumbers = [
+  {
+    raw: "0792141523",
+    display: "0792 141 523",
+    href: "tel:0792141523",
+  },
+  {
+    raw: "0704337697",
+    display: "0704 337 697",
+    href: "tel:0704337697",
+  },
+] as const;
+
+const primaryContactNumber = dealershipContactNumbers[0];
+
 export const siteConfig = {
   name: "Ocean Motors",
   shortName: "Ocean Motors",
   description:
     "Browse used, imported, and traded-in cars in Mombasa with stronger trust signals, clear pricing, and fast enquiry options.",
   tagline: "Trusted cars. Faster answers. Better buying confidence in Mombasa.",
-  phoneDisplay: "+254 700 123 456",
-  phoneHref: "tel:+254700123456",
-  whatsappNumber: "254700123456",
+  contactNumbers: dealershipContactNumbers,
+  phoneDisplay: primaryContactNumber.display,
+  phoneHref: primaryContactNumber.href,
+  whatsappNumber: `254${primaryContactNumber.raw.slice(1)}`,
   whatsappLabel: "Chat on WhatsApp",
   email: "hello@oceanmotors.demo",
   salesEmail: "sales@oceanmotors.demo",
@@ -24,10 +40,6 @@ export const siteConfig = {
   inventorySearchDefaults: {
     sort: "latest",
     pageSize: 9,
-  },
-  demoAdmin: {
-    email: "admin@oceanmotors.demo",
-    password: "demo-admin",
   },
 } as const;
 
