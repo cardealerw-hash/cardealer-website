@@ -80,6 +80,10 @@ export default async function ContactPage() {
               const phoneHref = getLocationPhoneHref(location.phone);
               const email = getLocationEmail(location);
               const mapHref = getLocationMapHref(location);
+              const locationContacts = location.isPrimary
+                ? siteConfig.contactNumbers
+                : [siteConfig.contactNumbers[1] || { display: location.phone, href: phoneHref }];
+              const primaryLocationContact = locationContacts[0];
 
               return (
                 <Card key={location.id} className="rounded-[28px] p-6">
@@ -113,12 +117,17 @@ export default async function ContactPage() {
                     </div>
                     <div className="flex items-start gap-3">
                       <PhoneCall className="mt-1 size-4 text-text-secondary/70" />
-                      <a
-                        href={phoneHref}
-                        className="font-medium text-text-primary transition-colors hover:text-accent"
-                      >
-                        {location.phone}
-                      </a>
+                      <div className="space-y-1">
+                        {locationContacts.map((contact) => (
+                          <a
+                            key={contact.href}
+                            href={contact.href}
+                            className="block font-medium text-text-primary transition-colors hover:text-accent"
+                          >
+                            {contact.display}
+                          </a>
+                        ))}
+                      </div>
                     </div>
                     {email ? (
                       <div className="flex items-start gap-3">
@@ -135,7 +144,7 @@ export default async function ContactPage() {
 
                   <div className="mt-6 grid gap-3 sm:grid-cols-3">
                     <Button asChild className="h-11">
-                      <a href={phoneHref}>Call now</a>
+                      <a href={primaryLocationContact.href}>Call now</a>
                     </Button>
                     <Button asChild variant="secondary" className="h-11">
                       <a href={mapHref} target="_blank" rel="noreferrer">
@@ -163,6 +172,18 @@ export default async function ContactPage() {
               <p className="mt-3 text-sm leading-6 text-text-secondary">
                 Confirm availability, check which location has the car, or ask for directions on WhatsApp.
               </p>
+              <div className="mt-5 grid gap-2 text-sm text-text-secondary">
+                {siteConfig.contactNumbers.map((contact, index) => (
+                  <a
+                    key={contact.href}
+                    href={contact.href}
+                    className="inline-flex items-center gap-2 font-medium text-text-primary transition-colors hover:text-accent"
+                  >
+                    <PhoneCall className="size-4 text-text-secondary/70" />
+                    {index === 0 ? "Primary line:" : "Alternate line:"} {contact.display}
+                  </a>
+                ))}
+              </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <Button asChild className="h-11">
                   <a href={siteConfig.phoneHref}>Call {siteConfig.phoneDisplay}</a>

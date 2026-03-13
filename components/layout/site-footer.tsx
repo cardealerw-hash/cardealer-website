@@ -16,11 +16,13 @@ export function SiteFooter() {
           </p>
           <div className="space-y-1 text-sm text-text-secondary">
             <p>{siteConfig.address}</p>
-            <p>
-              <a href={siteConfig.phoneHref} className="transition-colors hover:text-text-primary">
-                {siteConfig.phoneDisplay}
-              </a>
-            </p>
+            {siteConfig.contactNumbers.map((contact) => (
+              <p key={contact.href}>
+                <a href={contact.href} className="transition-colors hover:text-text-primary">
+                  {contact.display}
+                </a>
+              </p>
+            ))}
             <p>
               <a
                 href={`mailto:${siteConfig.salesEmail}`}

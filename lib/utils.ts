@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { siteConfig } from "@/lib/config/site";
 import { env } from "@/lib/env";
 import type { StockCategory, Vehicle, VehicleStatus } from "@/types/dealership";
 
@@ -72,8 +73,26 @@ export function buildVehicleUrl(vehicle: Pick<Vehicle, "slug">) {
   return `/cars/${vehicle.slug}`;
 }
 
-export function buildWhatsAppUrl(message: string, phone = "254700123456") {
-  const normalizedPhone = phone.replace(/\D+/g, "");
+function normalizeWhatsAppPhone(phone: string) {
+  const digits = phone.replace(/\D+/g, "");
+
+  if (digits.startsWith("254")) {
+    return digits;
+  }
+
+  if (digits.startsWith("0")) {
+    return `254${digits.slice(1)}`;
+  }
+
+  if (digits.length === 9) {
+    return `254${digits}`;
+  }
+
+  return digits;
+}
+
+export function buildWhatsAppUrl(message: string, phone: string = siteConfig.whatsappNumber) {
+  const normalizedPhone = normalizeWhatsAppPhone(phone);
   return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
 }
 

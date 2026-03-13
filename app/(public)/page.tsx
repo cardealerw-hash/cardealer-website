@@ -7,10 +7,11 @@ import {
   Cog,
   Fuel,
   Landmark,
-  Phone,
+  MapPin,
   Star,
 } from "lucide-react";
 
+import heroOptionImage from "../../UIs/heroOPtion.jpg";
 import { JsonLd } from "@/components/layout/json-ld";
 import { FloatingWhatsAppButton } from "@/components/marketing/floating-whatsapp-button";
 import { SectionHeading } from "@/components/marketing/section-heading";
@@ -18,7 +19,7 @@ import { TestimonialsCarousel } from "@/components/marketing/testimonials-carous
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { WhatsAppIcon } from "@/components/ui/whatsapp-icon";
-import { siteConfig } from "@/lib/config/site";
+import { homeStats, siteConfig } from "@/lib/config/site";
 import {
   getAllVehicles,
   getHomepageCollections,
@@ -57,14 +58,6 @@ const deliveredFallbackSeeds: DeliveredFallbackSeed[] = [
     vehicleSlug: "2014-toyota-fielder",
     deliveryLabel: "Delivered after financing approval",
   },
-];
-
-const heroBackgroundImages = [
-  "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1773256508/mohammad-aqhib-5l2BnpBkAME-unsplash_op0aip.jpg",
-  "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1772901994/3_x83v11.jpg",
-  "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1772902428/4_mmphkh.jpg",
-    "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1773413283/HERO1_z3ovbz.webp",
-  "https://res.cloudinary.com/dlyrnhpcn/image/upload/v1772901065/3_gae6fj.jpg",
 ];
 
 function getShowcaseStockLabel(vehicle: Vehicle) {
@@ -215,8 +208,10 @@ export default async function Home() {
       .filter(
         (vehicle): vehicle is DeliveredVehicleCardData => vehicle !== null,
       );
+  const publishedVehicles = vehicles.filter((vehicle) => vehicle.status === "published");
+  const publishedVehicleCount = publishedVehicles.length;
   const inventoryMakes = Array.from(
-    new Set(vehicles.map((vehicle) => vehicle.make).filter(Boolean)),
+    new Set(publishedVehicles.map((vehicle) => vehicle.make).filter(Boolean)),
   ).sort((left, right) => left.localeCompare(right));
 
   return (
@@ -227,33 +222,33 @@ export default async function Home() {
         <section className="relative flex min-h-[31rem] w-full flex-col justify-center overflow-hidden pb-6 pt-18 sm:min-h-[34rem] lg:min-h-[37rem] lg:pb-8 lg:pt-20">
           <div className="absolute inset-0 z-0">
             <Image
-              src={heroBackgroundImages[3] ?? "/carHero.png"}
-              alt="Vehicle available at Ocean Motors in Mombasa"
+              src={heroOptionImage}
+              alt="Vehicles available at Ocean Motors in Kizingo, Mombasa"
               fill
               priority
               quality={75}
-              className="object-cover object-[66%_44%] brightness-[0.98] contrast-[1.02] saturate-[0.96]"
+              className="object-cover object-[58%_50%] brightness-[0.97] contrast-[1.01] saturate-[0.92]"
               sizes="100vw"
             />
-            <div className="absolute inset-0 z-10 bg-[linear-gradient(94deg,rgba(246,247,248,0.96)_6%,rgba(246,247,248,0.9)_28%,rgba(246,247,248,0.5)_50%,rgba(246,247,248,0.16)_73%,rgba(246,247,248,0.1)_100%)]" />
-            <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(246,247,248,0.05)_0%,rgba(246,247,248,0.01)_45%,rgba(246,247,248,0.1)_100%)]" />
+            <div className="absolute inset-0 z-10 bg-[linear-gradient(94deg,rgba(246,247,248,0.96)_6%,rgba(246,247,248,0.92)_31%,rgba(246,247,248,0.58)_56%,rgba(246,247,248,0.22)_77%,rgba(246,247,248,0.12)_100%)]" />
+            <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(246,247,248,0.04)_0%,rgba(246,247,248,0.02)_48%,rgba(246,247,248,0.08)_100%)]" />
           </div>
 
           <div className="container-shell relative z-20 flex w-full flex-col px-1">
             <div className="max-w-3xl space-y-4 text-center animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-1000 sm:space-y-5 md:text-left">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent/80">
-                Available stock in Mombasa
+                Kizingo showroom inventory
               </p>
 
-              <h1 className="max-w-[15ch] text-balance text-[2.35rem] font-semibold leading-[0.95] tracking-[-0.03em] text-text-primary sm:text-[2.75rem] md:text-[3.1rem] lg:text-[3.45rem]">
-                Imported and local cars
-                <span className="block text-[0.86em] text-accent">
-                  available in Mombasa
+              <h1 className="max-w-[16ch] text-balance text-[2.2rem] font-semibold leading-[0.97] tracking-[-0.03em] text-text-primary sm:text-[2.55rem] md:text-[2.85rem] lg:text-[3.15rem]">
+                Browse cars with price, mileage,
+                <span className="block text-[0.9em] text-accent">
+                  and condition already listed
                 </span>
               </h1>
 
               <p className="mx-auto max-w-[34rem] text-base leading-7 text-text-secondary sm:text-lg md:mx-0 md:text-[1.02rem]">
-                Start with cars we can show you in Mombasa, compare price, mileage, and condition, then contact sales only when a vehicle is worth viewing.
+                Compare inspected stock online first, then visit our Kizingo showroom or message sales only when a car is worth viewing.
               </p>
 
               <div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row md:justify-start">
@@ -264,17 +259,6 @@ export default async function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </Link>
-                </Button>
-                <Button asChild variant="secondary" className="h-11 px-5 text-sm">
-                  <a
-                    href={homepageWhatsAppUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2"
-                  >
-                    <WhatsAppIcon className="size-4.5 text-[#25D366]" />
-                    Ask on WhatsApp
-                  </a>
                 </Button>
               </div>
 
@@ -349,31 +333,9 @@ export default async function Home() {
                   </div>
                 </div>
 
-                <div className="hidden h-8 w-px bg-border lg:block" />
-
-                <div className="group relative hidden flex-1 items-center px-4 py-2.5 transition-colors hover:bg-surface-elevated lg:flex lg:rounded-[1.15rem] lg:px-5">
-                  <div className="w-full pr-6">
-                    <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Sort By</label>
-                    <select
-                      name="sort"
-                      className="mt-0.5 w-full cursor-pointer appearance-none border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none focus:ring-0"
-                      defaultValue="latest"
-                    >
-                      <option value="latest">Latest Arrivals</option>
-                      <option value="price-asc">Price: Low to High</option>
-                      <option value="price-desc">Price: High to Low</option>
-                    </select>
-                  </div>
-                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none sm:right-5">
-                    <svg className="h-4 w-4 text-text-secondary/70 transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-
                 <div className="mt-1.5 w-full px-1 pb-1 md:mt-0 md:w-auto md:px-0 md:pb-0">
                   <Button type="submit" className="h-11 w-full rounded-[1rem] px-6 text-sm font-semibold md:h-12 md:w-auto md:rounded-[1.15rem]">
-                    Search
+                    See Matching Cars
                   </Button>
                 </div>
               </form>
@@ -386,13 +348,24 @@ export default async function Home() {
                 <span className="hidden h-3.5 w-px bg-border sm:block" />
                 <span className="inline-flex items-center gap-1.5">
                   <Check className="size-3.5 text-accent" />
-                  Inspected stock
+                  {publishedVehicleCount} cars published now
                 </span>
                 <span className="hidden h-3.5 w-px bg-border sm:block" />
                 <span className="inline-flex items-center gap-1.5">
-                  <CircleGauge className="size-3.5 text-accent" />
-                  Price, mileage, and condition shown upfront
+                  <MapPin className="size-3.5 text-accent" />
+                  {siteConfig.address} showroom
                 </span>
+              </div>
+              <div className="mt-3 flex justify-center md:justify-start">
+                <a
+                  href={homepageWhatsAppUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
+                >
+                  <WhatsAppIcon className="size-4.5 text-[#25D366]" />
+                  Need a quick answer first? Ask on WhatsApp.
+                </a>
               </div>
             </div>
 
@@ -407,17 +380,17 @@ export default async function Home() {
                   eyebrow="Inventory"
                   title={
                     collections.featured.length
-                      ? "Cars Available Now in Mombasa"
-                      : "Available Vehicles"
+                      ? "Compare available cars before you enquire"
+                      : "Available vehicles to compare"
                   }
-                  description="Compare price, mileage, and specs before opening a vehicle."
+                  description="Open a listing for the gallery, specs, and next step before you speak to sales."
                 />
                 <div className="flex flex-wrap gap-2">
                   <span className="rounded-full border border-accent/15 bg-accent/7 px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-accent">
-                    Updated daily
+                    {publishedVehicleCount} live listings
                   </span>
                   <span className="rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-text-secondary">
-                    Verified Listings
+                    Photos, price, and specs shown
                   </span>
                 </div>
               </div>
@@ -495,26 +468,18 @@ export default async function Home() {
                           </div>
                         </div>
 
-                        <div className="mt-auto grid grid-cols-[1fr_auto_auto] gap-2">
+                        <div className="mt-auto grid grid-cols-[1fr_auto] gap-2">
                           <Button asChild className="h-11 rounded-xl text-[0.85rem]">
                             <Link href={detailsUrl}>View Details</Link>
                           </Button>
-                          <Button asChild variant="whatsapp" size="sm" className="size-11 rounded-xl px-0">
+                          <Button asChild variant="secondary" size="sm" className="size-11 rounded-xl px-0">
                             <a
                               href={whatsappUrl}
                               target="_blank"
                               rel="noreferrer"
                               aria-label={`Get price on WhatsApp for ${vehicle.title}`}
                             >
-                              <WhatsAppIcon className="size-5" />
-                            </a>
-                          </Button>
-                          <Button asChild variant="secondary" size="sm" className="size-11 rounded-xl px-0">
-                            <a
-                              href={siteConfig.phoneHref}
-                              aria-label={`Call sales about ${vehicle.title}`}
-                            >
-                              <Phone className="size-[1.1rem]" />
+                              <WhatsAppIcon className="size-5 text-[#25D366]" />
                             </a>
                           </Button>
                         </div>
@@ -524,6 +489,47 @@ export default async function Home() {
                 })}
               </div>
             ) : null}
+          </div>
+        </section>
+
+        <section className="section-shell">
+          <div className="container-shell grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16 xl:gap-20">
+            <div className="max-w-[420px]">
+              <SectionHeading
+                eyebrow="Delivered units"
+                title="Cars already handed over to buyers"
+                description={`Recent handovers plus ${homeStats.deliveredCount}+ deliveries show the stock and buying process are real.`}
+              />
+            </div>
+            <div className="grid gap-8 md:grid-cols-3">
+              {deliveredShowcaseVehicles.map((vehicle) => (
+                <DeliveredVehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="section-shell bg-surface/40">
+          <div className="container-shell space-y-8">
+            <SectionHeading
+              eyebrow="Testimonials"
+              title="What buyers say after viewing or enquiring"
+              description="The pattern is consistent: accurate photos, fast confirmation, and a straightforward viewing process."
+            />
+            <TestimonialsCarousel reviews={reviews} />
+            <div className="hidden gap-5 md:grid md:grid-cols-2 xl:grid-cols-3">
+              {reviews.map((review) => (
+                <Card key={review.id} className="rounded-[28px] p-6">
+                  <p className="text-lg leading-8 text-text-secondary">&quot;{review.quote}&quot;</p>
+                  <p className="mt-6 font-semibold text-text-primary">
+                    {review.customerName}
+                  </p>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    {review.vehicleLabel}
+                  </p>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -574,47 +580,6 @@ export default async function Home() {
         </section>
 
         <section className="section-shell">
-          <div className="container-shell grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16 xl:gap-20">
-            <div className="max-w-[420px]">
-              <SectionHeading
-                eyebrow="Delivered units"
-                title="Recently Delivered Cars in Mombasa"
-                description="Real cars delivered to real buyers in Mombasa."
-              />
-            </div>
-            <div className="grid gap-8 md:grid-cols-3">
-              {deliveredShowcaseVehicles.map((vehicle) => (
-                <DeliveredVehicleCard key={vehicle.id} vehicle={vehicle} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section-shell bg-surface/40">
-          <div className="container-shell space-y-8">
-            <SectionHeading
-              eyebrow="Testimonials"
-              title="What buyers say after they visit or enquire"
-              description="These reviews reinforce the things that matter most when someone is close to buying: clear photos, fast answers, and a straightforward next step."
-            />
-            <TestimonialsCarousel reviews={reviews} />
-            <div className="hidden gap-5 md:grid md:grid-cols-2 xl:grid-cols-3">
-              {reviews.map((review) => (
-                <Card key={review.id} className="rounded-[28px] p-6">
-                  <p className="text-lg leading-8 text-text-secondary">&quot;{review.quote}&quot;</p>
-                  <p className="mt-6 font-semibold text-text-primary">
-                    {review.customerName}
-                  </p>
-                  <p className="mt-1 text-sm text-text-secondary">
-                    {review.vehicleLabel}
-                  </p>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section-shell">
           <div className="container-shell">
             <Card className="rounded-[34px] bg-surface-elevated px-7 py-8 sm:px-8 sm:py-9">
               <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
@@ -622,23 +587,26 @@ export default async function Home() {
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-accent">
                     Next step
                   </p>
-                  <h2 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-text-primary">
-                    Ready to view a car or ask the right question?
+                  <h2 className="mt-4 max-w-[14ch] text-balance text-4xl font-semibold tracking-tight text-text-primary">
+                    See the cars first, then ask the right question.
                   </h2>
                   <p className="mt-4 max-w-2xl text-sm leading-7 text-text-secondary">
-                    Start with inventory if you want to compare cars. Use WhatsApp when you want availability, financing guidance, a walk-around video, or the fastest route to booking a viewing.
+                    Browse the listings to narrow your shortlist. If one stands out, ask on WhatsApp for availability, a walk-around, or the fastest route to viewing.
                   </p>
                 </div>
-                <div className="flex flex-col gap-3 sm:flex-row">
+                <div className="flex flex-col items-start gap-3">
                   <Button asChild>
                     <Link href="/inventory">Browse Inventory</Link>
                   </Button>
-                  <Button asChild variant="whatsapp">
-                    <a href={homepageWhatsAppUrl} target="_blank" rel="noreferrer">
-                      <WhatsAppIcon className="size-4" />
-                      Ask on WhatsApp
-                    </a>
-                  </Button>
+                  <a
+                    href={homepageWhatsAppUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
+                  >
+                    <WhatsAppIcon className="size-4 text-[#25D366]" />
+                    Ask on WhatsApp after you shortlist a car
+                  </a>
                 </div>
               </div>
             </Card>
