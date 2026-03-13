@@ -28,6 +28,7 @@ import { buildBreadcrumbJsonLd } from "@/lib/seo";
 import {
   buildVehicleUrl,
   buildWhatsAppUrl,
+  cn,
 } from "@/lib/utils";
 import type { Vehicle } from "@/types/dealership";
 
@@ -168,6 +169,128 @@ function DeliveredVehicleCard({
   );
 }
 
+function HeroSearchPanel({
+  inventoryMakes,
+  className,
+}: {
+  inventoryMakes: string[];
+  className?: string;
+}) {
+  return (
+    <form
+      action="/inventory"
+      className={cn(
+        "flex flex-col items-stretch rounded-[1.15rem] border border-border/90 bg-surface/94 p-1 shadow-[0_12px_26px_rgba(28,35,43,0.05)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-accent/20 focus-within:shadow-[0_16px_34px_rgba(23,58,94,0.08)] sm:rounded-[1.5rem] md:flex-row md:items-center md:rounded-[1.6rem] md:p-1.5",
+        className,
+      )}
+    >
+      <div className="group relative flex flex-1 items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
+        <div className="absolute inset-y-0 left-4 flex items-center sm:left-5">
+          <svg className="h-5 w-5 text-text-secondary/70 transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <div className="w-full pl-8 sm:pl-9">
+          <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Keyword</label>
+          <input
+            name="q"
+            placeholder="Search make or model"
+            className="mt-0.5 min-w-0 w-full border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none placeholder:font-medium placeholder:text-text-secondary/70 focus:ring-0"
+          />
+        </div>
+      </div>
+
+      <div className="hidden h-8 w-px bg-border md:block" />
+
+      <div className="group relative flex flex-1 cursor-pointer items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
+        <div className="w-full pr-6">
+          <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Make</label>
+          <select
+            name="make"
+            className="mt-0.5 w-full cursor-pointer appearance-none border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none focus:ring-0"
+            defaultValue=""
+          >
+            <option value="">Any Make</option>
+            {inventoryMakes.map((make) => (
+              <option key={make} value={make}>
+                {make}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none sm:right-5">
+          <svg className="h-4 w-4 text-text-secondary/70 transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      <div className="hidden h-8 w-px bg-border md:block" />
+
+      <div className="group relative flex flex-1 cursor-pointer items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
+        <div className="w-full pr-6">
+          <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Condition</label>
+          <select
+            name="category"
+            className="mt-0.5 w-full cursor-pointer appearance-none border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none focus:ring-0"
+            defaultValue=""
+          >
+            <option value="">Any Condition</option>
+            <option value="used">Local Used</option>
+            <option value="new">Brand New</option>
+            <option value="imported">Direct Import</option>
+            <option value="traded-in">Traded-in</option>
+          </select>
+        </div>
+        <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none sm:right-5">
+          <svg className="h-4 w-4 text-text-secondary/70 transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      <div className="mt-1.5 w-full px-1 pb-1 md:mt-0 md:w-auto md:px-0 md:pb-0">
+        <Button
+          type="submit"
+          className="h-9.5 w-full rounded-[0.95rem] bg-accent/94 px-4.5 text-[0.95rem] font-semibold shadow-[0_8px_18px_rgba(23,58,94,0.12)] hover:bg-accent md:h-10 md:w-auto md:min-w-[9.5rem] md:rounded-[1.05rem] md:bg-accent md:px-5 md:text-sm md:shadow-[0_10px_24px_rgba(23,58,94,0.16)]"
+        >
+          View Matches
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function HeroTrustRow({
+  className,
+}: {
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "inline-flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 rounded-[1rem] border border-border/80 bg-surface/76 px-3 py-1.5 text-[0.68rem] font-medium text-text-secondary shadow-[0_8px_18px_rgba(28,35,43,0.04)] sm:gap-x-3 sm:gap-y-2 sm:rounded-[1.1rem] sm:px-4 sm:py-2 sm:text-[0.72rem] md:justify-start",
+        className,
+      )}
+    >
+      <span className="inline-flex items-center gap-1.5">
+        <Star className="size-3.5 fill-[#fbbf24] text-[#fbbf24]" />
+        4.8 Google Rating
+      </span>
+      <span className="hidden h-3.5 w-px bg-border sm:block" />
+      <span className="inline-flex items-center gap-1.5">
+        <Check className="size-3.5 text-accent" />
+        Price and mileage shown upfront
+      </span>
+      <span className="hidden h-3.5 w-px bg-border sm:block" />
+      <span className="inline-flex items-center gap-1.5">
+        <MapPin className="size-3.5 text-accent" />
+        Available in Mombasa
+      </span>
+    </div>
+  );
+}
+
 export default async function Home() {
   const [collections, reviews, vehicles] = await Promise.all([
     getHomepageCollections(),
@@ -218,7 +341,7 @@ export default async function Home() {
       <JsonLd data={breadcrumbJsonLd} />
 
       <main className="homepage-flow">
-        <section className="relative flex min-h-[23.5rem] w-full flex-col justify-center overflow-hidden pb-3 pt-9 sm:min-h-[29rem] sm:pb-5 sm:pt-12 lg:min-h-[31rem] lg:pb-6 lg:pt-16">
+        <section className="relative flex min-h-[20.75rem] w-full flex-col justify-center overflow-hidden pb-12 pt-7 md:min-h-[29rem] md:pb-5 md:pt-12 lg:min-h-[31rem] lg:pb-6 lg:pt-16">
           <div className="absolute inset-0 z-0">
             <Image
               src="https://res.cloudinary.com/dlyrnhpcn/image/upload/v1773413283/HERO1_z3ovbz.png"
@@ -226,10 +349,10 @@ export default async function Home() {
               fill
               priority
               quality={75}
-              className="object-cover object-[80%_24%] brightness-[0.93] contrast-[1.12] saturate-[0.97] sm:object-[75%_33%] md:object-[77%_33%] lg:object-[79%_31%]"
+              className="object-cover object-[84%_12%] scale-[1.08] brightness-[0.93] contrast-[1.14] saturate-[0.98] md:object-[77%_33%] md:scale-100 lg:object-[79%_31%]"
               sizes="100vw"
             />
-            <div className="absolute inset-0 z-10 bg-[linear-gradient(94deg,rgba(246,247,248,0.97)_4%,rgba(246,247,248,0.92)_22%,rgba(246,247,248,0.68)_45%,rgba(246,247,248,0.18)_69%,rgba(246,247,248,0.05)_100%)]" />
+            <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(255,255,255,0.94)_0%,rgba(255,255,255,0.8)_40%,rgba(255,255,255,0.2)_70%,rgba(255,255,255,0)_100%)] md:bg-[linear-gradient(94deg,rgba(246,247,248,0.97)_4%,rgba(246,247,248,0.92)_22%,rgba(246,247,248,0.68)_45%,rgba(246,247,248,0.18)_69%,rgba(246,247,248,0.05)_100%)]" />
             <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0)_54%,rgba(28,35,43,0.1)_76%,rgba(28,35,43,0.22)_100%)]" />
             <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(246,247,248,0.03)_0%,rgba(246,247,248,0.01)_46%,rgba(246,247,248,0.08)_100%)]" />
             <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(246,247,248,0)_0%,rgba(246,247,248,0)_72%,rgba(246,247,248,0.12)_88%,rgba(246,247,248,0.24)_100%)]" />
@@ -248,13 +371,8 @@ export default async function Home() {
                 </span>
               </h1>
 
-              <p className="mx-auto max-w-[30rem] text-[0.95rem] leading-6 text-text-secondary sm:max-w-[32rem] sm:text-base sm:leading-7 md:mx-0 md:max-w-[34rem] md:text-[1rem]">
-                <span className="sm:hidden">
-                  Review inspected cars online before visiting the showroom.
-                </span>
-                <span className="hidden sm:inline">
-                  Review inspected stock online first, then visit the showroom or message sales only when a car is worth viewing.
-                </span>
+              <p className="mx-auto hidden max-w-[32rem] text-base leading-7 text-text-secondary md:mx-0 md:block md:max-w-[34rem] md:text-[1rem]">
+                Review inspected stock online first, then visit the showroom or message sales only when a car is worth viewing.
               </p>
 
               <div className="flex flex-col items-center justify-center gap-3 pt-1 sm:flex-row sm:pt-1.5 md:justify-start">
@@ -269,105 +387,25 @@ export default async function Home() {
               </div>
 
             </div>
-            <div className="relative mt-5 w-full max-w-4xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-150 md:mx-0 md:mt-5 lg:mt-5">
-              <form
-                action="/inventory"
-                className="flex flex-col items-stretch rounded-[1.15rem] border border-border/90 bg-surface/94 p-1 shadow-[0_12px_26px_rgba(28,35,43,0.05)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-accent/20 focus-within:shadow-[0_16px_34px_rgba(23,58,94,0.08)] sm:rounded-[1.5rem] md:flex-row md:items-center md:rounded-[1.6rem] md:p-1.5"
-              >
-                <div className="group relative flex flex-1 items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
-                  <div className="absolute inset-y-0 left-4 flex items-center sm:left-5">
-                    <svg className="h-5 w-5 text-text-secondary/70 transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  <div className="w-full pl-8 sm:pl-9">
-                    <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Keyword</label>
-                    <input
-                      name="q"
-                      placeholder="Search make or model"
-                      className="mt-0.5 min-w-0 w-full border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none placeholder:font-medium placeholder:text-text-secondary/70 focus:ring-0"
-                    />
-                  </div>
-                </div>
-
-                <div className="hidden h-8 w-px bg-border md:block" />
-
-                <div className="group relative flex flex-1 cursor-pointer items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
-                  <div className="w-full pr-6">
-                    <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Make</label>
-                    <select
-                      name="make"
-                      className="mt-0.5 w-full cursor-pointer appearance-none border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none focus:ring-0"
-                      defaultValue=""
-                    >
-                      <option value="">Any Make</option>
-                      {inventoryMakes.map((make) => (
-                        <option key={make} value={make}>
-                          {make}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none sm:right-5">
-                    <svg className="h-4 w-4 text-text-secondary/70 transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-
-                <div className="hidden h-8 w-px bg-border md:block" />
-
-                <div className="group relative flex flex-1 cursor-pointer items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
-                  <div className="w-full pr-6">
-                    <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Condition</label>
-                    <select
-                      name="category"
-                      className="mt-0.5 w-full cursor-pointer appearance-none border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none focus:ring-0"
-                      defaultValue=""
-                    >
-                      <option value="">Any Condition</option>
-                      <option value="used">Local Used</option>
-                      <option value="new">Brand New</option>
-                      <option value="imported">Direct Import</option>
-                      <option value="traded-in">Traded-in</option>
-                    </select>
-                  </div>
-                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none sm:right-5">
-                    <svg className="h-4 w-4 text-text-secondary/70 transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-
-                <div className="mt-1.5 w-full px-1 pb-1 md:mt-0 md:w-auto md:px-0 md:pb-0">
-                  <Button type="submit" className="h-10 w-full rounded-[1rem] px-5 text-sm font-semibold md:h-10 md:w-auto md:min-w-[9.5rem] md:rounded-[1.05rem]">
-                    View Matches
-                  </Button>
-                </div>
-              </form>
-
-              <div className="mt-2 inline-flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 rounded-[1rem] border border-border/80 bg-surface/76 px-3 py-1.5 text-[0.68rem] font-medium text-text-secondary shadow-[0_8px_18px_rgba(28,35,43,0.04)] sm:mt-2.5 sm:gap-x-3 sm:gap-y-2 sm:rounded-[1.1rem] sm:px-4 sm:py-2 sm:text-[0.72rem] md:justify-start">
-                <span className="inline-flex items-center gap-1.5">
-                  <Star className="size-3.5 fill-[#fbbf24] text-[#fbbf24]" />
-                  4.8 Google Rating
-                </span>
-                <span className="hidden h-3.5 w-px bg-border sm:block" />
-                <span className="inline-flex items-center gap-1.5">
-                  <Check className="size-3.5 text-accent" />
-                  Price and mileage shown upfront
-                </span>
-                <span className="hidden h-3.5 w-px bg-border sm:block" />
-                <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="size-3.5 text-accent" />
-                  Available in Mombasa
-                </span>
-              </div>
+            <div className="relative mt-5 hidden w-full max-w-4xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-150 md:mx-0 md:mt-5 md:block lg:mt-5">
+              <HeroSearchPanel inventoryMakes={inventoryMakes} />
+              <HeroTrustRow className="mt-2.5" />
             </div>
 
           </div>
         </section>
 
-        <section className="section-shell pt-16">
+        <div className="relative z-30 -mt-8 md:hidden">
+          <div className="container-shell px-1">
+            <HeroSearchPanel
+              inventoryMakes={inventoryMakes}
+              className="bg-surface shadow-[0_22px_42px_rgba(28,35,43,0.1)]"
+            />
+            <HeroTrustRow className="mt-1.5 justify-start" />
+          </div>
+        </div>
+
+        <section className="section-shell pt-6 md:pt-16">
           <div className="container-shell space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="space-y-3">
