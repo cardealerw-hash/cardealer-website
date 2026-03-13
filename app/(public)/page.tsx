@@ -11,7 +11,6 @@ import {
   Star,
 } from "lucide-react";
 
-import heroOptionImage from "../../UIs/heroOPtion.jpg";
 import { JsonLd } from "@/components/layout/json-ld";
 import { FloatingWhatsAppButton } from "@/components/marketing/floating-whatsapp-button";
 import { SectionHeading } from "@/components/marketing/section-heading";
@@ -219,39 +218,46 @@ export default async function Home() {
       <JsonLd data={breadcrumbJsonLd} />
 
       <main className="homepage-flow">
-        <section className="relative flex min-h-[31rem] w-full flex-col justify-center overflow-hidden pb-6 pt-18 sm:min-h-[34rem] lg:min-h-[37rem] lg:pb-8 lg:pt-20">
+        <section className="relative flex min-h-[23.5rem] w-full flex-col justify-center overflow-hidden pb-3 pt-9 sm:min-h-[29rem] sm:pb-5 sm:pt-12 lg:min-h-[31rem] lg:pb-6 lg:pt-16">
           <div className="absolute inset-0 z-0">
             <Image
-              src={heroOptionImage}
-              alt="Vehicles available at Ocean Motors in Kizingo, Mombasa"
+              src="https://res.cloudinary.com/dlyrnhpcn/image/upload/v1773413283/HERO1_z3ovbz.png"
+              alt="Vehicles available at Ocean Motors in Mombasa"
               fill
               priority
               quality={75}
-              className="object-cover object-[58%_50%] brightness-[0.97] contrast-[1.01] saturate-[0.92]"
+              className="object-cover object-[80%_24%] brightness-[0.93] contrast-[1.12] saturate-[0.97] sm:object-[75%_33%] md:object-[77%_33%] lg:object-[79%_31%]"
               sizes="100vw"
             />
-            <div className="absolute inset-0 z-10 bg-[linear-gradient(94deg,rgba(246,247,248,0.96)_6%,rgba(246,247,248,0.92)_31%,rgba(246,247,248,0.58)_56%,rgba(246,247,248,0.22)_77%,rgba(246,247,248,0.12)_100%)]" />
-            <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(246,247,248,0.04)_0%,rgba(246,247,248,0.02)_48%,rgba(246,247,248,0.08)_100%)]" />
+            <div className="absolute inset-0 z-10 bg-[linear-gradient(94deg,rgba(246,247,248,0.97)_4%,rgba(246,247,248,0.92)_22%,rgba(246,247,248,0.68)_45%,rgba(246,247,248,0.18)_69%,rgba(246,247,248,0.05)_100%)]" />
+            <div className="absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(0,0,0,0)_54%,rgba(28,35,43,0.1)_76%,rgba(28,35,43,0.22)_100%)]" />
+            <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(246,247,248,0.03)_0%,rgba(246,247,248,0.01)_46%,rgba(246,247,248,0.08)_100%)]" />
+            <div className="absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(246,247,248,0)_0%,rgba(246,247,248,0)_72%,rgba(246,247,248,0.12)_88%,rgba(246,247,248,0.24)_100%)]" />
           </div>
 
           <div className="container-shell relative z-20 flex w-full flex-col px-1">
-            <div className="max-w-3xl space-y-4 text-center animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-1000 sm:space-y-5 md:text-left">
+            <div className="max-w-3xl space-y-3 text-center animate-in fade-in zoom-in-95 slide-in-from-bottom-10 duration-1000 sm:space-y-4 md:text-left">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent/80">
-                Kizingo showroom inventory
+                Available inventory
               </p>
 
-              <h1 className="max-w-[16ch] text-balance text-[2.2rem] font-semibold leading-[0.97] tracking-[-0.03em] text-text-primary sm:text-[2.55rem] md:text-[2.85rem] lg:text-[3.15rem]">
+              <h1 className="max-w-[18ch] text-balance text-[1.95rem] font-semibold leading-[0.96] tracking-[-0.03em] text-text-primary sm:text-[2.2rem] md:max-w-[17ch] md:text-[2.45rem] lg:text-[2.75rem]">
                 Browse cars with price, mileage,
                 <span className="block text-[0.9em] text-accent">
-                  and condition already listed
+                  and condition shown upfront
                 </span>
               </h1>
 
-              <p className="mx-auto max-w-[34rem] text-base leading-7 text-text-secondary sm:text-lg md:mx-0 md:text-[1.02rem]">
-                Compare inspected stock online first, then visit our Kizingo showroom or message sales only when a car is worth viewing.
+              <p className="mx-auto max-w-[30rem] text-[0.95rem] leading-6 text-text-secondary sm:max-w-[32rem] sm:text-base sm:leading-7 md:mx-0 md:max-w-[34rem] md:text-[1rem]">
+                <span className="sm:hidden">
+                  Review inspected cars online before visiting the showroom.
+                </span>
+                <span className="hidden sm:inline">
+                  Review inspected stock online first, then visit the showroom or message sales only when a car is worth viewing.
+                </span>
               </p>
 
-              <div className="flex flex-col items-center justify-center gap-3 pt-2 sm:flex-row md:justify-start">
+              <div className="flex flex-col items-center justify-center gap-3 pt-1 sm:flex-row sm:pt-1.5 md:justify-start">
                 <Button asChild className="group h-12 px-6 text-white hover:text-white">
                   <Link href="/inventory" className="flex items-center gap-2">
                     Browse Available Cars
@@ -263,12 +269,12 @@ export default async function Home() {
               </div>
 
             </div>
-            <div className="relative mt-6 w-full max-w-4xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-150 md:mx-0 md:mt-6 lg:mt-6">
+            <div className="relative mt-5 w-full max-w-4xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-150 md:mx-0 md:mt-5 lg:mt-5">
               <form
                 action="/inventory"
-                className="flex flex-col items-stretch rounded-[1.25rem] border border-border/90 bg-surface/94 p-1.5 shadow-[0_14px_30px_rgba(28,35,43,0.06)] sm:rounded-[1.5rem] md:flex-row md:items-center md:rounded-[1.75rem] md:p-2"
+                className="flex flex-col items-stretch rounded-[1.15rem] border border-border/90 bg-surface/94 p-1 shadow-[0_12px_26px_rgba(28,35,43,0.05)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-accent/20 focus-within:shadow-[0_16px_34px_rgba(23,58,94,0.08)] sm:rounded-[1.5rem] md:flex-row md:items-center md:rounded-[1.6rem] md:p-1.5"
               >
-                <div className="group relative flex flex-1 items-center px-4 py-2.5 transition-colors hover:bg-surface-elevated sm:px-5 md:rounded-[1.15rem]">
+                <div className="group relative flex flex-1 items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
                   <div className="absolute inset-y-0 left-4 flex items-center sm:left-5">
                     <svg className="h-5 w-5 text-text-secondary/70 transition-colors group-hover:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -278,15 +284,15 @@ export default async function Home() {
                     <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Keyword</label>
                     <input
                       name="q"
-                      placeholder="Search make or model..."
-                      className="mt-0.5 w-full truncate border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none placeholder:font-medium placeholder:text-text-secondary/70 focus:ring-0"
+                      placeholder="Search make or model"
+                      className="mt-0.5 min-w-0 w-full border-none bg-transparent p-0 text-sm font-medium text-text-primary outline-none placeholder:font-medium placeholder:text-text-secondary/70 focus:ring-0"
                     />
                   </div>
                 </div>
 
                 <div className="hidden h-8 w-px bg-border md:block" />
 
-                <div className="group relative flex flex-1 cursor-pointer items-center px-4 py-2.5 transition-colors hover:bg-surface-elevated sm:px-5 md:rounded-[1.15rem]">
+                <div className="group relative flex flex-1 cursor-pointer items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
                   <div className="w-full pr-6">
                     <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Make</label>
                     <select
@@ -311,7 +317,7 @@ export default async function Home() {
 
                 <div className="hidden h-8 w-px bg-border md:block" />
 
-                <div className="group relative flex flex-1 cursor-pointer items-center px-4 py-2.5 transition-colors hover:bg-surface-elevated sm:px-5 md:rounded-[1.15rem]">
+                <div className="group relative flex flex-1 cursor-pointer items-center px-4 py-1.5 transition-colors hover:bg-surface-elevated sm:px-5 sm:py-2 md:rounded-[1.05rem]">
                   <div className="w-full pr-6">
                     <label className="block text-[0.6rem] font-bold uppercase tracking-[0.16em] text-text-secondary">Condition</label>
                     <select
@@ -334,13 +340,13 @@ export default async function Home() {
                 </div>
 
                 <div className="mt-1.5 w-full px-1 pb-1 md:mt-0 md:w-auto md:px-0 md:pb-0">
-                  <Button type="submit" className="h-11 w-full rounded-[1rem] px-6 text-sm font-semibold md:h-12 md:w-auto md:rounded-[1.15rem]">
-                    See Matching Cars
+                  <Button type="submit" className="h-10 w-full rounded-[1rem] px-5 text-sm font-semibold md:h-10 md:w-auto md:min-w-[9.5rem] md:rounded-[1.05rem]">
+                    View Matches
                   </Button>
                 </div>
               </form>
 
-              <div className="mt-3 inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-[1.25rem] border border-border/80 bg-surface/76 px-4 py-2 text-[0.72rem] font-medium text-text-secondary shadow-[0_8px_18px_rgba(28,35,43,0.04)] md:justify-start">
+              <div className="mt-2 inline-flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 rounded-[1rem] border border-border/80 bg-surface/76 px-3 py-1.5 text-[0.68rem] font-medium text-text-secondary shadow-[0_8px_18px_rgba(28,35,43,0.04)] sm:mt-2.5 sm:gap-x-3 sm:gap-y-2 sm:rounded-[1.1rem] sm:px-4 sm:py-2 sm:text-[0.72rem] md:justify-start">
                 <span className="inline-flex items-center gap-1.5">
                   <Star className="size-3.5 fill-[#fbbf24] text-[#fbbf24]" />
                   4.8 Google Rating
@@ -348,24 +354,13 @@ export default async function Home() {
                 <span className="hidden h-3.5 w-px bg-border sm:block" />
                 <span className="inline-flex items-center gap-1.5">
                   <Check className="size-3.5 text-accent" />
-                  {publishedVehicleCount} cars published now
+                  Price and mileage shown upfront
                 </span>
                 <span className="hidden h-3.5 w-px bg-border sm:block" />
                 <span className="inline-flex items-center gap-1.5">
                   <MapPin className="size-3.5 text-accent" />
-                  {siteConfig.address} showroom
+                  Available in Mombasa
                 </span>
-              </div>
-              <div className="mt-3 flex justify-center md:justify-start">
-                <a
-                  href={homepageWhatsAppUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  <WhatsAppIcon className="size-4.5 text-[#25D366]" />
-                  Need a quick answer first? Ask on WhatsApp.
-                </a>
               </div>
             </div>
 

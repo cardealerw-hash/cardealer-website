@@ -19,14 +19,14 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-surface/92 backdrop-blur">
-      <div className="container-shell flex items-center justify-between gap-6 py-4">
+      <div className="container-shell flex items-center justify-between gap-6 py-3">
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/logo.png"
             alt={`${siteConfig.name} logo`}
-            width={44}
-            height={44}
-            className="size-11 rounded-full border border-border object-cover"
+            width={40}
+            height={40}
+            className="size-10 rounded-full border border-border object-cover"
             priority
           />
           <div>
@@ -59,13 +59,23 @@ export function SiteHeader() {
             <Phone className="size-4" />
             {siteConfig.phoneDisplay}
           </a>
-          <Button asChild variant="secondary" size="sm" className="h-10 px-4">
+          <Button
+            asChild
+            variant="secondary"
+            size="sm"
+            className="h-9 border-border/70 bg-surface/60 px-3.5 text-text-secondary shadow-none hover:bg-surface-elevated hover:text-text-primary"
+          >
             <Link href="/inventory">Inventory</Link>
           </Button>
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <Button asChild variant="secondary" size="sm" className="h-10 px-4">
+          <Button
+            asChild
+            variant="secondary"
+            size="sm"
+            className="h-9 border-border/70 bg-surface/60 px-3.5 text-text-secondary shadow-none hover:bg-surface-elevated hover:text-text-primary"
+          >
             <Link href="/inventory">Inventory</Link>
           </Button>
           <button
