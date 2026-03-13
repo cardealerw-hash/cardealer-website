@@ -56,8 +56,8 @@ export default async function InventoryPage({
                 </div>
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center rounded-[32px] border border-dashed border-stone-200 bg-white/60 p-12 text-center text-stone-500 lg:col-span-3">
-                <p className="text-lg font-medium text-stone-900">No vehicles match your search</p>
+              <div className="flex flex-col items-center justify-center rounded-[32px] border border-dashed border-border bg-surface/75 p-12 text-center text-text-secondary lg:col-span-3">
+                <p className="text-lg font-medium text-text-primary">No vehicles match your search</p>
                 <p className="mt-2 text-sm">Clear a few filters or adjust your search terms and try again.</p>
               </div>
             )}

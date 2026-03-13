@@ -33,16 +33,16 @@ export default async function TradeInPage({
               title="Trade in your current car without slowing down the next deal"
               description="Send the basics first. Sales can estimate fit, ask for anything missing, and tell you whether it makes sense to move forward."
             />
-            <Card className="rounded-[28px] p-6 text-sm leading-7 text-stone-600">
-              <p className="font-semibold text-stone-950">Recommended information</p>
+            <Card className="rounded-[28px] p-6 text-sm leading-7 text-text-secondary">
+              <p className="font-semibold text-text-primary">Recommended information</p>
               <ul className="mt-4 space-y-2">
                 <li>Current make, model, year, and mileage.</li>
                 <li>Condition notes that affect valuation confidence.</li>
                 <li>The replacement vehicle the buyer has in mind, if any.</li>
               </ul>
             </Card>
-            <Card className="rounded-[28px] p-6 text-sm leading-7 text-stone-600">
-              <p className="font-semibold text-stone-950">What to expect after you submit</p>
+            <Card className="rounded-[28px] p-6 text-sm leading-7 text-text-secondary">
+              <p className="font-semibold text-text-primary">What to expect after you submit</p>
               <ul className="mt-4 space-y-2">
                 <li>The team reviews the vehicle details before calling you back.</li>
                 <li>You can share photos later if they are needed for a firmer valuation.</li>

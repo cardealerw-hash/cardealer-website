@@ -85,47 +85,47 @@ export default async function ContactPage() {
                 <Card key={location.id} className="rounded-[28px] p-6">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-xl font-semibold text-stone-950">
+                      <h2 className="text-xl font-semibold text-text-primary">
                         {location.name}
                       </h2>
-                      <p className="mt-2 text-sm leading-6 text-stone-600">
+                      <p className="mt-2 text-sm leading-6 text-text-secondary">
                         Visit for viewings, stock checks, and final confirmation before you make a move.
                       </p>
                     </div>
                     {location.isPrimary ? (
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-primary">
+                      <span className="rounded-full border border-accent/15 bg-accent/7 px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-accent">
                         Main showroom
                       </span>
                     ) : null}
                   </div>
 
-                  <div className="mt-5 grid gap-4 text-sm leading-6 text-stone-600 sm:grid-cols-2">
+                  <div className="mt-5 grid gap-4 text-sm leading-6 text-text-secondary sm:grid-cols-2">
                     <div className="flex items-start gap-3">
-                      <MapPin className="mt-1 size-4 text-stone-400" />
+                      <MapPin className="mt-1 size-4 text-text-secondary/70" />
                       <div>
                         <p>{location.addressLine}</p>
                         <p>{location.city}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <Clock3 className="mt-1 size-4 text-stone-400" />
+                      <Clock3 className="mt-1 size-4 text-text-secondary/70" />
                       <p>{location.hours}</p>
                     </div>
                     <div className="flex items-start gap-3">
-                      <PhoneCall className="mt-1 size-4 text-stone-400" />
+                      <PhoneCall className="mt-1 size-4 text-text-secondary/70" />
                       <a
                         href={phoneHref}
-                        className="font-medium text-stone-900 transition-colors hover:text-primary"
+                        className="font-medium text-text-primary transition-colors hover:text-accent"
                       >
                         {location.phone}
                       </a>
                     </div>
                     {email ? (
                       <div className="flex items-start gap-3">
-                        <ArrowUpRight className="mt-1 size-4 text-stone-400" />
+                        <ArrowUpRight className="mt-1 size-4 text-text-secondary/70" />
                         <a
                           href={`mailto:${email}`}
-                          className="font-medium text-stone-900 transition-colors hover:text-primary"
+                          className="font-medium text-text-primary transition-colors hover:text-accent"
                         >
                           {email}
                         </a>
@@ -142,7 +142,7 @@ export default async function ContactPage() {
                         Directions
                       </a>
                     </Button>
-                    <Button asChild variant="dark" className="h-11">
+                    <Button asChild variant="whatsapp" className="h-11">
                       <a href={generalWhatsAppUrl} target="_blank" rel="noreferrer">
                         WhatsApp
                       </a>
@@ -153,21 +153,21 @@ export default async function ContactPage() {
             })}
           </div>
           <div className="space-y-5 lg:sticky lg:top-28">
-            <Card className="rounded-[28px] border-stone-900 bg-stone-950 p-6 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
+            <Card className="rounded-[28px] bg-surface-elevated p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">
                 Need a fast answer?
               </p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">
+              <h2 className="mt-3 text-2xl font-semibold text-text-primary">
                 Talk to sales before you leave home
               </h2>
-              <p className="mt-3 text-sm leading-6 text-stone-300">
+              <p className="mt-3 text-sm leading-6 text-text-secondary">
                 Confirm availability, check which location has the car, or ask for directions on WhatsApp.
               </p>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <Button asChild className="h-11">
                   <a href={siteConfig.phoneHref}>Call {siteConfig.phoneDisplay}</a>
                 </Button>
-                <Button asChild className="h-11 bg-[#25d366] text-white hover:bg-[#1fb85a]">
+                <Button asChild variant="whatsapp" className="h-11">
                   <a href={generalWhatsAppUrl} target="_blank" rel="noreferrer">
                     <MessageCircle className="size-4" />
                     WhatsApp sales

@@ -29,26 +29,26 @@ export default async function AboutPage() {
 
         <div className="grid gap-6 md:grid-cols-3">
           <Card className="rounded-[28px] p-6">
-            <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+            <p className="text-xs uppercase tracking-[0.24em] text-text-secondary">
               Delivered units
             </p>
-            <p className="mt-4 text-4xl font-semibold text-stone-950">
+            <p className="mt-4 text-4xl font-semibold text-text-primary">
               {homeStats.deliveredCount}+
             </p>
           </Card>
           <Card className="rounded-[28px] p-6">
-            <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+            <p className="text-xs uppercase tracking-[0.24em] text-text-secondary">
               Finance support
             </p>
-            <p className="mt-4 text-4xl font-semibold text-stone-950">
+            <p className="mt-4 text-4xl font-semibold text-text-primary">
               {homeStats.financePartners}
             </p>
           </Card>
           <Card className="rounded-[28px] p-6">
-            <p className="text-xs uppercase tracking-[0.24em] text-stone-500">
+            <p className="text-xs uppercase tracking-[0.24em] text-text-secondary">
               Typical response
             </p>
-            <p className="mt-4 text-4xl font-semibold text-stone-950">
+            <p className="mt-4 text-4xl font-semibold text-text-primary">
               {homeStats.responseTime}
             </p>
           </Card>
@@ -56,10 +56,10 @@ export default async function AboutPage() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="rounded-[28px] p-8">
-            <h2 className="text-2xl font-semibold text-stone-950">
+            <h2 className="text-2xl font-semibold text-text-primary">
               What buyers notice first
             </h2>
-            <ul className="mt-6 space-y-3 text-sm leading-7 text-stone-600">
+            <ul className="mt-6 space-y-3 text-sm leading-7 text-text-secondary">
               <li>
                 Pricing, mileage, and key specs appear early, so buyers can screen cars quickly.
               </li>
@@ -72,10 +72,10 @@ export default async function AboutPage() {
             </ul>
           </Card>
           <Card className="rounded-[28px] p-8">
-            <h2 className="text-2xl font-semibold text-stone-950">
+            <h2 className="text-2xl font-semibold text-text-primary">
               What happens after you enquire
             </h2>
-            <ul className="mt-6 space-y-3 text-sm leading-7 text-stone-600">
+            <ul className="mt-6 space-y-3 text-sm leading-7 text-text-secondary">
               <li>
                 Sales confirm availability first, then guide you to the right showroom or yard.
               </li>
@@ -92,11 +92,11 @@ export default async function AboutPage() {
         <div className="grid gap-6 md:grid-cols-3">
           {reviews.map((review) => (
             <Card key={review.id} className="rounded-[28px] p-6">
-              <p className="text-sm leading-7 text-stone-700">&quot;{review.quote}&quot;</p>
-              <p className="mt-6 font-semibold text-stone-950">
+              <p className="text-sm leading-7 text-text-secondary">&quot;{review.quote}&quot;</p>
+              <p className="mt-6 font-semibold text-text-primary">
                 {review.customerName}
               </p>
-              <p className="text-sm text-stone-500">{review.vehicleLabel}</p>
+              <p className="text-sm text-text-secondary">{review.vehicleLabel}</p>
             </Card>
           ))}
         </div>

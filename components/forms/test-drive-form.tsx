@@ -35,10 +35,10 @@ export function TestDriveForm({
   return (
     <Card className="rounded-[24px] p-6">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-stone-900">
+        <h3 className="text-xl font-semibold text-text-primary">
           Book a test drive or viewing
         </h3>
-        <p className="mt-2 text-sm leading-6 text-stone-600">
+        <p className="mt-2 text-sm leading-6 text-text-secondary">
           Keep it short. We only need the basics to schedule the visit.
         </p>
       </div>
@@ -124,7 +124,7 @@ export function TestDriveForm({
         {state.message ? (
           <p
             className={`text-sm ${
-              state.success ? "text-emerald-700" : "text-red-600"
+              state.success ? "text-success" : "text-danger"
             }`}
             role={state.success ? undefined : "alert"}
           >

@@ -103,20 +103,20 @@ function buildDetailBadges(
       ? {
           label: "Featured",
           variant: "default" as const,
-          className: "bg-primary text-white shadow-[0_10px_24px_rgba(165,90,42,0.18)]",
+          className: "",
         }
       : null,
     vehicle.negotiable
       ? {
           label: "Negotiable",
           variant: "muted" as const,
-          className: "border border-stone-200 bg-white text-stone-700",
+          className: "",
         }
       : null,
     {
       label: stockLabel,
       variant: "muted" as const,
-      className: "bg-stone-200 text-stone-700",
+      className: "",
     },
   ].filter(
     (
@@ -217,46 +217,47 @@ export default async function VehicleDetailPage({
               </div>
 
               <div>
-                <h1 className="display-font text-balance text-[2.75rem] font-bold leading-[1.1] tracking-tight text-stone-900 lg:text-5xl">
+                <h1 className="text-balance text-[2.75rem] font-semibold leading-[1.1] tracking-tight text-text-primary lg:text-5xl">
                   {vehicle.title}
                 </h1>
-                <div className="mt-5 flex flex-wrap items-center gap-4 text-[0.85rem] font-medium text-stone-500">
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5">
-                    <MapPin className="size-[1.1rem] text-stone-400" />
+                <div className="mt-5 flex flex-wrap items-center gap-4 text-[0.85rem] font-medium text-text-secondary">
+                  <div className="inline-flex items-center gap-1.5 rounded-full bg-surface-elevated px-3 py-1.5">
+                    <MapPin className="size-[1.1rem] text-text-secondary/70" />
                     {vehicle.location?.name || "Mombasa showroom"}
                   </div>
-                  <span className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.2em] text-stone-400">
+                  <span className="rounded-full border border-border bg-surface px-3 py-1.5 text-[0.7rem] font-bold uppercase tracking-[0.18em] text-text-secondary">
                     Ref {vehicle.stockCode}
                   </span>
                 </div>
               </div>
 
-              <Card className="rounded-[32px] border-stone-200/60 bg-white p-7 shadow-[0_8px_30px_rgba(28,25,23,0.03)] lg:p-9 xl:p-10">
-                <p className="text-[0.75rem] font-bold uppercase tracking-[0.2em] text-stone-400">
+              <Card className="rounded-[32px] p-7 lg:p-9 xl:p-10">
+                <p className="text-[0.75rem] font-bold uppercase tracking-[0.18em] text-text-secondary">
                   Total Price
                 </p>
-                <p className="mt-2 text-[3rem] font-black leading-none tracking-tight text-primary lg:text-[3.5rem] xl:text-[4rem]">
+                <p className="mt-2 text-[3rem] font-black leading-none tracking-tight text-accent lg:text-[3.5rem] xl:text-[4rem]">
                   {formatCurrency(vehicle.price)}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2.5">
                   {quickFacts.map((fact) => (
                     <span
                       key={fact}
-                      className="rounded-xl bg-stone-50 px-3.5 py-2 text-[0.8rem] font-medium text-stone-600 border border-stone-100"
+                      className="rounded-xl border border-border bg-surface-elevated px-3.5 py-2 text-[0.8rem] font-medium text-text-secondary"
                     >
                       {fact}
                     </span>
                   ))}
                 </div>
-                <p className="mt-5 text-[0.85rem] leading-relaxed text-stone-500">
+                <p className="mt-5 text-[0.85rem] leading-relaxed text-text-secondary">
                   The fastest path is WhatsApp. Use the secondary actions only if
                   you already know the next step you want.
                 </p>
                 <div className="mt-7 grid gap-3.5">
                   <Button
                     asChild
+                    variant="whatsapp"
                     size="lg"
-                    className="h-14 w-full rounded-2xl bg-[#25d366] text-base font-bold text-white shadow-[0_8px_24px_rgba(37,211,102,0.25)] transition-all hover:-translate-y-0.5 hover:bg-[#1ebd5a] hover:shadow-[0_12px_30px_rgba(37,211,102,0.35)]"
+                    className="h-14 w-full rounded-2xl text-base font-bold"
                   >
                     <a href={whatsappUrl} target="_blank" rel="noreferrer">
                       <WhatsAppIcon className="mr-2 size-[1.15rem]" />
@@ -266,36 +267,36 @@ export default async function VehicleDetailPage({
                   <Button
                     asChild
                     variant="secondary"
-                    className="h-14 w-full rounded-2xl border-stone-200 bg-white text-base font-semibold !text-stone-700 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50 hover:!text-stone-950"
+                    className="h-14 w-full rounded-2xl text-base font-semibold"
                   >
                     <Link href={`${baseVehiclePath}?intent=viewing#contact-panel`}>
                       Book a Visit / Test Drive
                     </Link>
                   </Button>
-                  <div className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-2 text-[0.85rem] font-bold text-stone-500">
+                  <div className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-2 text-[0.85rem] font-bold text-text-secondary">
                     <Link
                       href={`${baseVehiclePath}?intent=financing#contact-panel`}
-                      className="transition-colors hover:text-primary"
+                      className="transition-colors hover:text-accent"
                     >
                       See Payment Options
                     </Link>
-                    <span className="hidden h-1 w-1 rounded-full bg-stone-300 md:block" />
+                    <span className="hidden h-1 w-1 rounded-full bg-border md:block" />
                     <Link
                       href={`/trade-in?vehicle=${vehicle.slug}`}
-                      className="transition-colors hover:text-primary"
+                      className="transition-colors hover:text-accent"
                     >
                       Value Your Trade
                     </Link>
                   </div>
                 </div>
-                <div className="mt-5 border-t border-stone-200/80 pt-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                <div className="mt-5 border-t border-border/80 pt-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-text-secondary">
                     Why buyers move quickly
                   </p>
-                  <ul className="mt-3 space-y-2 text-sm leading-6 text-stone-600">
+                  <ul className="mt-3 space-y-2 text-sm leading-6 text-text-secondary">
                     {buyerHighlights.map((item) => (
                       <li key={item} className="flex items-start gap-3">
-                        <span className="mt-2 inline-flex size-2 shrink-0 rounded-full bg-primary/70" />
+                        <span className="mt-2 inline-flex size-2 shrink-0 rounded-full bg-accent/70" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -306,13 +307,13 @@ export default async function VehicleDetailPage({
           </div>
 
           <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-            <Card className="rounded-[32px] border-stone-200/60 bg-white p-7 shadow-[0_8px_30px_rgba(28,25,23,0.03)] lg:p-10">
+            <Card className="rounded-[32px] p-7 lg:p-10">
               <div className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] xl:gap-10">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-text-secondary">
                     Buyer guide
                   </p>
-                  <h2 className="mt-3 text-[1.75rem] font-bold tracking-tight text-stone-950">
+                  <h2 className="mt-3 text-[1.75rem] font-semibold tracking-tight text-text-primary">
                     Highlights buyers ask for
                   </h2>
                   <div className="mt-5">
@@ -320,19 +321,19 @@ export default async function VehicleDetailPage({
                   </div>
                 </div>
 
-                <div className="min-w-0 border-t border-stone-200 pt-7 xl:border-l xl:border-t-0 xl:pl-8 xl:pt-0">
-                  <h2 className="mt-3 text-[1.75rem] font-bold tracking-tight text-stone-950">
+                <div className="min-w-0 border-t border-border pt-7 xl:border-l xl:border-t-0 xl:pl-8 xl:pt-0">
+                  <h2 className="mt-3 text-[1.75rem] font-semibold tracking-tight text-text-primary">
                     Why this one stands out
                   </h2>
-                  <ul className="mt-5 space-y-2.5 text-sm leading-7 text-stone-600">
+                  <ul className="mt-5 space-y-2.5 text-sm leading-7 text-text-secondary">
                     {overviewHighlights.map((item) => (
                       <li key={item} className="flex items-start gap-3">
-                        <span className="mt-3 inline-flex size-2 shrink-0 rounded-full bg-stone-300" />
+                        <span className="mt-3 inline-flex size-2 shrink-0 rounded-full bg-border" />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
-                  <p className="pt-3 text-sm font-medium text-stone-700">
+                  <p className="pt-3 text-sm font-medium text-text-primary">
                     Mention ref {vehicle.stockCode} when you call or message and
                     sales will move faster.
                   </p>
@@ -356,7 +357,7 @@ export default async function VehicleDetailPage({
 
           {similarVehicles.length ? (
             <div className="space-y-5">
-              <h2 className="text-2xl font-semibold text-stone-950">
+              <h2 className="text-2xl font-semibold text-text-primary">
                 Similar vehicles
               </h2>
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

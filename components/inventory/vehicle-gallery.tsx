@@ -90,12 +90,12 @@ export function VehicleGallery({
 
   if (!primaryImage) {
     return (
-      <div className="rounded-[32px] border border-border bg-[linear-gradient(135deg,#f5f5f4,white)] p-10 text-center">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
+      <div className="rounded-[32px] border border-border bg-surface p-10 text-center shadow-[0_12px_30px_rgba(28,35,43,0.05)]">
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-accent">
           Photos coming soon
         </p>
-        <h2 className="mt-4 text-3xl font-semibold text-stone-950">{title}</h2>
-        <p className="mt-4 text-sm leading-7 text-stone-600">
+        <h2 className="mt-4 text-3xl font-semibold text-text-primary">{title}</h2>
+        <p className="mt-4 text-sm leading-7 text-text-secondary">
           We are still preparing the photo gallery for this vehicle. Contact
           sales for current photos, availability, and viewing details.
         </p>
@@ -105,7 +105,7 @@ export function VehicleGallery({
 
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-[36px] border border-stone-200/50 bg-white shadow-[0_8px_30px_rgba(28,25,23,0.03)] selection:bg-transparent">
+      <div className="relative overflow-hidden rounded-[36px] border border-border bg-surface shadow-[0_12px_30px_rgba(28,35,43,0.05)] selection:bg-transparent">
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
             src={primaryImage}
@@ -115,16 +115,16 @@ export function VehicleGallery({
             sizes="(min-width: 1024px) 58vw, 100vw"
             className="object-cover"
           />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[rgba(28,35,43,0.42)] via-[rgba(28,35,43,0.08)] to-transparent" />
           <div className="absolute inset-x-4 bottom-4 flex items-center justify-between gap-3">
-            <div className="rounded-full bg-stone-950/70 px-3.5 py-1.5 text-xs font-semibold tracking-[0.08em] text-white backdrop-blur-sm">
+            <div className="rounded-full border border-white/60 bg-white/86 px-3.5 py-1.5 text-xs font-semibold tracking-[0.08em] text-text-primary backdrop-blur-sm">
               {activeIndex + 1} / {galleryImages.length} photos
             </div>
             {galleryImages.length > 1 ? (
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="inline-flex size-10 items-center justify-center rounded-full border border-white/20 bg-stone-950/38 text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] backdrop-blur-md transition-colors hover:bg-stone-950/52"
+                  className="inline-flex size-10 items-center justify-center rounded-full border border-white/65 bg-white/86 text-text-primary shadow-[0_10px_24px_rgba(28,35,43,0.1)] backdrop-blur-md transition-colors hover:bg-white"
                   aria-label="Show previous photo"
                   onClick={() =>
                     setActiveIndex(
@@ -137,7 +137,7 @@ export function VehicleGallery({
                 </button>
                 <button
                   type="button"
-                  className="inline-flex size-10 items-center justify-center rounded-full border border-white/20 bg-stone-950/38 text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)] backdrop-blur-md transition-colors hover:bg-stone-950/52"
+                  className="inline-flex size-10 items-center justify-center rounded-full border border-white/65 bg-white/86 text-text-primary shadow-[0_10px_24px_rgba(28,35,43,0.1)] backdrop-blur-md transition-colors hover:bg-white"
                   aria-label="Show next photo"
                   onClick={() =>
                     setActiveIndex(
@@ -162,8 +162,8 @@ export function VehicleGallery({
               className={cn(
                 "relative aspect-[4/3] w-32 shrink-0 overflow-hidden rounded-[20px] border shadow-sm transition-all",
                 activeImage?.id === image.id
-                  ? "border-primary ring-2 ring-primary/20"
-                  : "border-stone-200 hover:border-stone-300 hover:shadow-md",
+                  ? "border-accent ring-2 ring-accent/15"
+                  : "border-border hover:border-accent/40 hover:shadow-md",
               )}
               aria-label={`Show photo ${index + 1} of ${galleryImages.length}`}
               aria-pressed={activeImage?.id === image.id}

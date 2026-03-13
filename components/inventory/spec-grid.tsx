@@ -17,12 +17,12 @@ export function SpecGrid({ vehicle }: { vehicle: Vehicle }) {
       {specs.map((spec) => (
         <div
           key={spec.label}
-          className="rounded-3xl border border-stone-200 bg-stone-50 px-5 py-4"
+          className="rounded-3xl border border-border bg-surface-elevated px-5 py-4"
         >
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-stone-500">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-text-secondary">
             {spec.label}
           </p>
-          <p className="mt-2 text-lg font-semibold tracking-[-0.02em] text-stone-950">
+          <p className="mt-2 text-lg font-semibold tracking-[-0.02em] text-text-primary">
             {spec.value}
           </p>
         </div>

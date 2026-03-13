@@ -33,16 +33,16 @@ export default async function FinancingPage({
               title="Get finance guidance before you commit to a car"
               description="Ask about deposit range, likely monthly plan, and the documents you will need before you come in. The goal is clarity, not paperwork."
             />
-            <Card className="rounded-[28px] p-6 text-sm leading-7 text-stone-600">
-              <p className="font-semibold text-stone-950">What buyers usually want</p>
+            <Card className="rounded-[28px] p-6 text-sm leading-7 text-text-secondary">
+              <p className="font-semibold text-text-primary">What buyers usually want</p>
               <ul className="mt-4 space-y-2">
                 <li>Deposit guidance before they spend time visiting the wrong car.</li>
                 <li>Rough monthly payment direction based on budget and vehicle choice.</li>
                 <li>Clear follow-up on documents, approval steps, and timing.</li>
               </ul>
             </Card>
-            <Card className="rounded-[28px] p-6 text-sm leading-7 text-stone-600">
-              <p className="font-semibold text-stone-950">What happens next</p>
+            <Card className="rounded-[28px] p-6 text-sm leading-7 text-text-secondary">
+              <p className="font-semibold text-text-primary">What happens next</p>
               <ul className="mt-4 space-y-2">
                 <li>Share the vehicle or budget you have in mind.</li>
                 <li>Sales respond with the clearest next step, not a long form journey.</li>

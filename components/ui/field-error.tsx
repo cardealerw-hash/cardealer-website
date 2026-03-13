@@ -1,7 +1,7 @@
 export function FieldError({
   error,
   id,
-  className = "mt-2 text-sm text-red-600",
+  className = "mt-2 text-sm text-danger",
 }: {
   error?: string;
   id: string;

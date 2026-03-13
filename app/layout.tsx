@@ -1,13 +1,8 @@
-import { Manrope, Playfair_Display } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const bodyFont = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-});
-
-const displayFont = Playfair_Display({
-  variable: "--font-display",
+const bodyFont = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -18,7 +13,7 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${bodyFont.variable} ${displayFont.variable} antialiased`}>
+      <body className={`${bodyFont.variable} antialiased`}>
         {children}
       </body>
     </html>

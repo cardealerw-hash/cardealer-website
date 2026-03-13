@@ -43,8 +43,8 @@ export function LeadCaptureForm({
   return (
     <Card className={`rounded-[24px] p-6 ${className}`}>
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-stone-900">{title}</h3>
-        <p className="mt-2 text-sm leading-6 text-stone-600">{description}</p>
+        <h3 className="text-xl font-semibold text-text-primary">{title}</h3>
+        <p className="mt-2 text-sm leading-6 text-text-secondary">{description}</p>
       </div>
 
       <form action={formAction} className="space-y-4">
@@ -103,7 +103,7 @@ export function LeadCaptureForm({
         {state.message ? (
           <p
             className={`text-sm ${
-              state.success ? "text-emerald-700" : "text-red-600"
+              state.success ? "text-success" : "text-danger"
             }`}
             role={state.success ? undefined : "alert"}
           >

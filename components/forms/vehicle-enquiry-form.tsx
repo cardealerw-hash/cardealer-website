@@ -120,13 +120,13 @@ export function VehicleEnquiryForm({
   return (
     <Card className="rounded-[28px] p-5 lg:p-6">
       <div className="mb-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-text-secondary">
           Talk to sales
         </p>
-        <h3 className="mt-3 text-2xl font-semibold text-stone-950">
+        <h3 className="mt-3 text-2xl font-semibold text-text-primary">
           Ask about this vehicle
         </h3>
-        <p className="mt-2 max-w-[38ch] text-sm leading-6 text-stone-600">
+        <p className="mt-2 max-w-[38ch] text-sm leading-6 text-text-secondary">
           Call, WhatsApp, or send one short message and the team will follow up.
         </p>
       </div>
@@ -142,7 +142,7 @@ export function VehicleEnquiryForm({
             </Button>
           ) : null}
           {whatsappUrl ? (
-            <Button asChild variant="dark" className="w-full">
+            <Button asChild variant="whatsapp" className="w-full">
               <a href={whatsappUrl} target="_blank" rel="noreferrer">
                 <WhatsAppIcon className="size-4" />
                 WhatsApp Sales
@@ -152,7 +152,7 @@ export function VehicleEnquiryForm({
         </div>
       ) : null}
 
-      <div className="rounded-[22px] border border-stone-200 bg-stone-100/85 p-1">
+      <div className="rounded-[22px] border border-border bg-surface-elevated p-1">
         <div className="grid gap-1.5 sm:grid-cols-3">
           {(Object.entries(intentMeta) as Array<
             [VehicleIntent, (typeof intentMeta)[VehicleIntent]]
@@ -165,8 +165,8 @@ export function VehicleEnquiryForm({
               className={cn(
                 "rounded-[18px] border px-3.5 py-2.5 text-left transition-all",
                 intent === key
-                  ? "border-primary bg-white text-stone-950 shadow-[0_10px_22px_rgba(185,106,43,0.14)] ring-1 ring-primary/15"
-                  : "border-transparent bg-transparent text-stone-600 hover:bg-white/75 hover:text-stone-900",
+                  ? "border-accent bg-surface text-text-primary shadow-[0_10px_22px_rgba(23,58,94,0.08)] ring-1 ring-accent/10"
+                  : "border-transparent bg-transparent text-text-secondary hover:bg-surface hover:text-text-primary",
               )}
             >
               <span className="block text-sm font-semibold">{item.label}</span>
@@ -175,11 +175,11 @@ export function VehicleEnquiryForm({
         </div>
       </div>
 
-      <div className="mt-5 border-t border-stone-200 pt-5">
-        <h4 className="text-lg font-semibold text-stone-950">
+      <div className="mt-5 border-t border-border pt-5">
+        <h4 className="text-lg font-semibold text-text-primary">
           {activeIntent.title}
         </h4>
-        <p className="mt-2 text-sm leading-6 text-stone-600">
+        <p className="mt-2 text-sm leading-6 text-text-secondary">
           {activeIntent.description}
         </p>
 
@@ -195,7 +195,6 @@ export function VehicleEnquiryForm({
                 id={`${formId}-phone`}
                 name="phone"
                 placeholder="+254..."
-                className="border-primary/35 bg-[#fffaf5]"
                 required
                 {...phoneField.inputProps}
               />
@@ -274,7 +273,7 @@ export function VehicleEnquiryForm({
               <p
                 className={cn(
                   "text-sm",
-                  state.success ? "text-emerald-700" : "text-red-600",
+                  state.success ? "text-success" : "text-danger",
                 )}
                 role={state.success ? undefined : "alert"}
               >
@@ -299,7 +298,6 @@ export function VehicleEnquiryForm({
                 id={`${formId}-phone`}
                 name="phone"
                 placeholder="+254..."
-                className="border-primary/35 bg-[#fffaf5]"
                 required
                 {...phoneField.inputProps}
               />
@@ -336,7 +334,7 @@ export function VehicleEnquiryForm({
               <p
                 className={cn(
                   "text-sm",
-                  state.success ? "text-emerald-700" : "text-red-600",
+                  state.success ? "text-success" : "text-danger",
                 )}
                 role={state.success ? undefined : "alert"}
               >

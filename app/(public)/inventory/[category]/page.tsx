@@ -116,7 +116,7 @@ export default async function InventoryCategoryPage({
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
               ))
             ) : (
-              <div className="rounded-[28px] border border-dashed border-border bg-white/60 p-8 text-stone-600 lg:col-span-3">
+              <div className="rounded-[28px] border border-dashed border-border bg-surface/75 p-8 text-text-secondary lg:col-span-3">
                 No vehicles are currently available in this category with the chosen
                 filters.
               </div>

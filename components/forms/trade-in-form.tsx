@@ -42,8 +42,8 @@ export function TradeInForm({
   return (
     <Card className="rounded-[24px] p-6">
       <div className="mb-6">
-        <h3 className="text-xl font-semibold text-stone-900">Value your trade</h3>
-        <p className="mt-2 text-sm leading-6 text-stone-600">
+        <h3 className="text-xl font-semibold text-text-primary">Value your trade</h3>
+        <p className="mt-2 text-sm leading-6 text-text-secondary">
           Share the essentials and we will review your current car before reaching
           out.
         </p>
@@ -170,7 +170,7 @@ export function TradeInForm({
         {state.message ? (
           <p
             className={`text-sm ${
-              state.success ? "text-emerald-700" : "text-red-600"
+              state.success ? "text-success" : "text-danger"
             }`}
             role={state.success ? undefined : "alert"}
           >

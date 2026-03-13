@@ -8,13 +8,13 @@ export default function NotFound() {
     <section className="section-shell">
       <div className="container-shell">
         <Card className="mx-auto max-w-2xl rounded-[32px] p-10 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-accent">
             Not found
           </p>
-          <h1 className="mt-4 display-font text-4xl text-stone-950">
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-text-primary">
             That page is no longer available.
           </h1>
-          <p className="mt-4 text-sm leading-7 text-stone-600">
+          <p className="mt-4 text-sm leading-7 text-text-secondary">
             Return to the homepage or go straight to current inventory.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

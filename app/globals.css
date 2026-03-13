@@ -1,39 +1,62 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9f5ef;
-  --foreground: #1e1a17;
-  --card: #fffdf9;
-  --muted: #72675b;
-  --primary: #a55a2a;
-  --primary-foreground: #fff8f2;
-  --border: rgba(57, 43, 31, 0.12);
+  --background: #f6f7f8;
+  --surface: #ffffff;
+  --surface-elevated: #f1f3f5;
+  --text-primary: #1c232b;
+  --text-secondary: #5e6a75;
+  --border: #d9e0e6;
+  --accent: #173a5e;
+  --accent-hover: #102c49;
+  --accent-foreground: #ffffff;
+  --success: #2f7d57;
+  --warning: #a8741a;
+  --danger: #b14b4b;
+  --ring: color-mix(in srgb, var(--accent) 18%, white 82%);
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-muted: var(--muted);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
   --color-border: var(--border);
-  --font-sans: var(--font-manrope);
-  --font-display: var(--font-display);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-ring: var(--ring);
+  --color-foreground: var(--text-primary);
+  --color-card: var(--surface);
+  --color-muted: var(--text-secondary);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-foreground);
+  --font-sans: var(--font-inter);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  min-height: 100%;
+}
+
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-manrope), sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 :where(a) {
   color: inherit;
+  text-decoration: none;
 }
 
 img {
@@ -46,6 +69,19 @@ select,
 textarea,
 button {
   font: inherit;
+}
+
+.bg-accent.border-accent {
+  color: var(--accent-foreground);
+}
+
+.bg-accent.border-accent:hover {
+  color: var(--accent-foreground);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 18%, white 82%);
+  color: var(--text-primary);
 }
 
 .container-shell {
@@ -97,12 +133,23 @@ button {
 
 .surface-card {
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 92%, white 8%);
-  box-shadow: 0 24px 60px rgba(61, 39, 14, 0.08);
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(28, 35, 43, 0.06);
 }
 
-.display-font {
-  font-family: var(--font-display), serif;
+.public-site-shell {
+  background:
+    radial-gradient(
+      circle at top,
+      color-mix(in srgb, var(--accent) 10%, transparent) 0%,
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--background) 58%, white 42%) 0%,
+      var(--background) 52%,
+      color-mix(in srgb, var(--surface-elevated) 72%, var(--background) 28%) 100%
+    );
 }
 
 .text-balance {

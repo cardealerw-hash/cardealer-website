@@ -104,8 +104,8 @@ export function TestimonialsCarousel({
   return (
     <div className="space-y-4 md:hidden">
       <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[#f9f5ef] to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#f9f5ef] to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent" />
         <div
           ref={trackRef}
           className="hide-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 pt-1 scroll-smooth [scroll-padding-inline:1rem]"
@@ -115,29 +115,29 @@ export function TestimonialsCarousel({
             <Card
               key={review.id}
               data-slide={index}
-              className="min-h-[250px] w-[88%] shrink-0 snap-start rounded-[30px] border-white/60 bg-white/95 p-6 shadow-[0_24px_60px_rgba(61,39,14,0.1)]"
+              className="min-h-[250px] w-[88%] shrink-0 snap-start rounded-[30px] border-border/80 bg-surface p-6 shadow-[0_14px_32px_rgba(28,35,43,0.06)]"
             >
               <div className="flex h-full flex-col">
-                <div className="flex items-center gap-1 text-primary">
+                <div className="flex items-center gap-1 text-[#d4a53d]">
                   {Array.from({ length: 5 }, (_, starIndex) => (
                     <Star
                       key={`${review.id}-star-${starIndex}`}
                       className={
                         starIndex < review.rating
                           ? "size-4 fill-current"
-                          : "size-4 text-stone-300"
+                          : "size-4 text-border"
                       }
                     />
                   ))}
                 </div>
-                <p className="mt-4 text-lg leading-8 text-stone-700">
+                <p className="mt-4 text-lg leading-8 text-text-secondary">
                   &quot;{review.quote}&quot;
                 </p>
                 <div className="mt-auto pt-6">
-                  <p className="font-semibold text-stone-950">
+                  <p className="font-semibold text-text-primary">
                     {review.customerName}
                   </p>
-                  <p className="mt-1 text-sm text-stone-500">
+                  <p className="mt-1 text-sm text-text-secondary">
                     {review.vehicleLabel}
                   </p>
                 </div>
@@ -155,8 +155,8 @@ export function TestimonialsCarousel({
                 type="button"
                 className={
                   index === activeIndex
-                    ? "h-2.5 w-6 rounded-full bg-primary transition-all"
-                    : "h-2.5 w-2.5 rounded-full bg-stone-300 transition-all"
+                    ? "h-2.5 w-6 rounded-full bg-accent transition-all"
+                    : "h-2.5 w-2.5 rounded-full bg-border transition-all"
                 }
                 aria-label={`Show testimonial ${index + 1}`}
                 aria-pressed={index === activeIndex}
@@ -169,7 +169,7 @@ export function TestimonialsCarousel({
               type="button"
               variant="secondary"
               size="sm"
-              className="h-10 w-10 rounded-full border-white/70 bg-white/90 px-0 shadow-sm"
+              className="h-10 w-10 rounded-full border-border bg-surface px-0 shadow-sm"
               aria-label="Previous testimonial"
               onClick={() => scrollToIndex(activeIndex - 1)}
             >
@@ -179,7 +179,7 @@ export function TestimonialsCarousel({
               type="button"
               variant="secondary"
               size="sm"
-              className="h-10 w-10 rounded-full border-white/70 bg-white/90 px-0 shadow-sm"
+              className="h-10 w-10 rounded-full border-border bg-surface px-0 shadow-sm"
               aria-label="Next testimonial"
               onClick={() => scrollToIndex(activeIndex + 1)}
             >
