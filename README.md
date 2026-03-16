@@ -37,11 +37,25 @@ A production-oriented dealership MVP built with Next.js, TypeScript, Tailwind CS
 
 ## Supabase Setup
 1. Create a new Supabase project.
-2. Run all SQL migrations in `supabase/migrations/` in order.
+2. Run all SQL migrations in `supabase/migrations/` in order (yes, you do need to run them).
+   - Quick option (dashboard): open SQL editor and run:
+     - `supabase/migrations/001_initial_schema.sql`
+     - `supabase/migrations/002_add_vehicle_stock_code.sql`
+     - `supabase/migrations/003_add_lead_inbox_state.sql`
+   - CLI option (if you use Supabase CLI): `supabase db push`
 3. Optionally run `supabase/seed/001_demo_seed.sql` for starter data.
 4. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY` in `.env.local`.
-5. Create an auth user for the admin.
-6. Insert that user into `admin_profiles`.
+5. Create/invite an auth user for the admin in Supabase Auth.
+6. Insert that user into `admin_profiles` to grant access, e.g.:
+   ```sql
+   insert into public.admin_profiles (user_id, email, full_name)
+   values ('<auth_user_uuid>', 'admin@example.com', 'Admin Name');
+   ```
+7. To remove access:
+   ```sql
+   delete from public.admin_profiles
+   where user_id = '<auth_user_uuid>';
+   ```
 
 ## Supabase Connection Layer
 - Browser client: `lib/supabase/client.ts`

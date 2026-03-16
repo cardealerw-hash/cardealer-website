@@ -33,6 +33,26 @@ describe("AdminNavigation", () => {
     );
   });
 
+
+  it("shows admins link as active on admins routes", () => {
+    pathnameMock.mockReturnValue("/admin/admins");
+
+    render(
+      <AdminNavigation
+        session={{
+          email: "admin@example.com",
+          mode: "demo",
+          name: "Admin",
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /admins/i })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
   it("opens the mobile drawer and exposes the quick create action", () => {
     pathnameMock.mockReturnValue("/admin/vehicles");
 

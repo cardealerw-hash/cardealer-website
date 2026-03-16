@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal, Star, Trash2 } from "lucide-react";
+import { ChevronDown, MoreHorizontal, Star, Trash2 } from "lucide-react";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -86,15 +86,17 @@ export function VehicleRowActions({
           onClick={() => setMenuOpen((current) => !current)}
           aria-expanded={menuOpen}
           aria-controls={`vehicle-row-actions-${vehicleId}`}
+          aria-haspopup="menu"
         >
           <MoreHorizontal className="size-4" />
           Actions
+          <ChevronDown className="size-3.5" />
         </Button>
 
         {menuOpen ? (
           <div
             id={`vehicle-row-actions-${vehicleId}`}
-            className="absolute right-0 top-[calc(100%+0.75rem)] z-20 w-72 rounded-[24px] border border-border/70 bg-white p-3 shadow-[0_20px_48px_rgba(15,23,42,0.14)]"
+            className="absolute right-0 top-[calc(100%+0.75rem)] z-20 w-72 max-h-[70vh] overflow-y-auto rounded-[24px] border border-border/70 bg-white p-3 shadow-[0_20px_48px_rgba(15,23,42,0.14)]"
           >
             <div className="space-y-1">
               <p className="px-2 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-stone-500">

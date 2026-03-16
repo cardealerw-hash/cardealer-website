@@ -1420,12 +1420,16 @@ async function fetchLeadTables(options: WriteOptions = {}) {
     serverClient.from("vehicles").select("id, title"),
   ]);
 
+  const workflowStateMissingTable = isMissingSupabaseTableError(
+    workflowResult.error,
+  );
+
   if (
     leadsResult.error ||
-    workflowResult.error ||
     testDriveResult.error ||
     tradeInResult.error ||
-    vehiclesResult.error
+    vehiclesResult.error ||
+    (workflowResult.error && !workflowStateMissingTable)
   ) {
     return handleAdminReadFailure(
       "[supabase] Failed to fetch admin leads",

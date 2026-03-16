@@ -39,7 +39,7 @@ export function AdminPageHeader({
             </Link>
           ) : null}
           {eyebrow ? (
-            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.28em] text-primary">
+            <p className="mt-4 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-primary sm:text-xs sm:tracking-[0.28em]">
               {eyebrow}
             </p>
           ) : null}

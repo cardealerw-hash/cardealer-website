@@ -69,6 +69,7 @@ const selectClassName =
   "h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-stone-900 outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20";
 
 const editorSections = [
+  { id: "quick-fill", label: "Quick fill" },
   { id: "basics", label: "Basics" },
   { id: "listing-setup", label: "Listing setup" },
   { id: "gallery", label: "Gallery" },
@@ -87,6 +88,56 @@ const transmissionOptions = ["Automatic", "Manual", "CVT"];
 const fuelTypeOptions = ["Petrol", "Diesel", "Hybrid", "Electric"];
 const driveTypeOptions = ["2WD", "4WD", "AWD", "RWD", "FWD"];
 const bodyTypeOptions = ["SUV", "Sedan", "Pickup", "Hatchback", "Van", "Coupe"];
+const commonMakes = [
+  "Toyota",
+  "Nissan",
+  "Subaru",
+  "Mazda",
+  "Honda",
+  "Mitsubishi",
+  "Isuzu",
+  "Ford",
+  "BMW",
+  "Mercedes-Benz",
+  "Lexus",
+  "Volkswagen",
+  "Audi",
+  "Land Rover",
+  "Range Rover",
+  "Suzuki",
+  "Kia",
+  "Hyundai",
+  "Peugeot",
+  "Renault",
+];
+
+type ParsedDealerListing = {
+  make?: string;
+  model?: string;
+  year?: number;
+  title?: string;
+  priceKes?: number;
+  condition?: string;
+  mileage?: number;
+  transmission?: string;
+  fuelType?: string;
+  driveType?: string;
+  bodyType?: string;
+  engineCapacity?: string;
+  color?: string;
+  locationId?: string;
+  negotiable?: boolean;
+  stockCategory?: Vehicle["stockCategory"];
+  accidentFree?: boolean;
+  originalPaint?: boolean;
+  tradeInAccepted?: boolean;
+  features?: string[];
+  hirePurchase?: {
+    depositKes?: number;
+    termMonths?: number;
+  };
+  notes?: string[];
+};
 
 function makeEditableImages(vehicle?: Vehicle | null): EditableImage[] {
   if (!vehicle) {
@@ -169,6 +220,16 @@ export function VehicleForm({
   const [make, setMake] = useState(vehicle?.make || "");
   const [model, setModel] = useState(vehicle?.model || "");
   const [year, setYear] = useState(vehicle?.year ? String(vehicle.year) : "");
+  const [quickPaste, setQuickPaste] = useState("");
+  const [quickPasteNotice, setQuickPasteNotice] = useState("");
+  const [requiredSnapshot, setRequiredSnapshot] = useState({
+    price: "",
+    condition: "",
+    mileage: "",
+    transmission: "",
+    fuelType: "",
+    description: "",
+  });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(
     initialNotice ? new Date().toISOString() : null,
@@ -225,6 +286,12 @@ export function VehicleForm({
     };
   }, []);
 
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      captureRequiredSnapshot();
+    });
+  }, [vehicle]);
+
   function getFieldError(name: string) {
     return state.fieldErrors?.[name]?.[0];
   }
@@ -265,6 +332,550 @@ export function VehicleForm({
     setHasUnsavedChanges(true);
     clearSuccessNotice();
   }
+
+  function formatCurrency(value: number) {
+    return value.toLocaleString("en-KE");
+  }
+
+  function normalizeDealerText(text: string) {
+    return text.replace(/\r/g, "\n").replace(/\t/g, " ").trim();
+  }
+
+  function parseMoney(value: string) {
+    const cleaned = value.replace(/,/g, "").trim();
+    const match = cleaned.match(/^(\d+(?:\.\d+)?)([mk])?$/i);
+    if (!match) {
+      return null;
+    }
+    const amount = Number(match[1]);
+    if (Number.isNaN(amount)) {
+      return null;
+    }
+    const suffix = match[2]?.toLowerCase();
+    if (suffix === "m") {
+      return Math.round(amount * 1_000_000);
+    }
+    if (suffix === "k") {
+      return Math.round(amount * 1_000);
+    }
+    return Math.round(amount);
+  }
+
+  function extractPrice(text: string) {
+    const withSuffix = text.match(/\b(\d+(?:\.\d+)?)\s*([mk])\b/i);
+    if (withSuffix) {
+      return parseMoney(`${withSuffix[1]}${withSuffix[2]}`);
+    }
+
+    const currencyMatch = text.match(
+      /\b(?:kes|ksh|kshs)\b[^0-9]*([0-9][0-9,]*(?:\.\d+)?)/i,
+    );
+    if (currencyMatch) {
+      return parseMoney(currencyMatch[1]);
+    }
+
+    const priceLine = text
+      .split("\n")
+      .find((line) => /price|offer/i.test(line));
+    if (priceLine) {
+      const fallback = priceLine.match(/([0-9][0-9,]*(?:\.\d+)?)(?:\s*[mk])?/i);
+      if (fallback?.[0]) {
+        return parseMoney(fallback[0].replace(/\s+/g, ""));
+      }
+    }
+
+    return null;
+  }
+
+  function extractYear(text: string) {
+    const match = text.match(/\b(19|20)\d{2}\b/);
+    return match ? Number(match[0]) : null;
+  }
+
+  function extractEngineCapacity(text: string) {
+    const match = text.match(/\b(\d{3,4})\s*cc\b/i);
+    if (!match) {
+      return null;
+    }
+    const raw = Number(match[1]);
+    if (Number.isNaN(raw)) {
+      return null;
+    }
+    const normalized = raw < 500 ? raw * 10 : raw;
+    return `${normalized}cc`;
+  }
+
+  function extractFuelType(text: string) {
+    if (/diesel/i.test(text)) {
+      return "Diesel";
+    }
+    if (/petrol/i.test(text)) {
+      return "Petrol";
+    }
+    if (/hybrid/i.test(text)) {
+      return "Hybrid";
+    }
+    if (/electric/i.test(text)) {
+      return "Electric";
+    }
+    return null;
+  }
+
+  function extractTransmission(text: string) {
+    if (/automatic/i.test(text)) {
+      return "Automatic";
+    }
+    if (/manual/i.test(text)) {
+      return "Manual";
+    }
+    if (/cvt/i.test(text)) {
+      return "CVT";
+    }
+    return null;
+  }
+
+  function extractDriveType(text: string) {
+    const matches = text.match(/\b(4wd|2wd|awd|rwd|fwd)\b/gi);
+    if (!matches?.length) {
+      return null;
+    }
+    const unique = [...new Set(matches.map((item) => item.toUpperCase()))];
+    return unique.length > 1 ? unique.join("/") : unique[0];
+  }
+
+  function extractCondition(text: string) {
+    if (/traded[-\s]?in/i.test(text)) {
+      return "Trade-in unit";
+    }
+    if (/very clean/i.test(text)) {
+      return "Very clean";
+    }
+    if (/clean unit/i.test(text)) {
+      return "Clean unit";
+    }
+    if (/brand new|new\b/i.test(text)) {
+      return "Brand new";
+    }
+    if (/foreign used/i.test(text)) {
+      return "Foreign used";
+    }
+    if (/locally used/i.test(text)) {
+      return "Locally used";
+    }
+    return null;
+  }
+
+  function extractHirePurchase(text: string) {
+    if (!/hire purchase|financing/i.test(text)) {
+      return null;
+    }
+    const depositMatch = text.match(/deposit\s*([0-9][0-9,]*(?:\.\d+)?)([mk])?/i);
+    const termMatch = text.match(/\b(\d{1,2})\s*months?\b/i);
+    const depositKes = depositMatch?.[0]
+      ? parseMoney(`${depositMatch[1]}${depositMatch[2] || ""}`)
+      : null;
+
+    return {
+      depositKes: depositKes || undefined,
+      termMonths: termMatch ? Number(termMatch[1]) : undefined,
+    };
+  }
+
+  function extractMakeModel(text: string) {
+    const makeMatch = text.match(/\bmake\s*:\s*([a-z0-9\- ]+)/i);
+    const modelMatch = text.match(/\bmodel\s*:\s*([a-z0-9\- ]+)/i);
+
+    if (makeMatch || modelMatch) {
+      return {
+        make: makeMatch?.[1]?.trim(),
+        model: modelMatch?.[1]?.trim(),
+      };
+    }
+
+    const firstLine = text.split("\n").find((line) => line.trim().length > 2);
+    if (!firstLine) {
+      return {};
+    }
+    const cleaned = firstLine.replace(/[^a-z0-9\s-]/gi, " ").trim();
+    const tokens = cleaned.split(/\s+/).filter(Boolean);
+    if (!tokens.length) {
+      return {};
+    }
+
+    const makeIndex = tokens.findIndex((token) =>
+      commonMakes.some(
+        (make) => make.toLowerCase() === token.toLowerCase(),
+      ),
+    );
+    if (makeIndex >= 0) {
+      const make = commonMakes.find(
+        (value) => value.toLowerCase() === tokens[makeIndex]?.toLowerCase(),
+      );
+      const model = tokens
+        .slice(makeIndex + 1)
+        .filter((token) => !/^(19|20)\d{2}$/.test(token))
+        .join(" ")
+        .trim();
+      return {
+        make: make || tokens[makeIndex],
+        model: model || undefined,
+      };
+    }
+
+    return {
+      make: tokens[0],
+      model:
+        tokens
+          .slice(1)
+          .filter((token) => !/^(19|20)\d{2}$/.test(token))
+          .join(" ")
+          .trim() || undefined,
+    };
+  }
+
+  function buildSuggestedTitle(parsed: ParsedDealerListing) {
+    const parts = [];
+    const base = [parsed.make, parsed.model].filter(Boolean).join(" ");
+    if (base) {
+      parts.push(base);
+    }
+    if (parsed.year) {
+      parts.push(String(parsed.year));
+    }
+    if (parsed.accidentFree) {
+      parts.push("Accident-free");
+    }
+    return parts.join(" • ");
+  }
+
+  function buildSuggestedDescription(parsed: ParsedDealerListing) {
+    const notes: string[] = [];
+
+    if (parsed.accidentFree && parsed.originalPaint) {
+      notes.push("Accident-free with original paint.");
+    } else if (parsed.accidentFree) {
+      notes.push("Accident-free unit.");
+    } else if (parsed.originalPaint) {
+      notes.push("Original paint finish.");
+    }
+
+    parsed.features?.forEach((feature) => {
+      notes.push(feature);
+    });
+
+    if (parsed.tradeInAccepted) {
+      notes.push("Trade-in accepted.");
+    }
+
+    if (parsed.hirePurchase?.depositKes || parsed.hirePurchase?.termMonths) {
+      const deposit =
+        parsed.hirePurchase.depositKes != null
+          ? `Deposit KES ${formatCurrency(parsed.hirePurchase.depositKes)}`
+          : null;
+      const term = parsed.hirePurchase.termMonths
+        ? `Balance over ${parsed.hirePurchase.termMonths} months`
+        : null;
+      const line = [deposit, term].filter(Boolean).join(", ");
+      if (line) {
+        notes.push(`Hire purchase available. ${line}.`);
+      }
+    }
+
+    parsed.notes?.forEach((note) => notes.push(note));
+
+    return notes.join(" ");
+  }
+
+  function parseDealerListing(text: string): ParsedDealerListing {
+    const normalized = normalizeDealerText(text);
+
+    if (!normalized) {
+      return {};
+    }
+
+    const upper = normalized.toUpperCase();
+    const { make, model } = extractMakeModel(normalized);
+    const yearValue = extractYear(normalized) || undefined;
+    const priceKes = extractPrice(normalized) || undefined;
+    const accidentFree = /accident[-\s]?free/i.test(normalized);
+    const originalPaint = /original paint/i.test(normalized);
+    const tradeInAccepted = /trade[-\s]?in accepted/i.test(normalized);
+    const negotiable = /negotiable|best offer|neg\b/i.test(normalized);
+    const condition = extractCondition(normalized) || undefined;
+    const engineCapacity = extractEngineCapacity(normalized) || undefined;
+    const fuelType = extractFuelType(normalized) || undefined;
+    const transmission = extractTransmission(normalized) || undefined;
+    const driveType = extractDriveType(upper) || undefined;
+    const hirePurchase = extractHirePurchase(normalized) || undefined;
+
+    const features: string[] = [];
+    if (/functional ac|ac\b/i.test(normalized)) {
+      features.push("Functional AC.");
+    }
+    if (/sunroof|moonroof/i.test(normalized)) {
+      features.push("Functional sunroof.");
+    }
+    if (/alloy/i.test(normalized)) {
+      features.push("Alloy rims.");
+    }
+    if (/new tyres|new tires/i.test(normalized)) {
+      features.push("New tyres.");
+    }
+    if (/fully loaded/i.test(normalized)) {
+      features.push("Fully loaded.");
+    }
+    if (/well maintained/i.test(normalized)) {
+      features.push("Well maintained.");
+    }
+    if (/buy & drive|buy and drive/i.test(normalized)) {
+      features.push("Buy and drive ready.");
+    }
+
+    const notes: string[] = [];
+    if (/luxury/i.test(normalized)) {
+      notes.push("Luxury interior.");
+    }
+    if (/spacious/i.test(normalized)) {
+      notes.push("Spacious interior.");
+    }
+
+    const stockCategory = /traded[-\s]?in/i.test(normalized)
+      ? "traded_in"
+      : undefined;
+
+    const title = buildSuggestedTitle({
+      make,
+      model,
+      year: yearValue,
+      accidentFree,
+    });
+
+    const locationId = locations.find((location) => {
+      const name = location.name.toLowerCase();
+      const city = location.city.toLowerCase();
+      const textLower = normalized.toLowerCase();
+      return textLower.includes(name) || textLower.includes(city);
+    })?.id;
+
+    return {
+      make: make || undefined,
+      model: model || undefined,
+      year: yearValue,
+      title: title || undefined,
+      priceKes,
+      condition,
+      transmission,
+      fuelType,
+      driveType,
+      engineCapacity,
+      locationId,
+      negotiable,
+      stockCategory,
+      accidentFree,
+      originalPaint,
+      tradeInAccepted,
+      features,
+      hirePurchase: hirePurchase || undefined,
+      notes,
+    };
+  }
+
+  function setFormValue(name: string, value?: string) {
+    const element = formRef.current?.elements.namedItem(name);
+    if (!element || value === undefined || value === null) {
+      return;
+    }
+
+    if (element instanceof HTMLInputElement) {
+      element.value = value;
+      return;
+    }
+
+    if (element instanceof HTMLTextAreaElement) {
+      element.value = value;
+      return;
+    }
+
+    if (element instanceof HTMLSelectElement) {
+      element.value = value;
+    }
+  }
+
+  function setFormChecked(name: string, checked?: boolean) {
+    const element = formRef.current?.elements.namedItem(name);
+    if (!(element instanceof HTMLInputElement) || element.type !== "checkbox") {
+      return;
+    }
+    element.checked = Boolean(checked);
+  }
+
+  function captureRequiredSnapshot() {
+    const form = formRef.current;
+    if (!form) {
+      return;
+    }
+
+    const readValue = (name: string) => {
+      const element = form.elements.namedItem(name);
+      if (
+        element instanceof HTMLInputElement ||
+        element instanceof HTMLTextAreaElement ||
+        element instanceof HTMLSelectElement
+      ) {
+        return element.value || "";
+      }
+      return "";
+    };
+
+    setRequiredSnapshot({
+      price: readValue("price"),
+      condition: readValue("condition"),
+      mileage: readValue("mileage"),
+      transmission: readValue("transmission"),
+      fuelType: readValue("fuelType"),
+      description: readValue("description"),
+    });
+  }
+
+  function applyParsedListing(parsed: ParsedDealerListing) {
+    if (!parsed) {
+      return;
+    }
+
+    if (parsed.make) {
+      setMake(parsed.make);
+    }
+    if (parsed.model) {
+      setModel(parsed.model);
+    }
+    if (parsed.year) {
+      setYear(String(parsed.year));
+    }
+    if (parsed.title && !title.trim()) {
+      setTitle(parsed.title);
+    }
+
+    if (parsed.priceKes != null) {
+      setFormValue("price", String(parsed.priceKes));
+    }
+    if (parsed.condition) {
+      setFormValue("condition", parsed.condition);
+    }
+    if (parsed.mileage != null) {
+      setFormValue("mileage", String(parsed.mileage));
+    }
+    if (parsed.transmission) {
+      setFormValue("transmission", parsed.transmission);
+    }
+    if (parsed.fuelType) {
+      setFormValue("fuelType", parsed.fuelType);
+    }
+    if (parsed.driveType) {
+      setFormValue("driveType", parsed.driveType);
+    }
+    if (parsed.bodyType) {
+      setFormValue("bodyType", parsed.bodyType);
+    }
+    if (parsed.engineCapacity) {
+      setFormValue("engineCapacity", parsed.engineCapacity);
+    }
+    if (parsed.color) {
+      setFormValue("color", parsed.color);
+    }
+    if (parsed.locationId) {
+      setFormValue("locationId", parsed.locationId);
+    }
+    if (parsed.stockCategory) {
+      setFormValue("stockCategory", parsed.stockCategory);
+    }
+
+    if (parsed.negotiable !== undefined) {
+      setFormChecked("negotiable", parsed.negotiable);
+    }
+
+    const descriptionElement = formRef.current?.elements.namedItem("description");
+    if (
+      descriptionElement instanceof HTMLTextAreaElement &&
+      !descriptionElement.value.trim()
+    ) {
+      const description = buildSuggestedDescription(parsed);
+      if (description) {
+        descriptionElement.value = description;
+      }
+    }
+
+    markUnsaved();
+    captureRequiredSnapshot();
+  }
+
+  function handleQuickPaste() {
+    if (!quickPaste.trim()) {
+      setQuickPasteNotice("Paste a dealer message to auto-fill fields.");
+      return;
+    }
+
+    const parsed = parseDealerListing(quickPaste);
+    applyParsedListing(parsed);
+
+    const applied = [
+      parsed.make ? "make" : null,
+      parsed.model ? "model" : null,
+      parsed.year ? "year" : null,
+      parsed.priceKes ? "price" : null,
+      parsed.engineCapacity ? "engine" : null,
+      parsed.fuelType ? "fuel" : null,
+      parsed.locationId ? "location" : null,
+    ].filter(Boolean);
+
+    setQuickPasteNotice(
+      applied.length
+        ? `Auto-filled: ${applied.join(", ")}. Please review the rest.`
+        : "Parsed the message. Please review fields.",
+    );
+  }
+
+  const requiredMissing = useMemo(() => {
+    const missing: string[] = [];
+
+    const missingNumber = (value: string) => {
+      const numeric = Number(value);
+      return !value || Number.isNaN(numeric) || numeric <= 0;
+    };
+
+    if (!title.trim()) {
+      missing.push("Title");
+    }
+    if (!make.trim()) {
+      missing.push("Make");
+    }
+    if (!model.trim()) {
+      missing.push("Model");
+    }
+    const yearValue = Number(year);
+    if (!year.trim() || Number.isNaN(yearValue) || yearValue <= 0) {
+      missing.push("Year");
+    }
+    if (missingNumber(requiredSnapshot.price)) {
+      missing.push("Price");
+    }
+    if (!requiredSnapshot.condition.trim()) {
+      missing.push("Condition");
+    }
+    if (missingNumber(requiredSnapshot.mileage)) {
+      missing.push("Mileage");
+    }
+    if (!requiredSnapshot.transmission.trim()) {
+      missing.push("Transmission");
+    }
+    if (!requiredSnapshot.fuelType.trim()) {
+      missing.push("Fuel type");
+    }
+    if (requiredSnapshot.description.trim().length < 20) {
+      missing.push("Description");
+    }
+
+    return missing;
+  }, [make, model, requiredSnapshot, title, year]);
 
   function getSaveStatusLabel() {
     if (isSubmitting) {
@@ -690,14 +1301,15 @@ export function VehicleForm({
         onChangeCapture={() => {
           setHasUnsavedChanges(true);
           clearSuccessNotice();
+          captureRequiredSnapshot();
         }}
         className="flex flex-col gap-7"
       >
         <input type="hidden" name="id" value={vehicle?.id || ""} />
 
-        <div className="sticky top-[4.75rem] z-20 rounded-[28px] border border-white/80 bg-white/96 px-4 py-4 shadow-[0_18px_42px_rgba(15,23,42,0.08)] backdrop-blur lg:top-6 sm:px-5">
+        <div className="sticky top-[4.75rem] z-20 rounded-[28px] border border-white/80 bg-white/96 px-4 py-3 shadow-[0_18px_42px_rgba(15,23,42,0.08)] backdrop-blur lg:top-6 sm:px-5 sm:py-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={getSaveStatusVariant()}>{getSaveStatusLabel()}</Badge>
                 {vehicle?.stockCode ? (
@@ -710,7 +1322,7 @@ export function VehicleForm({
                     ? "Stay in the editor while you update the listing."
                     : "The first save creates the listing and keeps you inside the editor."}
                 </p>
-                <p className="mt-1 text-sm text-stone-600">
+                <p className="mt-1 hidden text-sm text-stone-600 sm:block">
                   Use the section links below to jump between content blocks without
                   losing your place.
                 </p>
@@ -744,6 +1356,22 @@ export function VehicleForm({
           ))}
         </nav>
 
+        {requiredMissing.length ? (
+          <div className="rounded-[20px] border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900 sm:hidden">
+            <p className="font-semibold">Missing required fields</p>
+            <p className="mt-1">
+              {requiredMissing.slice(0, 3).join(", ")}
+              {requiredMissing.length > 3
+                ? ` +${requiredMissing.length - 3} more`
+                : ""}
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-[20px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800 sm:hidden">
+            All required fields are filled.
+          </div>
+        )}
+
         {successNotice ? (
           <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm font-medium text-emerald-800">
             {successNotice}
@@ -758,6 +1386,55 @@ export function VehicleForm({
             {state.message}
           </div>
         ) : null}
+
+        <FormSection
+          id="quick-fill"
+          title="Quick fill"
+          description="Paste a WhatsApp listing and let us prefill the fields you already have."
+          className="order-0"
+        >
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div>
+              <Label htmlFor="quick-paste">Paste dealer message</Label>
+              <Textarea
+                id="quick-paste"
+                value={quickPaste}
+                onChange={(event) => {
+                  setQuickPaste(event.target.value);
+                  if (quickPasteNotice) {
+                    setQuickPasteNotice("");
+                  }
+                }}
+                placeholder="Paste the dealer message here..."
+                className="min-h-32"
+              />
+              <p className="mt-2 text-xs text-stone-500">
+                We detect make, model, year, price, engine cc, fuel, condition, and
+                location when possible.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row lg:flex-col lg:items-stretch">
+              <Button type="button" onClick={handleQuickPaste}>
+                Parse & fill
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setQuickPaste("");
+                  setQuickPasteNotice("");
+                }}
+              >
+                Clear paste
+              </Button>
+            </div>
+          </div>
+          {quickPasteNotice ? (
+            <div className="rounded-[18px] border border-border/70 bg-stone-50 px-4 py-3 text-xs text-stone-600">
+              {quickPasteNotice}
+            </div>
+          ) : null}
+        </FormSection>
 
         <FormSection
           id="basics"
@@ -790,6 +1467,8 @@ export function VehicleForm({
                 value={year}
                 onChange={(event) => setYear(event.target.value)}
                 placeholder="2018"
+                min={1990}
+                max={new Date().getFullYear() + 1}
                 {...getFieldProps("year")}
               />
               <FieldError
@@ -805,6 +1484,7 @@ export function VehicleForm({
                 value={make}
                 onChange={(event) => setMake(event.target.value)}
                 placeholder="Toyota"
+                list="vehicle-make-options"
                 {...getFieldProps("make")}
               />
               <FieldError
@@ -848,8 +1528,14 @@ export function VehicleForm({
                 name="price"
                 type="number"
                 defaultValue={vehicle?.price}
+                placeholder="2790000"
+                min={0}
+                step={1000}
                 {...getFieldProps("price")}
               />
+              <p className="mt-2 text-xs text-stone-500">
+                Enter the full price in KES (example: 2,790,000).
+              </p>
               <FieldError
                 id={getFieldErrorId("price")}
                 error={getFieldError("price")}
@@ -967,12 +1653,14 @@ export function VehicleForm({
         >
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <div>
-              <Label htmlFor="mileage">Mileage</Label>
+              <Label htmlFor="mileage">Mileage (km)</Label>
               <Input
                 id="mileage"
                 name="mileage"
                 type="number"
                 defaultValue={vehicle?.mileage}
+                placeholder="85000"
+                min={0}
                 {...getFieldProps("mileage")}
               />
               <FieldError
@@ -1244,6 +1932,11 @@ export function VehicleForm({
 
         <datalist id="vehicle-condition-options">
           {conditionOptions.map((option) => (
+            <option key={option} value={option} />
+          ))}
+        </datalist>
+        <datalist id="vehicle-make-options">
+          {commonMakes.map((option) => (
             <option key={option} value={option} />
           ))}
         </datalist>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, Menu, Plus, ShieldCheck, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { logoutAdminAction } from "@/lib/actions/admin-actions";
 import { Button } from "@/components/ui/button";
@@ -26,11 +26,20 @@ const navItems = [
     label: "Lead inbox",
     description: "Respond to new enquiries quickly.",
   },
+  {
+    href: "/admin/admins",
+    label: "Admins",
+    description: "View admin accounts with dashboard access.",
+  },
 ] as const;
 
 function getCurrentPageLabel(pathname: string) {
   if (pathname.startsWith("/admin/leads")) {
     return "Lead inbox";
+  }
+
+  if (pathname.startsWith("/admin/admins")) {
+    return "Admins";
   }
 
   if (pathname === "/admin/vehicles/new") {
@@ -169,6 +178,61 @@ export function AdminNavigation({ session }: { session: AdminSession }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pageLabel = useMemo(() => getCurrentPageLabel(pathname), [pathname]);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+  const mobileCloseRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!mobileOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const focusables = mobileNavRef.current?.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])',
+    );
+    const first = focusables?.[0];
+    const last = focusables?.[focusables.length - 1];
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMobileOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      if (!focusables?.length || !first || !last) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.shiftKey) {
+        if (document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        }
+        return;
+      }
+
+      if (document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    mobileCloseRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [mobileOpen]);
 
   return (
     <>
@@ -179,7 +243,7 @@ export function AdminNavigation({ session }: { session: AdminSession }) {
       <div className="sticky top-0 z-30 border-b border-border/70 bg-white/92 backdrop-blur lg:hidden">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="min-w-0">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-primary sm:tracking-[0.24em]">
               Admin
             </p>
             <p className="truncate text-base font-semibold text-stone-950">
@@ -218,16 +282,21 @@ export function AdminNavigation({ session }: { session: AdminSession }) {
           />
           <aside
             id="admin-mobile-nav"
-            className="absolute inset-y-0 left-0 flex w-[92vw] max-w-sm flex-col bg-[#f5f7fb] shadow-[0_24px_60px_rgba(15,23,42,0.18)]"
+            ref={mobileNavRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Admin navigation"
+            className="absolute inset-y-0 left-0 flex w-[92vw] max-w-sm flex-col overflow-y-auto bg-[#f5f7fb] shadow-[0_24px_60px_rgba(15,23,42,0.18)]"
           >
             <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
               <div>
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary">
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-primary sm:tracking-[0.24em]">
                   Admin navigation
                 </p>
                 <p className="text-sm font-semibold text-stone-950">{pageLabel}</p>
               </div>
               <Button
+                ref={mobileCloseRef}
                 type="button"
                 variant="ghost"
                 className="rounded-full px-3 py-2"
