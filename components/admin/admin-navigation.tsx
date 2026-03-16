@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { AdminSession } from "@/types/dealership";
 
-const navItems = [
+const baseNavItems = [
   {
     href: "/admin/vehicles",
     label: "Inventory",
@@ -25,11 +25,6 @@ const navItems = [
     href: "/admin/leads",
     label: "Lead inbox",
     description: "Respond to new enquiries quickly.",
-  },
-  {
-    href: "/admin/admins",
-    label: "Admins",
-    description: "View admin accounts with dashboard access.",
   },
 ] as const;
 
@@ -105,10 +100,16 @@ function NavLink({
 function NavigationPanel({
   pathname,
   session,
+  navItems,
   onNavigate,
 }: {
   pathname: string;
   session: AdminSession;
+  navItems: Array<{
+    href: string;
+    label: string;
+    description: string;
+  }>;
   onNavigate?: () => void;
 }) {
   return (
@@ -174,10 +175,30 @@ function NavigationPanel({
   );
 }
 
-export function AdminNavigation({ session }: { session: AdminSession }) {
+export function AdminNavigation({
+  session,
+  canManageAdmins = false,
+}: {
+  session: AdminSession;
+  canManageAdmins?: boolean;
+}) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pageLabel = useMemo(() => getCurrentPageLabel(pathname), [pathname]);
+  const navItems = useMemo(() => {
+    if (!canManageAdmins) {
+      return baseNavItems;
+    }
+
+    return [
+      ...baseNavItems,
+      {
+        href: "/admin/admins",
+        label: "Admins",
+        description: "Manage admin access and passwords.",
+      },
+    ];
+  }, [canManageAdmins]);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const mobileCloseRef = useRef<HTMLButtonElement>(null);
 
@@ -237,7 +258,7 @@ export function AdminNavigation({ session }: { session: AdminSession }) {
   return (
     <>
       <aside className="hidden lg:block">
-        <NavigationPanel pathname={pathname} session={session} />
+        <NavigationPanel pathname={pathname} session={session} navItems={navItems} />
       </aside>
 
       <div className="sticky top-0 z-30 border-b border-border/70 bg-white/92 backdrop-blur lg:hidden">
@@ -309,6 +330,7 @@ export function AdminNavigation({ session }: { session: AdminSession }) {
             <NavigationPanel
               pathname={pathname}
               session={session}
+              navItems={navItems}
               onNavigate={() => setMobileOpen(false)}
             />
           </aside>

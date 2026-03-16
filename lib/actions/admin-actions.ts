@@ -4,7 +4,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireAdminSession, signInDemoAdmin, signOutAdmin } from "@/lib/auth";
-import { allowDemoAdmin, hasCloudinaryConfig, hasSupabaseConfig } from "@/lib/env";
+import {
+  allowDemoAdmin,
+  env,
+  hasCloudinaryConfig,
+  hasSupabaseConfig,
+  hasSupabaseSecretConfig,
+} from "@/lib/env";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   deleteCloudinaryAssets,
@@ -25,6 +32,7 @@ import {
 import { mapVehicleFormData } from "@/lib/vehicle-form";
 import type {
   ActionState,
+  AdminSession,
   LeadInboxSourceType,
   LeadWorkflowStatus,
   VehicleFormInput,
@@ -57,6 +65,54 @@ function actionSuccess(message: string, redirectTo?: string) {
 }
 
 class VehicleSaveActionError extends Error {}
+
+function isSuperAdmin(session: AdminSession) {
+  return session.email.toLowerCase() === env.adminSuperEmail.toLowerCase();
+}
+
+function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+async function findUserByEmail(
+  client: NonNullable<ReturnType<typeof createSupabaseAdminClient>>,
+  email: string,
+) {
+  const normalized = normalizeEmail(email);
+  let page = 1;
+  const perPage = 200;
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const { data, error } = await client.auth.admin.listUsers({
+      page,
+      perPage,
+    });
+
+    if (error) {
+      return null;
+    }
+
+    const match = data.users.find(
+      (user) => normalizeEmail(user.email || "") === normalized,
+    );
+
+    if (match) {
+      return match;
+    }
+
+    if (data.users.length < perPage) {
+      return null;
+    }
+
+    page += 1;
+  }
+
+  return null;
+}
 
 function parseNewUploadPublicIds(formData: FormData) {
   const raw = String(formData.get("newUploadPublicIdsJson") || "[]");
@@ -230,6 +286,10 @@ export async function loginAdminAction(
         ? "Supabase admin access is not ready yet. Use the local demo admin or complete the admin_profiles setup."
         : "This account does not have admin access.",
     );
+  }
+
+  if (user?.user_metadata?.mustResetPassword) {
+    redirect("/admin/reset-password");
   }
 
   redirect("/admin/vehicles");
@@ -466,4 +526,292 @@ export async function updateLeadInboxStateAction(
       error instanceof Error ? error.message : "Lead status could not be updated.",
     );
   }
+}
+
+export async function createAdminAccountAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireAdminSession();
+
+  if (!isSuperAdmin(session)) {
+    return actionFailure("Only the super admin can manage admin access.");
+  }
+
+  if (!hasSupabaseSecretConfig) {
+    return actionFailure("Supabase service key is missing. Add it to enable admin management.");
+  }
+
+  const email = normalizeEmail(String(formData.get("email") || ""));
+  const fullName = String(formData.get("fullName") || "").trim();
+
+  if (!email) {
+    return actionFailure("Enter the admin email address.");
+  }
+
+  if (!isValidEmail(email)) {
+    return actionFailure("Enter a valid email address.");
+  }
+
+  const adminClient = createSupabaseAdminClient();
+
+  if (!adminClient) {
+    return actionFailure("Supabase admin client is unavailable.");
+  }
+
+  const defaultPassword = env.adminDefaultPassword;
+  let userId: string | null = null;
+
+  const { data: created, error: createError } = await adminClient.auth.admin.createUser({
+    email,
+    password: defaultPassword,
+    email_confirm: true,
+    user_metadata: {
+      mustResetPassword: true,
+      createdBy: session.email,
+    },
+  });
+
+  if (createError) {
+    if (
+      createError.code === "email_exists" ||
+      createError.code === "user_already_exists"
+    ) {
+      const existing = await findUserByEmail(adminClient, email);
+
+      if (!existing) {
+        return actionFailure(
+          "That email already exists but could not be retrieved. Check Supabase Auth.",
+        );
+      }
+
+      userId = existing.id;
+
+      const { error: updateError } = await adminClient.auth.admin.updateUserById(
+        userId,
+        {
+          password: defaultPassword,
+          email_confirm: true,
+          user_metadata: {
+            ...(existing.user_metadata || {}),
+            mustResetPassword: true,
+            createdBy: session.email,
+          },
+        },
+      );
+
+      if (updateError) {
+        return actionFailure(updateError.message || "Could not update the existing user.");
+      }
+    } else {
+      return actionFailure(createError.message || "Could not create the admin account.");
+    }
+  } else {
+    userId = created.user?.id ?? null;
+  }
+
+  if (!userId) {
+    return actionFailure("Admin user could not be created.");
+  }
+
+  const { error: profileError } = await adminClient
+    .from("admin_profiles")
+    .upsert(
+      {
+        user_id: userId,
+        email,
+        full_name: fullName || null,
+      },
+      {
+        onConflict: "user_id",
+      },
+    );
+
+  if (profileError) {
+    return actionFailure(profileError.message || "Could not save admin profile.");
+  }
+
+  revalidatePath("/admin/admins");
+  return actionSuccess(
+    `Admin added. Temporary password: ${defaultPassword}. They will be asked to reset it on first login.`,
+  );
+}
+
+export async function disableAdminAccountAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireAdminSession();
+
+  if (!isSuperAdmin(session)) {
+    return actionFailure("Only the super admin can manage admin access.");
+  }
+
+  if (!hasSupabaseSecretConfig) {
+    return actionFailure("Supabase service key is missing. Add it to manage admin access.");
+  }
+
+  const userId = String(formData.get("userId") || "");
+  const email = normalizeEmail(String(formData.get("email") || ""));
+
+  if (!userId) {
+    return actionFailure("Admin user id is required.");
+  }
+
+  if (email && email === env.adminSuperEmail.toLowerCase()) {
+    return actionFailure("The super admin cannot be disabled.");
+  }
+
+  if (session.userId && userId === session.userId) {
+    return actionFailure("You cannot disable your own admin account.");
+  }
+
+  const adminClient = createSupabaseAdminClient();
+  if (!adminClient) {
+    return actionFailure("Supabase admin client is unavailable.");
+  }
+
+  const { error } = await adminClient.auth.admin.updateUserById(userId, {
+    ban_duration: "876000h",
+  });
+
+  if (error) {
+    return actionFailure(error.message || "Could not disable admin access.");
+  }
+
+  revalidatePath("/admin/admins");
+  return actionSuccess("Admin disabled.");
+}
+
+export async function enableAdminAccountAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireAdminSession();
+
+  if (!isSuperAdmin(session)) {
+    return actionFailure("Only the super admin can manage admin access.");
+  }
+
+  if (!hasSupabaseSecretConfig) {
+    return actionFailure("Supabase service key is missing. Add it to manage admin access.");
+  }
+
+  const userId = String(formData.get("userId") || "");
+  const email = normalizeEmail(String(formData.get("email") || ""));
+
+  if (!userId) {
+    return actionFailure("Admin user id is required.");
+  }
+
+  if (email && email === env.adminSuperEmail.toLowerCase()) {
+    return actionFailure("The super admin cannot be disabled.");
+  }
+
+  const adminClient = createSupabaseAdminClient();
+  if (!adminClient) {
+    return actionFailure("Supabase admin client is unavailable.");
+  }
+
+  const { error } = await adminClient.auth.admin.updateUserById(userId, {
+    ban_duration: "none",
+  });
+
+  if (error) {
+    return actionFailure(error.message || "Could not enable admin access.");
+  }
+
+  revalidatePath("/admin/admins");
+  return actionSuccess("Admin enabled.");
+}
+
+export async function removeAdminAccountAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await requireAdminSession();
+
+  if (!isSuperAdmin(session)) {
+    return actionFailure("Only the super admin can manage admin access.");
+  }
+
+  if (!hasSupabaseSecretConfig) {
+    return actionFailure("Supabase service key is missing. Add it to manage admin access.");
+  }
+
+  const userId = String(formData.get("userId") || "");
+  const email = normalizeEmail(String(formData.get("email") || ""));
+
+  if (!userId) {
+    return actionFailure("Admin user id is required.");
+  }
+
+  if (email && email === env.adminSuperEmail.toLowerCase()) {
+    return actionFailure("The super admin cannot be removed.");
+  }
+
+  if (session.userId && userId === session.userId) {
+    return actionFailure("You cannot remove your own admin account.");
+  }
+
+  const adminClient = createSupabaseAdminClient();
+  if (!adminClient) {
+    return actionFailure("Supabase admin client is unavailable.");
+  }
+
+  const { error: deleteProfileError } = await adminClient
+    .from("admin_profiles")
+    .delete()
+    .eq("user_id", userId);
+
+  if (deleteProfileError) {
+    return actionFailure(deleteProfileError.message || "Could not remove admin profile.");
+  }
+
+  const { error: deleteUserError } = await adminClient.auth.admin.deleteUser(userId);
+
+  if (deleteUserError) {
+    return actionFailure(deleteUserError.message || "Could not remove admin account.");
+  }
+
+  revalidatePath("/admin/admins");
+  return actionSuccess("Admin removed.");
+}
+
+export async function resetAdminPasswordAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  await requireAdminSession();
+  const password = String(formData.get("password") || "");
+  const confirmPassword = String(formData.get("confirmPassword") || "");
+
+  if (!password || password.length < 8) {
+    return actionFailure("Use a password with at least 8 characters.");
+  }
+
+  if (password !== confirmPassword) {
+    return actionFailure("Passwords do not match.");
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  if (!supabase) {
+    return actionFailure("Supabase auth is unavailable.");
+  }
+
+  const { data, error } = await supabase.auth.updateUser({
+    password,
+    data: {
+      mustResetPassword: false,
+    },
+  });
+
+  if (error || !data.user) {
+    return actionFailure(
+      error?.message || "We could not reset the password right now.",
+    );
+  }
+
+  return actionSuccess("Password updated. Redirecting you to the dashboard.", "/admin/vehicles");
 }

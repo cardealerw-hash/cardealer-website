@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { AdminManagement } from "@/components/admin/admin-management";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { AdminUnavailableState } from "@/components/admin/admin-unavailable-state";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { requireAdminSession } from "@/lib/auth";
+import { env, hasSupabaseSecretConfig } from "@/lib/env";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -14,11 +15,53 @@ export const metadata: Metadata = {
   description: "View who can access the admin workspace.",
 };
 
-type AdminProfile = {
-  userId: string;
-  email: string;
-  fullName: string | null;
+type AdminProfileRow = {
+  user_id: string;
+  email: string | null;
+  full_name: string | null;
 };
+
+async function fetchBannedLookup(
+  adminClient: NonNullable<ReturnType<typeof createSupabaseAdminClient>>,
+  userIds: string[],
+) {
+  const bannedLookup = new Map<string, string | null>();
+  const targetIds = new Set(userIds);
+
+  if (!targetIds.size) {
+    return bannedLookup;
+  }
+
+  let page = 1;
+  const perPage = 200;
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const { data, error } = await adminClient.auth.admin.listUsers({
+      page,
+      perPage,
+    });
+
+    if (error) {
+      throw new Error(error.message || "Unable to fetch admin status.");
+    }
+
+    const users = data?.users ?? [];
+
+    users.forEach((user) => {
+      if (targetIds.has(user.id)) {
+        bannedLookup.set(user.id, user.banned_until ?? null);
+      }
+    });
+
+    if (users.length < perPage || bannedLookup.size === targetIds.size) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return bannedLookup;
+}
 
 export default async function AdminAdminsPage() {
   const session = await requireAdminSession();
@@ -45,8 +88,8 @@ export default async function AdminAdminsPage() {
         <Card className="rounded-[28px] border border-border/70 bg-white/95 p-5 text-sm text-stone-700 shadow-[0_18px_42px_rgba(15,23,42,0.05)]">
           <p className="font-semibold text-stone-950">Need to add/remove admins?</p>
           <p className="mt-2">
-            In demo mode this is fixed to one shared account. Connect Supabase first,
-            then manage rows in <code>admin_profiles</code>.
+            Demo mode uses one shared account. Connect Supabase and add
+            <code>admin_profiles</code> entries to enable real admin management.
           </p>
         </Card>
       </div>
@@ -60,6 +103,53 @@ export default async function AdminAdminsPage() {
       <AdminUnavailableState
         title="Admins are unavailable"
         description="Supabase is not configured. Connect your database to view admin accounts."
+        retryHref="/admin/admins"
+        backHref="/admin/vehicles"
+      />
+    );
+  }
+
+  const isSuperAdmin =
+    session.email.toLowerCase() === env.adminSuperEmail.toLowerCase();
+
+  if (!isSuperAdmin) {
+    return (
+      <div className="space-y-6">
+        <AdminPageHeader
+          eyebrow="Admin access"
+          title="Admins"
+          description="Only the super admin can manage access for this workspace."
+        />
+        <Card className="rounded-[28px] border border-border/70 bg-white/95 p-5 text-sm text-stone-700 shadow-[0_18px_42px_rgba(15,23,42,0.05)]">
+          <p className="font-semibold text-stone-950">Access restricted</p>
+          <p className="mt-2">
+            You are signed in as <span className="font-semibold">{session.email}</span>.
+            Only <span className="font-semibold">{env.adminSuperEmail}</span> can add,
+            disable, or remove admin accounts.
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!hasSupabaseSecretConfig) {
+    return (
+      <AdminUnavailableState
+        title="Admins are unavailable"
+        description="Add the Supabase service key to enable admin management."
+        retryHref="/admin/admins"
+        backHref="/admin/vehicles"
+      />
+    );
+  }
+
+  const adminClient = createSupabaseAdminClient();
+
+  if (!adminClient) {
+    return (
+      <AdminUnavailableState
+        title="Admins are unavailable"
+        description="Supabase admin client could not be created."
         retryHref="/admin/admins"
         backHref="/admin/vehicles"
       />
@@ -82,71 +172,63 @@ export default async function AdminAdminsPage() {
     );
   }
 
-  const admins: AdminProfile[] = (data || []).map((item) => ({
-    userId: String(item.user_id),
-    email: item.email ? String(item.email) : "No email",
-    fullName: item.full_name ? String(item.full_name) : null,
-  }));
+  const adminRows = (data || []) as AdminProfileRow[];
+  const userIds = adminRows.map((row) => String(row.user_id));
+
+  let bannedLookup = new Map<string, string | null>();
+
+  try {
+    bannedLookup = await fetchBannedLookup(adminClient, userIds);
+  } catch (error) {
+    return (
+      <AdminUnavailableState
+        title="Admins are unavailable"
+        description={
+          error instanceof Error
+            ? error.message
+            : "Unable to fetch admin status right now."
+        }
+        retryHref="/admin/admins"
+        backHref="/admin/vehicles"
+      />
+    );
+  }
+
+  const now = Date.now();
+  const admins = adminRows.map((admin) => {
+    const bannedUntil = bannedLookup.get(String(admin.user_id)) ?? null;
+    const bannedTime = bannedUntil ? new Date(bannedUntil).getTime() : null;
+
+    return {
+      userId: String(admin.user_id),
+      email: admin.email ? String(admin.email) : "No email",
+      fullName: admin.full_name ? String(admin.full_name) : null,
+      isCurrent: session.userId === admin.user_id,
+      isSuper:
+        admin.email?.toLowerCase() === env.adminSuperEmail.toLowerCase(),
+      isDisabled: Boolean(bannedTime && !Number.isNaN(bannedTime) && bannedTime > now),
+      bannedUntil,
+    };
+  });
 
   return (
     <div className="space-y-6">
       <AdminPageHeader
         eyebrow="Admin access"
         title="Admins"
-        description="These team members can sign into the admin workspace."
+        description="Add, disable, or remove admin access for your team."
       />
-
       <Card className="rounded-[28px] border border-border/70 bg-white/95 p-5 text-sm text-stone-700 shadow-[0_18px_42px_rgba(15,23,42,0.05)]">
-        <p className="font-semibold text-stone-950">How to add or remove admins</p>
-        <ol className="mt-3 list-decimal space-y-2 pl-5">
-          <li>Create or invite the user in Supabase Auth first.</li>
-          <li>Add admin access by inserting their <code>auth.users.id</code> into <code>admin_profiles</code>.</li>
-          <li>Remove access by deleting that user row from <code>admin_profiles</code>.</li>
-        </ol>
-        <pre className="mt-3 overflow-x-auto rounded-2xl border border-border/70 bg-stone-950 p-3 text-xs text-stone-100"><code>{`-- Add admin access
-insert into public.admin_profiles (user_id, email, full_name)
-values ('<auth_user_uuid>', 'admin@example.com', 'Admin Name');
-
--- Remove admin access
-delete from public.admin_profiles
-where email = 'admin@example.com';`}</code></pre>
-        <div className="mt-3">
-          <Button asChild size="sm" variant="secondary">
-            <Link href="https://supabase.com/docs/guides/database/migrations" target="_blank" rel="noreferrer">
-              Supabase migration docs
-            </Link>
-          </Button>
-        </div>
+        <p className="font-semibold text-stone-950">Super admin controls</p>
+        <p className="mt-2">
+          You are signed in as the super admin <span className="font-semibold">{env.adminSuperEmail}</span>.
+          Use this screen to add admins with a temporary password, disable access, or remove accounts.
+        </p>
       </Card>
-      <Card className="rounded-[28px] border border-border/70 bg-white/95 p-5 shadow-[0_18px_42px_rgba(15,23,42,0.05)]">
-        <div className="space-y-4">
-          {admins.map((admin) => {
-            const isCurrent = admin.userId === session.userId;
-
-            return (
-              <div
-                key={admin.userId}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/60 bg-stone-50/80 px-4 py-3"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-stone-950">
-                    {admin.fullName || "Unnamed admin"}
-                  </p>
-                  <p className="text-sm text-stone-600">{admin.email}</p>
-                </div>
-                {isCurrent ? <Badge variant="accent">Current session</Badge> : null}
-              </div>
-            );
-          })}
-
-          {admins.length === 0 ? (
-            <p className="text-sm text-stone-600">
-              No admin profiles found. Add a row in <code>admin_profiles</code> to
-              grant access.
-            </p>
-          ) : null}
-        </div>
-      </Card>
+      <AdminManagement
+        admins={admins}
+        defaultPassword={env.adminDefaultPassword}
+      />
     </div>
   );
 }
