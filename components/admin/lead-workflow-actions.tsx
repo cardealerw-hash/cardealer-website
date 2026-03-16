@@ -54,7 +54,7 @@ export function LeadWorkflowActions({
     if (state.success) {
       router.refresh();
     }
-  }, [router, state.success]);
+  }, [router, state]);
 
   return (
     <div className="space-y-2">

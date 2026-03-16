@@ -31,7 +31,7 @@ export function CloudinarySyncCard({
     if (state.success) {
       router.refresh();
     }
-  }, [router, state.success]);
+  }, [router, state]);
 
   return (
     <Card className="rounded-[24px] border border-border bg-stone-50 p-4">

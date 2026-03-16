@@ -46,14 +46,11 @@ export function VehicleRowActions({
 
   useEffect(() => {
     if (featureState.success || statusState.success || deleteState.success) {
+      setMenuOpen(false);
+      setConfirmDelete(false);
       router.refresh();
     }
-  }, [
-    deleteState.success,
-    featureState.success,
-    router,
-    statusState.success,
-  ]);
+  }, [deleteState, featureState, router, statusState]);
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -110,10 +107,6 @@ export function VehicleRowActions({
                   size="sm"
                   variant="ghost"
                   className="w-full justify-start rounded-2xl"
-                  onClick={() => {
-                    setConfirmDelete(false);
-                    setMenuOpen(false);
-                  }}
                 >
                   <Star className="size-4" />
                   {featured ? "Remove featured" : "Mark featured"}
@@ -128,10 +121,6 @@ export function VehicleRowActions({
                     size="sm"
                     variant="ghost"
                     className="w-full justify-start rounded-2xl"
-                    onClick={() => {
-                      setConfirmDelete(false);
-                      setMenuOpen(false);
-                    }}
                   >
                     Publish listing
                   </SubmitButton>
@@ -144,10 +133,6 @@ export function VehicleRowActions({
                     size="sm"
                     variant="ghost"
                     className="w-full justify-start rounded-2xl"
-                    onClick={() => {
-                      setConfirmDelete(false);
-                      setMenuOpen(false);
-                    }}
                   >
                     Move back to unpublished
                   </SubmitButton>
@@ -162,10 +147,6 @@ export function VehicleRowActions({
                     size="sm"
                     variant="ghost"
                     className="w-full justify-start rounded-2xl"
-                    onClick={() => {
-                      setConfirmDelete(false);
-                      setMenuOpen(false);
-                    }}
                   >
                     Mark as sold
                   </SubmitButton>
@@ -203,10 +184,6 @@ export function VehicleRowActions({
                       <SubmitButton
                         size="sm"
                         className="bg-red-600 px-3 py-2 hover:bg-red-700"
-                        onClick={() => {
-                          setConfirmDelete(false);
-                          setMenuOpen(false);
-                        }}
                       >
                         Confirm delete
                       </SubmitButton>
