@@ -1,0 +1,494 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "Ocean Motors logo Ocean Motors Mombasa dealership" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Ocean Motors logo" [ref=e6]
+        - generic [ref=e7]:
+          - paragraph [ref=e8]: Ocean Motors
+          - paragraph [ref=e9]: Mombasa dealership
+      - navigation [ref=e10]:
+        - link "New Cars" [ref=e11] [cursor=pointer]:
+          - /url: /inventory/new
+        - link "Used Cars" [ref=e12] [cursor=pointer]:
+          - /url: /inventory/used
+        - link "Imported Units" [ref=e13] [cursor=pointer]:
+          - /url: /inventory/imported
+        - link "Financing" [ref=e14] [cursor=pointer]:
+          - /url: /financing
+        - link "Trade-In" [ref=e15] [cursor=pointer]:
+          - /url: /trade-in
+        - link "About" [ref=e16] [cursor=pointer]:
+          - /url: /about
+        - link "Contact" [ref=e17] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=e18]:
+        - link "0792 141 523" [ref=e19] [cursor=pointer]:
+          - /url: tel:0792141523
+          - img [ref=e20]
+          - text: 0792 141 523
+        - link "Inventory" [ref=e22] [cursor=pointer]:
+          - /url: /inventory
+  - main [ref=e23]:
+    - main [ref=e24]:
+      - generic [ref=e25]:
+        - navigation "Breadcrumb" [ref=e26]:
+          - list [ref=e27]:
+            - listitem [ref=e28]:
+              - link "Home" [ref=e29] [cursor=pointer]:
+                - /url: /
+            - listitem [ref=e30]: /
+            - listitem [ref=e31]:
+              - link "Inventory" [ref=e32] [cursor=pointer]:
+                - /url: /inventory
+            - listitem [ref=e33]: /
+            - listitem [ref=e34]: 2018 Range Rover Vogue
+        - generic [ref=e35]:
+          - generic [ref=e37]:
+            - button "Open 2018 Range Rover Vogue photo 1 in full screen" [ref=e39]:
+              - img "2018 Range Rover Vogue gallery image 3" [ref=e40]
+              - generic [ref=e41]:
+                - generic [ref=e42]: 1 / 12
+                - generic [ref=e43]:
+                  - button "Show previous photo" [ref=e44]:
+                    - img [ref=e45]
+                  - button "Show next photo" [ref=e47]:
+                    - img [ref=e48]
+            - generic [ref=e50]:
+              - generic [ref=e51]:
+                - paragraph [ref=e52]: Browse the key photos first, then open the full gallery.
+                - button "View all photos (12)" [ref=e53]
+              - generic [ref=e54]:
+                - button "Show photo 1 of 12" [pressed] [ref=e55]:
+                  - img "2018 Range Rover Vogue gallery image 3" [ref=e56]
+                - button "Show photo 2 of 12" [ref=e57]:
+                  - img "2018 Range Rover Vogue hero image" [ref=e58]
+                - button "Show photo 3 of 12" [ref=e59]:
+                  - img "2018 Range Rover Vogue gallery image 2" [ref=e60]
+                - button "Show photo 4 of 12" [ref=e61]:
+                  - img "2018 Range Rover Vogue gallery image 4" [ref=e62]
+                - button "Show photo 5 of 12" [ref=e63]:
+                  - img "2018 Range Rover Vogue gallery image 5" [ref=e64]
+                - button "Show photo 6 of 12" [ref=e65]:
+                  - img "2018 Range Rover Vogue gallery image 6" [ref=e66]
+                - button "Show photo 7 of 12" [ref=e67]:
+                  - img "2018 Range Rover Vogue gallery image 7" [ref=e68]
+                - button "Show photo 8 of 12" [ref=e69]:
+                  - img "2018 Range Rover Vogue gallery image 8" [ref=e70]
+                - button "Show photo 9 of 12" [ref=e71]:
+                  - img "2018 Range Rover Vogue gallery image 9" [ref=e72]
+                - button "Show photo 10 of 12" [ref=e73]:
+                  - img "2018 Range Rover Vogue gallery image 10" [ref=e74]
+                - button "Show photo 11 of 12" [ref=e75]:
+                  - img "2018 Range Rover Vogue gallery image 11" [ref=e76]
+                - button "Show photo 12 of 12" [ref=e77]:
+                  - img "2018 Range Rover Vogue gallery image 12" [ref=e78]
+          - generic [ref=e79]:
+            - generic [ref=e80]:
+              - generic [ref=e81]: Verified listing
+              - generic [ref=e82]: Available now
+              - generic [ref=e83]: Negotiable
+              - generic [ref=e84]: Imported
+            - generic [ref=e85]:
+              - heading "2018 Range Rover Vogue" [level=1] [ref=e86]
+              - paragraph [ref=e87]: Ksh 12,500,000
+            - generic [ref=e89]:
+              - generic [ref=e91]:
+                - img [ref=e93]
+                - generic [ref=e95]:
+                  - paragraph [ref=e96]: Year
+                  - paragraph [ref=e97]: "2018"
+              - generic [ref=e99]:
+                - img [ref=e101]
+                - generic [ref=e104]:
+                  - paragraph [ref=e105]: Mileage
+                  - paragraph [ref=e106]: 140,000 km
+              - generic [ref=e108]:
+                - img [ref=e110]
+                - generic [ref=e113]:
+                  - paragraph [ref=e114]: Transmission
+                  - paragraph [ref=e115]: Automatic
+              - generic [ref=e117]:
+                - img [ref=e119]
+                - generic [ref=e122]:
+                  - paragraph [ref=e123]: Fuel Type
+                  - paragraph [ref=e124]: Diesel
+              - generic [ref=e126]:
+                - img [ref=e128]
+                - generic [ref=e130]:
+                  - paragraph [ref=e131]: Drive Type
+                  - paragraph [ref=e132]: AWD
+              - generic [ref=e134]:
+                - img [ref=e136]
+                - generic [ref=e139]:
+                  - paragraph [ref=e140]: Body Type
+                  - paragraph [ref=e141]: SUV
+            - paragraph [ref=e142]: Ask for price confirmation, viewing, or a quick walk-around video.
+            - generic [ref=e143]:
+              - link "Inquire on WhatsApp" [ref=e144] [cursor=pointer]:
+                - /url: https://wa.me/254792141523?text=Hi%2C%20I%20would%20like%20to%20enquire%20about%202018%20Range%20Rover%20Vogue.
+              - 'link "Call: 0792 141 523" [ref=e145] [cursor=pointer]':
+                - /url: tel:0792141523
+              - link "Schedule a Viewing" [ref=e146] [cursor=pointer]:
+                - /url: /cars/2018-range-rover-vogue?intent=viewing#contact-panel
+            - paragraph [ref=e147]: Viewing in Mombasa Showroom • Fast response during working hours • Trade-ins welcome
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - paragraph [ref=e152]: Vehicle overview
+              - heading "Why this Range Rover Vogue stands out" [level=2] [ref=e153]
+              - paragraph [ref=e154]: 2018 Land Rover Range Rover Vogue with 140,000 km, diesel power, automatic transmission, AWD. Comfortable for daily driving, family travel, and longer road trips, with viewing and paperwork support available in Mombasa.
+              - group [ref=e155]:
+                - generic "More description" [ref=e156] [cursor=pointer]
+              - list [ref=e157]:
+                - listitem [ref=e158]:
+                  - img [ref=e159]
+                  - generic [ref=e162]: New registration condition notes can be confirmed before you leave for the viewing.
+                - listitem [ref=e163]:
+                  - img [ref=e164]
+                  - generic [ref=e167]: Diesel running suits longer trips, highway use, and upcountry travel.
+                - listitem [ref=e168]:
+                  - img [ref=e169]
+                  - generic [ref=e172]: Automatic transmission is easier in traffic and everyday driving.
+                - listitem [ref=e173]:
+                  - img [ref=e174]
+                  - generic [ref=e177]: AWD setup adds confidence on mixed road surfaces.
+            - generic [ref=e178]:
+              - paragraph [ref=e179]: Key features
+              - list [ref=e180]:
+                - listitem [ref=e181]:
+                  - img [ref=e182]
+                  - generic [ref=e185]: Automatic Transmission
+                - listitem [ref=e186]:
+                  - img [ref=e187]
+                  - generic [ref=e190]: Diesel Engine
+                - listitem [ref=e191]:
+                  - img [ref=e192]
+                  - generic [ref=e195]: AWD Drive
+                - listitem [ref=e196]:
+                  - img [ref=e197]
+                  - generic [ref=e200]: 3000cc Engine
+                - listitem [ref=e201]:
+                  - img [ref=e202]
+                  - generic [ref=e205]: SUV Body
+                - listitem [ref=e206]:
+                  - img [ref=e207]
+                  - generic [ref=e210]: Ready for Viewing
+          - generic [ref=e211]:
+            - paragraph [ref=e212]: Specifications
+            - generic [ref=e213]:
+              - generic [ref=e214]:
+                - term [ref=e215]: Model Year
+                - definition [ref=e216]: "2018"
+              - generic [ref=e217]:
+                - term [ref=e218]: Mileage
+                - definition [ref=e219]: 140,000 km
+              - generic [ref=e220]:
+                - term [ref=e221]: Engine Capacity
+                - definition [ref=e222]: 3000cc
+              - generic [ref=e223]:
+                - term [ref=e224]: Fuel Type
+                - definition [ref=e225]: Diesel
+              - generic [ref=e226]:
+                - term [ref=e227]: Transmission
+                - definition [ref=e228]: Automatic
+              - generic [ref=e229]:
+                - term [ref=e230]: Drive Type
+                - definition [ref=e231]: AWD
+              - generic [ref=e232]:
+                - term [ref=e233]: Body Type
+                - definition [ref=e234]: SUV
+              - generic [ref=e235]:
+                - term [ref=e236]: Exterior Color
+                - definition [ref=e237]: Gray
+            - paragraph [ref=e238]: Vehicle details are shared in good faith and confirmed during viewing.
+        - generic [ref=e240]:
+          - generic [ref=e241]:
+            - generic [ref=e242]:
+              - paragraph [ref=e243]: Buyer confidence
+              - heading "What you can confirm before you visit" [level=2] [ref=e244]
+            - generic [ref=e245]:
+              - paragraph [ref=e246]: Trusted by buyers
+              - generic [ref=e247]:
+                - generic [ref=e248]: 5.0/5
+                - generic [ref=e249]:
+                  - img [ref=e250]
+                  - img [ref=e252]
+                  - img [ref=e254]
+                  - img [ref=e256]
+                  - img [ref=e258]
+              - paragraph [ref=e260]: Based on 3 featured reviews.
+          - generic [ref=e262]:
+            - generic [ref=e263]:
+              - img [ref=e265]
+              - generic [ref=e268]:
+                - paragraph [ref=e269]: Registration status
+                - paragraph [ref=e270]: New registration
+            - generic [ref=e271]:
+              - img [ref=e273]
+              - generic [ref=e276]:
+                - paragraph [ref=e277]: Listing type
+                - paragraph [ref=e278]: Imported vehicle
+            - generic [ref=e279]:
+              - img [ref=e281]
+              - generic [ref=e284]:
+                - paragraph [ref=e285]: Viewing location
+                - paragraph [ref=e286]: Mombasa Showroom
+            - generic [ref=e287]:
+              - img [ref=e289]
+              - generic [ref=e292]:
+                - paragraph [ref=e293]: Paperwork support
+                - paragraph [ref=e294]: Guidance before you visit
+            - generic [ref=e295]:
+              - img [ref=e297]
+              - generic [ref=e300]:
+                - paragraph [ref=e301]: Inspection
+                - paragraph [ref=e302]: Pre-purchase inspection welcome
+            - generic [ref=e303]:
+              - img [ref=e305]
+              - generic [ref=e308]:
+                - paragraph [ref=e309]: Financing
+                - paragraph [ref=e310]: Support available on request
+            - generic [ref=e311]:
+              - img [ref=e313]
+              - generic [ref=e316]:
+                - paragraph [ref=e317]: Trade-in
+                - paragraph [ref=e318]: Accepted
+          - generic [ref=e319]:
+            - paragraph [ref=e320]: Next steps
+            - generic [ref=e321]:
+              - link "Check trade-in value" [ref=e322] [cursor=pointer]:
+                - /url: /trade-in?vehicle=2018-range-rover-vogue
+                - generic [ref=e323]: Check trade-in value
+                - img [ref=e324]
+              - link "Schedule a viewing" [ref=e326] [cursor=pointer]:
+                - /url: /cars/2018-range-rover-vogue?intent=viewing#contact-panel
+                - generic [ref=e327]: Schedule a viewing
+                - img [ref=e328]
+              - link "Ask about financing" [ref=e330] [cursor=pointer]:
+                - /url: /cars/2018-range-rover-vogue?intent=financing#contact-panel
+                - generic [ref=e331]: Ask about financing
+                - img [ref=e332]
+              - button "Share vehicle" [ref=e335]:
+                - generic [ref=e336]: Share vehicle
+                - img [ref=e337]
+              - link "Open showroom location" [ref=e343] [cursor=pointer]:
+                - /url: https://maps.google.com/?q=Kizingo+Mombasa
+                - generic [ref=e344]: Open showroom location
+                - img [ref=e345]
+        - generic [ref=e349]:
+          - paragraph [ref=e350]: Financing
+          - heading "Estimate your monthly payment" [level=2] [ref=e351]
+          - paragraph [ref=e352]: Need a monthly estimate first? Start here.
+          - generic [ref=e353]:
+            - generic [ref=e354]:
+              - paragraph [ref=e355]: Vehicle price
+              - paragraph [ref=e356]: Ksh 12,500,000
+            - generic [ref=e357]:
+              - generic [ref=e358]:
+                - paragraph [ref=e359]: Deposit
+                - paragraph [ref=e360]: Ksh 3,750,000 (30%)
+              - slider "Choose deposit percentage" [ref=e361] [cursor=pointer]: "30"
+              - generic [ref=e362]:
+                - button "20%" [ref=e363]
+                - button "30%" [ref=e364]
+                - button "40%" [ref=e365]
+            - generic [ref=e366]:
+              - paragraph [ref=e367]: Loan term
+              - generic [ref=e368]:
+                - button "24 mo" [ref=e369]
+                - button "36 mo" [ref=e370]
+                - button "48 mo" [ref=e371]
+            - generic [ref=e372]:
+              - paragraph [ref=e373]: Estimated monthly payment
+              - paragraph [ref=e374]: Ksh 365,000/month
+            - paragraph [ref=e375]: Rates are approximate and for guidance only. Final terms depend on lender approval.
+            - link "Apply for financing" [ref=e376] [cursor=pointer]:
+              - /url: /cars/2018-range-rover-vogue?intent=financing#contact-panel
+        - generic [ref=e378]:
+          - generic [ref=e379]:
+            - paragraph [ref=e380]: Sales help
+            - heading "Ask about price, availability, or viewing" [level=3] [ref=e381]
+            - paragraph [ref=e382]: WhatsApp is fastest, but you can also call or send one short message to confirm viewing time, paperwork support, or your trade-in options.
+          - generic [ref=e384]:
+            - link "WhatsApp Sales" [ref=e385] [cursor=pointer]:
+              - /url: https://wa.me/254792141523?text=Hi%2C%20I%20would%20like%20to%20enquire%20about%202018%20Range%20Rover%20Vogue.
+              - img [ref=e386]
+              - text: WhatsApp Sales
+            - link "Call 0792 141 523" [ref=e388] [cursor=pointer]:
+              - /url: tel:0792141523
+              - img [ref=e389]
+              - text: Call 0792 141 523
+          - link "Value your trade-in" [ref=e392] [cursor=pointer]:
+            - /url: /trade-in?vehicle=2018-range-rover-vogue
+          - generic [ref=e394]:
+            - button "Price & Availability" [pressed] [ref=e395]:
+              - generic [ref=e396]: Price & Availability
+            - button "Book a Visit" [ref=e397]:
+              - generic [ref=e398]: Book a Visit
+            - button "Payment Options" [ref=e399]:
+              - generic [ref=e400]: Payment Options
+          - generic [ref=e401]:
+            - heading "Get the best price and next step" [level=4] [ref=e402]
+            - paragraph [ref=e403]: Ask for the best price, confirm availability, or request a walk-around video.
+            - generic [ref=e404]:
+              - generic [ref=e405]:
+                - generic [ref=e406]:
+                  - generic [ref=e407]: Name
+                  - textbox "Name" [ref=e408]:
+                    - /placeholder: Your name
+                - generic [ref=e409]:
+                  - generic [ref=e410]: Phone
+                  - textbox "Phone" [ref=e411]:
+                    - /placeholder: +254...
+              - generic [ref=e412]:
+                - generic [ref=e413]:
+                  - generic [ref=e414]: How can we help?
+                  - generic [ref=e415]: Quick message ideas
+                - generic [ref=e416]:
+                  - button "Is it available?" [ref=e417]
+                  - button "Best price?" [ref=e418]
+                  - button "Can I book viewing today?" [ref=e419]
+                - textbox "How can we help?" [ref=e420]:
+                  - /placeholder: Ask for the best price, confirm availability, or request a quick walk-around video.
+              - button "Send to Sales" [ref=e421]
+        - generic [ref=e422]:
+          - generic [ref=e423]:
+            - generic [ref=e424]:
+              - paragraph [ref=e425]: Similar vehicles
+              - heading "You may also like" [level=2] [ref=e426]
+            - link "View all similar vehicles" [ref=e427] [cursor=pointer]:
+              - /url: /inventory
+              - text: View all similar vehicles
+              - img [ref=e428]
+          - generic [ref=e430]:
+            - article [ref=e431]:
+              - generic [ref=e432]:
+                - img "2018 Nissan Note" [ref=e433]
+                - generic [ref=e435]: Negotiable
+              - generic [ref=e436]:
+                - generic [ref=e437]:
+                  - generic [ref=e438]:
+                    - paragraph [ref=e439]: 2018 - Imported
+                    - heading "2018 Nissan Note" [level=3] [ref=e440]
+                  - paragraph [ref=e441]: Ksh 860,000
+                - generic [ref=e442]:
+                  - generic [ref=e443]:
+                    - img [ref=e444]
+                    - generic [ref=e448]: 98,000 km
+                  - generic [ref=e449]:
+                    - img [ref=e450]
+                    - generic [ref=e461]: Automatic
+                  - generic [ref=e462]:
+                    - img [ref=e463]
+                    - generic [ref=e466]: Petrol
+                - link "View Details" [ref=e467] [cursor=pointer]:
+                  - /url: /cars/2018-nissan-note
+            - article [ref=e468]:
+              - generic [ref=e469]:
+                - img "2016 Mazda CX-5" [ref=e470]
+                - generic [ref=e472]: Negotiable
+              - generic [ref=e473]:
+                - generic [ref=e474]:
+                  - generic [ref=e475]:
+                    - paragraph [ref=e476]: 2016 - Imported
+                    - heading "2016 Mazda CX-5" [level=3] [ref=e477]
+                  - paragraph [ref=e478]: Ksh 1,590,000
+                - generic [ref=e479]:
+                  - generic [ref=e480]:
+                    - img [ref=e481]
+                    - generic [ref=e485]: 136,000 km
+                  - generic [ref=e486]:
+                    - img [ref=e487]
+                    - generic [ref=e498]: Automatic
+                  - generic [ref=e499]:
+                    - img [ref=e500]
+                    - generic [ref=e503]: Diesel
+                - link "View Details" [ref=e504] [cursor=pointer]:
+                  - /url: /cars/2016-mazda-cx-5
+            - article [ref=e505]:
+              - generic [ref=e506]:
+                - img "2010 Toyota Vanguard" [ref=e507]
+                - generic [ref=e509]: Negotiable
+              - generic [ref=e510]:
+                - generic [ref=e511]:
+                  - generic [ref=e512]:
+                    - paragraph [ref=e513]: 2010 - Imported
+                    - heading "2010 Toyota Vanguard" [level=3] [ref=e514]
+                  - paragraph [ref=e515]: Ksh 1,490,000
+                - generic [ref=e516]:
+                  - generic [ref=e517]:
+                    - img [ref=e518]
+                    - generic [ref=e522]: 158,000 km
+                  - generic [ref=e523]:
+                    - img [ref=e524]
+                    - generic [ref=e535]: Automatic
+                  - generic [ref=e536]:
+                    - img [ref=e537]
+                    - generic [ref=e540]: Petrol
+                - link "View Details" [ref=e541] [cursor=pointer]:
+                  - /url: /cars/2010-toyota-vanguard
+        - generic [ref=e543]:
+          - generic [ref=e544]:
+            - img [ref=e546]
+            - generic [ref=e549]:
+              - paragraph [ref=e550]: Verified listings
+              - paragraph [ref=e551]: Key facts and pricing shown clearly before you enquire.
+          - generic [ref=e552]:
+            - img [ref=e554]
+            - generic [ref=e557]:
+              - paragraph [ref=e558]: Fast response
+              - paragraph [ref=e559]: WhatsApp and calls are handled daily during working hours.
+          - generic [ref=e560]:
+            - img [ref=e562]
+            - generic [ref=e565]:
+              - paragraph [ref=e566]: Finance help
+              - paragraph [ref=e567]: Guidance available through 4 finance partners.
+          - generic [ref=e568]:
+            - img [ref=e570]
+            - generic [ref=e573]:
+              - paragraph [ref=e574]: Trade-in support
+              - paragraph [ref=e575]: Ask about valuing your current car as part of the deal.
+  - contentinfo [ref=e576]:
+    - generic [ref=e577]:
+      - generic [ref=e578]:
+        - paragraph [ref=e579]: Ocean Motors
+        - paragraph [ref=e580]: Used, imported, and traded-in vehicles with clearer listings, faster response times, and a practical buying process.
+        - generic [ref=e581]:
+          - paragraph [ref=e582]: Kizingo, Mombasa
+          - paragraph [ref=e583]:
+            - link "0792 141 523" [ref=e584] [cursor=pointer]:
+              - /url: tel:0792141523
+          - paragraph [ref=e585]:
+            - link "0704 337 697" [ref=e586] [cursor=pointer]:
+              - /url: tel:0704337697
+          - paragraph [ref=e587]:
+            - link "sales@oceanmotors.demo" [ref=e588] [cursor=pointer]:
+              - /url: mailto:sales@oceanmotors.demo
+      - generic [ref=e589]:
+        - paragraph [ref=e590]: Explore
+        - generic [ref=e591]:
+          - link "Home" [ref=e592] [cursor=pointer]:
+            - /url: /
+          - link "Inventory" [ref=e593] [cursor=pointer]:
+            - /url: /inventory
+          - link "New Cars" [ref=e594] [cursor=pointer]:
+            - /url: /inventory/new
+          - link "Used Cars" [ref=e595] [cursor=pointer]:
+            - /url: /inventory/used
+          - link "Imported Units" [ref=e596] [cursor=pointer]:
+            - /url: /inventory/imported
+          - link "Financing" [ref=e597] [cursor=pointer]:
+            - /url: /financing
+          - link "Trade-In" [ref=e598] [cursor=pointer]:
+            - /url: /trade-in
+          - link "About" [ref=e599] [cursor=pointer]:
+            - /url: /about
+          - link "Contact" [ref=e600] [cursor=pointer]:
+            - /url: /contact
+      - generic [ref=e601]:
+        - paragraph [ref=e602]: Hours
+        - generic [ref=e603]:
+          - paragraph [ref=e604]: Mon - Sat, 8:00 AM - 6:00 PM
+          - paragraph [ref=e605]: Sunday by appointment
+          - paragraph [ref=e606]: WhatsApp and phone support available throughout the day.

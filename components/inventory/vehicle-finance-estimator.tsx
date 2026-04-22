@@ -30,16 +30,19 @@ export function VehicleFinanceEstimator({
   const monthlyPayment = roundToNearest((price - depositAmount) / termMonths, 1000);
 
   return (
-    <Card className={cn("rounded-[28px] border border-border/80 p-5 lg:p-6", className)}>
+    <Card className={cn("rounded-[28px] bg-[linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(247,249,251,0.96))] p-5 shadow-[0_18px_40px_rgba(15,23,42,0.04)] lg:p-6", className)}>
       <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-text-secondary">
         Financing
       </p>
       <h2 className="mt-2 text-[1.35rem] font-semibold leading-tight tracking-[-0.04em] text-text-primary">
         Estimate your monthly payment
       </h2>
+      <p className="mt-2 text-sm leading-6 text-text-secondary">
+        Need a monthly estimate first? Start here.
+      </p>
 
       <div className="mt-5 space-y-4">
-        <div className="rounded-[18px] border border-border/80 bg-white/92 px-4 py-3">
+        <div className="rounded-[18px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
           <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-text-secondary">
             Vehicle price
           </p>
@@ -48,7 +51,7 @@ export function VehicleFinanceEstimator({
           </p>
         </div>
 
-        <div className="rounded-[18px] border border-border/80 bg-white/92 px-4 py-3">
+        <div className="rounded-[18px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
           <div className="flex items-center justify-between gap-3">
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-text-secondary">
               Deposit
@@ -80,7 +83,7 @@ export function VehicleFinanceEstimator({
                   "rounded-[14px] border px-3 py-2 text-sm font-semibold transition-colors",
                   depositRate === option
                     ? "border-accent bg-accent/8 text-accent"
-                    : "border-border/80 bg-surface text-text-secondary hover:border-accent/40 hover:text-text-primary",
+                    : "border-transparent bg-surface text-text-secondary hover:border-accent/30 hover:text-text-primary",
                 )}
                 onClick={() => setDepositRate(option)}
               >
@@ -90,7 +93,7 @@ export function VehicleFinanceEstimator({
           </div>
         </div>
 
-        <div className="rounded-[18px] border border-border/80 bg-white/92 px-4 py-3">
+        <div className="rounded-[18px] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
           <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-text-secondary">
             Loan term
           </p>
@@ -104,7 +107,7 @@ export function VehicleFinanceEstimator({
                   "rounded-[14px] border px-3 py-2 text-sm font-semibold transition-colors",
                   termMonths === option
                     ? "border-accent bg-accent/8 text-accent"
-                    : "border-border/80 bg-surface text-text-secondary hover:border-accent/40 hover:text-text-primary",
+                    : "border-transparent bg-surface text-text-secondary hover:border-accent/30 hover:text-text-primary",
                 )}
                 onClick={() => setTermMonths(option)}
               >

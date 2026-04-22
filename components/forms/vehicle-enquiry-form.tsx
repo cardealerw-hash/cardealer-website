@@ -22,6 +22,7 @@ import type { ActionState, LeadType } from "@/types/dealership";
 import { cn } from "@/lib/utils";
 
 type VehicleIntent = "quote" | "viewing" | "financing";
+const defaultVehicleIntents: VehicleIntent[] = ["quote", "viewing", "financing"];
 
 const initialState: ActionState = { success: false, message: "" };
 
@@ -34,6 +35,7 @@ const intentMeta: Record<
     submitLabel: string;
     messageLabel: string;
     messagePlaceholder: string;
+    presets: string[];
     leadType?: LeadType;
   }
 > = {
@@ -46,6 +48,7 @@ const intentMeta: Record<
     messageLabel: "How can we help?",
     messagePlaceholder:
       "Ask for the best price, confirm availability, or request a quick walk-around video.",
+    presets: ["Is it available?", "Best price?", "Can I book viewing today?"],
     leadType: "quote",
   },
   viewing: {
@@ -56,7 +59,8 @@ const intentMeta: Record<
     submitLabel: "Reserve My Visit",
     messageLabel: "Best time for you",
     messagePlaceholder:
-      "Tell us the day and time that work best, plus anything you want ready before you arrive.",
+      "Tell us whether you want same-day viewing, the location pin, or a quick inspection setup.",
+    presets: ["Can I book viewing today?", "Please share the location pin.", "I want to inspect the car."],
   },
   financing: {
     label: "Payment Options",
@@ -67,16 +71,24 @@ const intentMeta: Record<
     messageLabel: "Your budget plan",
     messagePlaceholder:
       "Tell us what you want to know about deposit, monthly budget, or approval steps.",
+    presets: ["What deposit is needed?", "How much per month?", "Can you help with bank financing?"],
     leadType: "financing",
   },
 };
 
-function parseIntent(value: string | null): VehicleIntent {
-  if (value === "viewing" || value === "financing") {
+function parseIntent(
+  value: string | null,
+  allowedIntents: readonly VehicleIntent[],
+): VehicleIntent {
+  if (
+    value &&
+    (value === "quote" || value === "viewing" || value === "financing") &&
+    allowedIntents.includes(value)
+  ) {
     return value;
   }
 
-  return "quote";
+  return allowedIntents[0] || "quote";
 }
 
 export function VehicleEnquiryForm({
@@ -91,6 +103,10 @@ export function VehicleEnquiryForm({
   trustItems,
   tradeInHref,
   compact = false,
+  eyebrow,
+  heading,
+  description,
+  allowedIntents,
 }: {
   vehicleId?: string;
   vehicleTitle?: string;
@@ -103,10 +119,16 @@ export function VehicleEnquiryForm({
   trustItems?: Array<{ label: string; value: string }>;
   tradeInHref?: string;
   compact?: boolean;
+  eyebrow?: string;
+  heading?: string;
+  description?: string;
+  allowedIntents?: VehicleIntent[];
 }) {
   const searchParams = useSearchParams();
+  const availableIntents =
+    allowedIntents && allowedIntents.length ? allowedIntents : defaultVehicleIntents;
   const [intent, setIntent] = useState<VehicleIntent>(() =>
-    parseIntent(searchParams.get("intent")),
+    parseIntent(searchParams.get("intent"), availableIntents),
   );
   const [leadState, leadAction] = useActionState(submitLeadAction, initialState);
   const [testDriveState, testDriveAction] = useActionState(
@@ -115,29 +137,36 @@ export function VehicleEnquiryForm({
   );
 
   useEffect(() => {
-    setIntent(parseIntent(searchParams.get("intent")));
-  }, [searchParams]);
+    setIntent(parseIntent(searchParams.get("intent"), availableIntents));
+  }, [availableIntents, searchParams]);
 
   const activeIntent = intentMeta[intent];
   const state = intent === "viewing" ? testDriveState : leadState;
   const formId = `vehicle-enquiry-${intent}`;
   const phoneField = getActionFieldState(state, formId, "phone");
   const nameField = getActionFieldState(state, formId, "name");
-  const emailField = getActionFieldState(state, formId, "email");
-  const preferredDateField = getActionFieldState(state, formId, "preferredDate");
-  const preferredTimeField = getActionFieldState(state, formId, "preferredTime");
   const messageField = getActionFieldState(state, formId, "message");
+  const eyebrowText = eyebrow || "Talk to sales";
+  const headingText = heading || "Ask about this vehicle";
+  const descriptionText =
+    description || "Call, WhatsApp, or send one short message and the team will follow up.";
+  const [messageDrafts, setMessageDrafts] = useState<Record<VehicleIntent, string>>({
+    quote: "",
+    viewing: "",
+    financing: "",
+  });
+  const formAction = intent === "viewing" ? testDriveAction : leadAction;
 
   return (
     <Card
       className={cn(
-        "border border-border/80 bg-[linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(247,249,251,0.94))] shadow-[0_18px_50px_rgba(15,23,42,0.06)]",
+        "bg-[linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(247,249,251,0.94))] shadow-[0_18px_50px_rgba(15,23,42,0.05)]",
         compact ? "rounded-[28px] p-4 lg:p-5" : "rounded-[32px] p-5 lg:p-6",
       )}
     >
       <div className={cn(compact ? "mb-3" : "mb-4")}>
         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-text-secondary">
-          Talk to sales
+          {eyebrowText}
         </p>
         <h3
           className={cn(
@@ -147,7 +176,7 @@ export function VehicleEnquiryForm({
               : "mt-2 text-[1.7rem] leading-tight tracking-[-0.04em]",
           )}
         >
-          Ask about this vehicle
+          {headingText}
         </h3>
         <p
           className={cn(
@@ -155,7 +184,7 @@ export function VehicleEnquiryForm({
             compact ? "text-[0.92rem] leading-5" : "text-sm leading-6",
           )}
         >
-          Call, WhatsApp, or send one short message and the team will follow up.
+          {descriptionText}
         </p>
       </div>
 
@@ -171,7 +200,7 @@ export function VehicleEnquiryForm({
             <div
               key={item.label}
               className={cn(
-                "rounded-[16px] border border-border/80 bg-white/88 px-3 py-2.5",
+                "rounded-[16px] bg-white/88 px-3 py-2.5 shadow-[0_8px_18px_rgba(15,23,42,0.03)]",
                 compact ? "text-center" : "",
               )}
             >
@@ -206,19 +235,6 @@ export function VehicleEnquiryForm({
           ) : null}
 
           <div className={cn("grid sm:grid-cols-2", compact ? "gap-1.5" : "gap-2")}>
-          {phoneHref && phoneDisplay ? (
-            <Button
-              asChild
-              variant="secondary"
-              size={compact ? "sm" : undefined}
-              className={cn("w-full", compact ? "rounded-[18px]" : "rounded-2xl")}
-            >
-              <a href={phoneHref}>
-                <Phone className="size-4" />
-                Call {phoneDisplay}
-              </a>
-            </Button>
-          ) : null}
           {whatsappUrl ? (
             <Button
               asChild
@@ -229,6 +245,19 @@ export function VehicleEnquiryForm({
               <a href={whatsappUrl} target="_blank" rel="noreferrer">
                 <WhatsAppIcon className="size-4" />
                 WhatsApp Sales
+              </a>
+            </Button>
+          ) : null}
+          {phoneHref && phoneDisplay ? (
+            <Button
+              asChild
+              variant="secondary"
+              size={compact ? "sm" : undefined}
+              className={cn("w-full", compact ? "rounded-[18px]" : "rounded-2xl")}
+            >
+              <a href={phoneHref}>
+                <Phone className="size-4" />
+                Call {phoneDisplay}
               </a>
             </Button>
           ) : null}
@@ -247,11 +276,17 @@ export function VehicleEnquiryForm({
         </div>
       ) : null}
 
-      <div className={cn("border border-border/80 bg-surface-elevated/90 p-1", compact ? "rounded-[20px]" : "rounded-[24px]")}>
-        <div className="grid gap-1.5 sm:grid-cols-3">
-          {(Object.entries(intentMeta) as Array<
-            [VehicleIntent, (typeof intentMeta)[VehicleIntent]]
-          >).map(([key, item]) => (
+      <div className={cn("bg-surface-elevated/90 p-1", compact ? "rounded-[20px]" : "rounded-[24px]")}>
+        <div
+          className={cn(
+            "grid gap-1.5",
+            availableIntents.length >= 3 ? "sm:grid-cols-3" : "sm:grid-cols-2",
+          )}
+        >
+          {availableIntents.map((key) => {
+            const item = intentMeta[key];
+
+            return (
             <button
               key={key}
               type="button"
@@ -267,11 +302,12 @@ export function VehicleEnquiryForm({
             >
               <span className="block text-sm font-semibold">{item.label}</span>
             </button>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      <div className={cn("border-t border-border/80", compact ? "mt-3 pt-3" : "mt-4 pt-4")}>
+      <div className={cn("border-t border-border/55", compact ? "mt-3 pt-3" : "mt-4 pt-4")}>
         <h4
           className={cn(
             "font-semibold tracking-[-0.02em] text-text-primary",
@@ -284,114 +320,31 @@ export function VehicleEnquiryForm({
           {activeIntent.description}
         </p>
 
-        {intent === "viewing" ? (
-          <form action={testDriveAction} className={cn(compact ? "mt-3 space-y-2.5" : "mt-4 space-y-3")}>
-            <input type="hidden" name="vehicleId" value={vehicleId || ""} />
-            <input type="hidden" name="vehicleTitle" value={vehicleTitle || ""} />
-            <input type="hidden" name="source" value={`${source} - viewing`} />
-
-            <div>
-              <Label htmlFor={`${formId}-phone`}>Phone</Label>
-              <Input
-                id={`${formId}-phone`}
-                name="phone"
-                placeholder="+254..."
-                required
-                {...phoneField.inputProps}
-              />
-              <FieldError id={phoneField.errorId} error={phoneField.error} />
-            </div>
-
-            <div>
-              <Label htmlFor={`${formId}-name`}>Full name</Label>
-              <Input
-                id={`${formId}-name`}
-                name="name"
-                placeholder="Your full name"
-                required
-                {...nameField.inputProps}
-              />
-              <FieldError id={nameField.errorId} error={nameField.error} />
-            </div>
-
-            <div>
-              <Label htmlFor={`${formId}-email`}>Email</Label>
-              <Input
-                id={`${formId}-email`}
-                name="email"
-                type="email"
-                placeholder="Optional email address"
-                {...emailField.inputProps}
-              />
-              <FieldError id={emailField.errorId} error={emailField.error} />
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <Label htmlFor={`${formId}-preferred-date`}>Preferred date</Label>
-                <Input
-                  id={`${formId}-preferred-date`}
-                  name="preferredDate"
-                  type="date"
-                  required
-                  {...preferredDateField.inputProps}
-                />
-                <FieldError
-                  id={preferredDateField.errorId}
-                  error={preferredDateField.error}
-                />
-              </div>
-              <div>
-                <Label htmlFor={`${formId}-preferred-time`}>Preferred time</Label>
-                <Input
-                  id={`${formId}-preferred-time`}
-                  name="preferredTime"
-                  placeholder="11:00 AM"
-                  {...preferredTimeField.inputProps}
-                />
-                <FieldError
-                  id={preferredTimeField.errorId}
-                  error={preferredTimeField.error}
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor={`${formId}-message`}>
-                {activeIntent.messageLabel}
-              </Label>
-              <Textarea
-                id={`${formId}-message`}
-                name="message"
-                placeholder={activeIntent.messagePlaceholder}
-                className={cn("rounded-2xl", compact ? "min-h-20" : "min-h-24")}
-                {...messageField.inputProps}
-              />
-              <FieldError id={messageField.errorId} error={messageField.error} />
-            </div>
-
-            {state.message ? (
-              <p
-                className={cn(
-                  "text-sm",
-                  state.success ? "text-success" : "text-danger",
-                )}
-                role={state.success ? undefined : "alert"}
-              >
-                {state.message}
-              </p>
-            ) : null}
-
-            <SubmitButton className="w-full">
-              {activeIntent.submitLabel}
-            </SubmitButton>
-          </form>
-        ) : (
-          <form action={leadAction} className={cn(compact ? "mt-3 space-y-2.5" : "mt-4 space-y-3")}>
-            <input type="hidden" name="vehicleId" value={vehicleId || ""} />
-            <input type="hidden" name="vehicleTitle" value={vehicleTitle || ""} />
+        <form action={formAction} className={cn(compact ? "mt-3 space-y-2.5" : "mt-4 space-y-3")}>
+          <input type="hidden" name="vehicleId" value={vehicleId || ""} />
+          <input type="hidden" name="vehicleTitle" value={vehicleTitle || ""} />
+          <input type="hidden" name="source" value={`${source} - ${intent}`} />
+          {intent !== "viewing" ? (
             <input type="hidden" name="leadType" value={activeIntent.leadType} />
-            <input type="hidden" name="source" value={`${source} - ${intent}`} />
+          ) : (
+            <>
+              <input type="hidden" name="preferredDate" value="Confirm on call" />
+              <input type="hidden" name="preferredTime" value="Flexible" />
+            </>
+          )}
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label htmlFor={`${formId}-name`}>Name</Label>
+              <Input
+                id={`${formId}-name`}
+                name="name"
+                placeholder="Your name"
+                required
+                {...nameField.inputProps}
+              />
+              <FieldError id={nameField.errorId} error={nameField.error} />
+            </div>
 
             <div>
               <Label htmlFor={`${formId}-phone`}>Phone</Label>
@@ -404,50 +357,63 @@ export function VehicleEnquiryForm({
               />
               <FieldError id={phoneField.errorId} error={phoneField.error} />
             </div>
+          </div>
 
-            <div>
-              <Label htmlFor={`${formId}-name`}>Full name</Label>
-              <Input
-                id={`${formId}-name`}
-                name="name"
-                placeholder="Your full name"
-                required
-                {...nameField.inputProps}
-              />
-              <FieldError id={nameField.errorId} error={nameField.error} />
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <Label htmlFor={`${formId}-message`}>{activeIntent.messageLabel}</Label>
+              <span className="text-xs font-medium text-text-secondary">Quick message ideas</span>
             </div>
-
-            <div>
-              <Label htmlFor={`${formId}-message`}>
-                {activeIntent.messageLabel}
-              </Label>
-              <Textarea
-                id={`${formId}-message`}
-                name="message"
-                placeholder={activeIntent.messagePlaceholder}
-                className={cn("rounded-2xl", compact ? "min-h-20" : "min-h-24")}
-                {...messageField.inputProps}
-              />
-              <FieldError id={messageField.errorId} error={messageField.error} />
+            <div className="mt-2 flex flex-wrap gap-2">
+              {activeIntent.presets.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  className="rounded-full bg-surface-elevated px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:bg-accent/8 hover:text-accent"
+                  onClick={() =>
+                    setMessageDrafts((current) => ({
+                      ...current,
+                      [intent]: preset,
+                    }))
+                  }
+                >
+                  {preset}
+                </button>
+              ))}
             </div>
+            <Textarea
+              id={`${formId}-message`}
+              name="message"
+              placeholder={activeIntent.messagePlaceholder}
+              value={messageDrafts[intent]}
+              onChange={(event) =>
+                setMessageDrafts((current) => ({
+                  ...current,
+                  [intent]: event.target.value,
+                }))
+              }
+              className={cn("mt-3 rounded-2xl", compact ? "min-h-20" : "min-h-20")}
+              {...messageField.inputProps}
+            />
+            <FieldError id={messageField.errorId} error={messageField.error} />
+          </div>
 
-            {state.message ? (
-              <p
-                className={cn(
-                  "text-sm",
-                  state.success ? "text-success" : "text-danger",
-                )}
-                role={state.success ? undefined : "alert"}
-              >
-                {state.message}
-              </p>
-            ) : null}
+          {state.message ? (
+            <p
+              className={cn(
+                "text-sm",
+                state.success ? "text-success" : "text-danger",
+              )}
+              role={state.success ? undefined : "alert"}
+            >
+              {state.message}
+            </p>
+          ) : null}
 
-            <SubmitButton className="w-full">
-              {activeIntent.submitLabel}
-            </SubmitButton>
-          </form>
-        )}
+          <SubmitButton className="w-full">
+            {activeIntent.submitLabel}
+          </SubmitButton>
+        </form>
       </div>
     </Card>
   );

@@ -39,7 +39,7 @@ afterEach(() => {
 });
 
 describe("public forms", () => {
-  it("renders viewing-specific date and time inputs in the vehicle enquiry flow", () => {
+  it("renders a quick-contact viewing form with name, phone, and message", () => {
     useActionStateMock
       .mockReturnValueOnce([{ success: false, message: "" }, vi.fn()])
       .mockReturnValueOnce([{ success: false, message: "" }, vi.fn()]);
@@ -55,9 +55,34 @@ describe("public forms", () => {
       />,
     );
 
-    expect(screen.getByLabelText(/preferred date/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/preferred time/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^email$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^name$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/phone/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/best time for you/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/preferred date/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/preferred time/i)).not.toBeInTheDocument();
+  });
+
+  it("hides financing intent when the form is limited to contact-focused tabs", () => {
+    useActionStateMock
+      .mockReturnValueOnce([{ success: false, message: "" }, vi.fn()])
+      .mockReturnValueOnce([{ success: false, message: "" }, vi.fn()]);
+    useSearchParamsMock.mockReturnValue({
+      get: (key: string) => (key === "intent" ? "financing" : null),
+    });
+
+    render(
+      <VehicleEnquiryForm
+        source="Vehicle page"
+        vehicleId="vehicle-1"
+        vehicleTitle="2020 Toyota Prado"
+        allowedIntents={["quote", "viewing"]}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: /price & availability/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /book a visit/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /payment options/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /get the best price and next step/i })).toBeInTheDocument();
   });
 
   it("marks lead capture inputs invalid when field errors are returned", () => {

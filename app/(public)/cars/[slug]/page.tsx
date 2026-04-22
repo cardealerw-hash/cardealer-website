@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
-  Banknote,
   Calendar,
   CarFront,
   CheckCircle2,
@@ -10,11 +9,9 @@ import {
   Gauge,
   Map,
   MapPin,
-  Palette,
   Settings2,
   ShieldCheck,
   Star,
-  Wrench,
   type LucideIcon,
 } from "lucide-react";
 import { notFound } from "next/navigation";
@@ -22,14 +19,13 @@ import { notFound } from "next/navigation";
 import { VehicleEnquiryForm } from "@/components/forms/vehicle-enquiry-form";
 import { MobileCtaBar } from "@/components/inventory/mobile-cta-bar";
 import { ShareVehicleAction } from "@/components/inventory/share-vehicle-action";
-import { VehicleFinanceEstimator } from "@/components/inventory/vehicle-finance-estimator";
 import { VehicleCard } from "@/components/inventory/vehicle-card";
 import { VehicleGallery } from "@/components/inventory/vehicle-gallery";
 import { JsonLd } from "@/components/layout/json-ld";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { homeStats, siteConfig } from "@/lib/config/site";
+import { siteConfig } from "@/lib/config/site";
 import {
   getReviews,
   getSimilarVehicles,
@@ -100,13 +96,13 @@ function buildStatusBadges(vehicle: VehicleRecord) {
   const stockLabel = (() => {
     switch (vehicle.stockCategory) {
       case "available_for_importation":
-        return "Ready to import";
+        return "Imported unit";
       case "imported":
         return "Imported";
       case "traded_in":
-        return "Trade-in accepted";
+        return "Trade-in unit";
       default:
-        return null;
+        return "Local listing";
     }
   })();
 
@@ -125,14 +121,8 @@ function buildStatusBadges(vehicle: VehicleRecord) {
         variant: "muted" as const,
       }
       : null,
-    stockLabel
-      ? {
-        label: stockLabel,
-        variant: "muted" as const,
-      }
-      : null,
     {
-      label: "Finance options",
+      label: stockLabel,
       variant: "muted" as const,
     },
   ].filter(
@@ -161,19 +151,38 @@ function buildHeroFacts(vehicle: VehicleRecord): HeroFact[] {
     { icon: Fuel, label: "Fuel Type", value: vehicle.fuelType },
     { icon: Map, label: "Drive Type", value: vehicle.driveType || "On request" },
     { icon: CarFront, label: "Body Type", value: vehicle.bodyType || "On request" },
-    {
-      icon: Wrench,
-      label: "Engine",
-      value: vehicle.engineCapacity || "On request",
-    },
-    { icon: Palette, label: "Color", value: vehicle.color || "On request" },
   ];
+}
+
+function buildStandoutHeading(vehicle: VehicleRecord) {
+  return `Why this ${vehicle.model} stands out`;
+}
+
+function buildHeroTrustLine(vehicle: VehicleRecord) {
+  const location = vehicle.location?.name || "Mombasa";
+
+  return [
+    `Viewing in ${location}`,
+    "Fast response during working hours",
+    "Trade-ins welcome",
+  ];
+}
+
+function buildVehicleSummary(vehicle: VehicleRecord) {
+  const mileage =
+    vehicle.mileage > 0 ? `${formatMileage(vehicle.mileage)}` : "mileage shared on request";
+  const drive = vehicle.driveType ? `, ${vehicle.driveType}` : "";
+
+  return [
+    `${vehicle.year} ${vehicle.make} ${vehicle.model} with ${mileage}, ${vehicle.fuelType.toLowerCase()} power, ${vehicle.transmission.toLowerCase()} transmission${drive}.`,
+    "Comfortable for daily driving, family travel, and longer road trips, with viewing and paperwork support available in Mombasa.",
+  ].join(" ");
 }
 
 function buildAboutHighlights(vehicle: VehicleRecord) {
   return [
     vehicle.condition
-      ? `${vehicle.condition} presentation gives a clearer expectation before you visit.`
+      ? `${vehicle.condition} condition notes can be confirmed before you leave for the viewing.`
       : "Ask sales for the latest condition notes before viewing.",
     vehicle.fuelType.toLowerCase() === "diesel"
       ? "Diesel running suits longer trips, highway use, and upcountry travel."
@@ -185,7 +194,7 @@ function buildAboutHighlights(vehicle: VehicleRecord) {
       ? `${vehicle.driveType} setup adds confidence on mixed road surfaces.`
       : vehicle.bodyType && /suv|pickup/i.test(vehicle.bodyType)
         ? `${vehicle.bodyType} shape gives space and road presence many buyers want.`
-        : "Finance and trade-in support can start before a physical visit.",
+        : "Trade-in and viewing support can be confirmed before a physical visit.",
   ];
 }
 
@@ -252,15 +261,22 @@ function buildSpecificationRows(vehicle: VehicleRecord): DetailRow[] {
 }
 
 function buildConfidenceRows(vehicle: VehicleRecord): DetailRow[] {
+  const listingType =
+    vehicle.stockCategory === "traded_in"
+      ? "Trade-in unit"
+      : vehicle.stockCategory === "available_for_importation" || vehicle.stockCategory === "imported"
+        ? "Imported vehicle"
+        : "Local listing";
+
   return [
-    { label: "Condition", value: vehicle.condition || "On request" },
-    { label: "Availability", value: "Available now" },
+    { label: "Registration status", value: vehicle.condition || "Shared before viewing" },
+    { label: "Listing type", value: listingType },
     {
       label: "Viewing location",
       value: vehicle.location?.name || "Mombasa showroom",
     },
-    { label: "Response time", value: `Usually ${homeStats.responseTime}` },
-    { label: "Financing", value: "Available on request" },
+    { label: "Paperwork support", value: "Guidance before you visit" },
+    { label: "Inspection", value: "Pre-purchase inspection welcome" },
     { label: "Trade-in", value: "Accepted" },
   ];
 }
@@ -273,11 +289,11 @@ function buildReassuranceItems() {
     },
     {
       title: "Fast response",
-      description: `Sales usually replies within ${homeStats.responseTime}.`,
+      description: "WhatsApp and calls are handled daily during working hours.",
     },
     {
-      title: "Finance help",
-      description: `Guidance available through ${homeStats.financePartners} finance partners.`,
+      title: "Paperwork support",
+      description: "Ask about logbook checks, transfer questions, and what to bring before you visit.",
     },
     {
       title: "Trade-in support",
@@ -295,7 +311,7 @@ function VehicleHeroFactGrid({ facts }: { facts: HeroFact[] }) {
         return (
           <div
             key={fact.label}
-            className="rounded-[18px] border border-border/80 bg-white/92 px-3.5 py-3 shadow-[0_10px_22px_rgba(15,23,42,0.04)]"
+            className="rounded-[18px] bg-surface-elevated/78 px-3.5 py-3"
           >
             <div className="flex items-start gap-3">
               <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/8 text-accent">
@@ -318,12 +334,14 @@ function VehicleHeroFactGrid({ facts }: { facts: HeroFact[] }) {
 }
 
 function VehicleOverviewCard({
+  heading,
   summary,
   details,
   highlights,
   features,
   rows,
 }: {
+  heading: string;
   summary: string;
   details: string;
   highlights: string[];
@@ -331,13 +349,16 @@ function VehicleOverviewCard({
   rows: DetailRow[];
 }) {
   return (
-    <Card className="rounded-[28px] border border-border/80 p-5 lg:p-6">
+    <Card className="rounded-[30px] bg-white p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] lg:p-7">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <div>
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-text-secondary">
-            About this vehicle
+            Vehicle overview
           </p>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-text-secondary">{summary}</p>
+          <h2 className="mt-2 text-[1.45rem] font-semibold leading-tight tracking-[-0.04em] text-text-primary">
+            {heading}
+          </h2>
+          <p className="mt-4 max-w-3xl text-[0.98rem] leading-7 text-text-secondary">{summary}</p>
 
           {details ? (
             <details className="mt-4 group">
@@ -373,14 +394,14 @@ function VehicleOverviewCard({
         </div>
       </div>
 
-      <div className="mt-7 border-t border-border/80 pt-6">
+      <div className="mt-8 bg-surface-elevated/55 px-4 py-5 sm:rounded-[22px] sm:px-5">
         <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-text-secondary">
           Specifications
         </p>
 
         <dl className="mt-4 grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-4">
           {rows.map((row) => (
-            <div key={row.label} className="border-b border-border/70 pb-3">
+            <div key={row.label} className="border-b border-border/40 pb-3">
               <dt className="text-xs font-semibold uppercase tracking-[0.16em] text-text-secondary">
                 {row.label}
               </dt>
@@ -400,7 +421,7 @@ function VehicleOverviewCard({
 function VehicleSupportPanel({
   averageRating,
   confidenceRows,
-  financingHref,
+  askHref,
   mapUrl,
   reviewCount,
   shareUrl,
@@ -410,7 +431,7 @@ function VehicleSupportPanel({
 }: {
   averageRating: string | null;
   confidenceRows: DetailRow[];
-  financingHref: string;
+  askHref: string;
   mapUrl?: string | null;
   reviewCount: number;
   shareUrl: string;
@@ -419,22 +440,22 @@ function VehicleSupportPanel({
   viewingHref: string;
 }) {
   const actionClassName =
-    "flex w-full items-center justify-between gap-3 rounded-[18px] border border-border/80 bg-white/92 px-4 py-3 text-left text-sm font-semibold text-text-primary shadow-[0_10px_24px_rgba(15,23,42,0.04)] transition-colors hover:border-accent/30 hover:bg-surface-elevated";
+    "flex w-full items-center justify-between gap-3 rounded-[18px] bg-surface px-4 py-3 text-left text-sm font-semibold text-text-primary shadow-[0_10px_22px_rgba(15,23,42,0.03)] transition-colors hover:bg-surface-elevated";
 
   return (
-    <Card className="rounded-[28px] border border-border/80 p-5 lg:p-6">
+    <Card className="rounded-[30px] bg-[linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(247,249,251,0.96))] p-6 shadow-[0_20px_50px_rgba(15,23,42,0.05)] lg:p-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-text-secondary">
-            Buyer support
+            Buyer confidence
           </p>
           <h2 className="mt-2 text-[1.2rem] font-semibold tracking-[-0.04em] text-text-primary">
-            Plan your next step quickly
+            What you can confirm before you visit
           </h2>
         </div>
 
         {averageRating ? (
-          <div className="rounded-[18px] border border-border/70 bg-surface-elevated/70 px-4 py-3 text-right">
+          <div className="rounded-[18px] bg-white px-4 py-3 text-right shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-text-secondary">
               Trusted by buyers
             </p>
@@ -455,47 +476,24 @@ function VehicleSupportPanel({
         ) : null}
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {confidenceRows.map((row) => (
-          <div
-            key={row.label}
-            className="rounded-[18px] border border-border/80 bg-surface-elevated/70 px-4 py-3"
-          >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-text-secondary">
-              {row.label}
-            </p>
-            <p className="mt-1.5 text-sm font-semibold text-text-primary">{row.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 border-t border-border/80 pt-6">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.22em] text-text-secondary">
-          Quick actions
-        </p>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          <Link href={tradeInHref} className={actionClassName}>
-            <span>Check trade-in value</span>
-            <ArrowRight className="size-4 text-text-secondary" />
-          </Link>
-          <Link href={viewingHref} className={actionClassName}>
-            <span>Schedule a viewing</span>
-            <ArrowRight className="size-4 text-text-secondary" />
-          </Link>
-          <Link href={financingHref} className={actionClassName}>
-            <span>Ask about financing</span>
-            <Banknote className="size-4 text-text-secondary" />
-          </Link>
-          <ShareVehicleAction title={title} url={shareUrl} />
-          {mapUrl ? (
-            <a href={mapUrl} target="_blank" rel="noreferrer" className={actionClassName}>
-              <span>Open showroom location</span>
-              <MapPin className="size-4 text-text-secondary" />
-            </a>
-          ) : null}
+      <div className="mt-5 rounded-[24px] bg-white/92 px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:px-5">
+        <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
+          {confidenceRows.map((row) => (
+            <div key={row.label} className="flex items-start gap-3">
+              <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-accent/8 text-accent">
+                <ShieldCheck className="size-4.5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-text-secondary">
+                  {row.label}
+                </p>
+                <p className="mt-1.5 text-sm font-semibold text-text-primary">{row.value}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
+
     </Card>
   );
 }
@@ -504,7 +502,7 @@ function ReassuranceBand() {
   const items = buildReassuranceItems();
 
   return (
-    <section className="rounded-[24px] border border-border/80 bg-white/94 px-5 py-4 shadow-[0_16px_38px_rgba(15,23,42,0.05)] lg:px-6">
+    <section className="rounded-[24px] bg-[linear-gradient(180deg,_rgba(255,255,255,0.94),_rgba(247,249,251,0.88))] px-5 py-4 shadow-[0_14px_34px_rgba(15,23,42,0.04)] lg:px-6">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((item) => (
           <div key={item.title} className="flex items-start gap-3">
@@ -560,7 +558,7 @@ export default async function VehicleDetailPage({
   }
 
   const [similarVehicles, reviews] = await Promise.all([
-    getSimilarVehicles(vehicle, 4),
+    getSimilarVehicles(vehicle, 3),
     getReviews(),
   ]);
 
@@ -583,6 +581,12 @@ export default async function VehicleDetailPage({
   const keyFeatures = buildKeyFeatures(vehicle);
   const specificationRows = buildSpecificationRows(vehicle);
   const confidenceRows = buildConfidenceRows(vehicle);
+  const heroTrustLine = buildHeroTrustLine(vehicle);
+  const standoutHeading = buildStandoutHeading(vehicle);
+  const vehicleSummary = buildVehicleSummary(vehicle);
+  const extendedDescription = [descriptionCopy.preview, descriptionCopy.remainder]
+    .filter(Boolean)
+    .join(" ");
   const averageRating = reviews.length
     ? (reviews.reduce((sum, item) => sum + item.rating, 0) / reviews.length).toFixed(1)
     : null;
@@ -628,7 +632,7 @@ export default async function VehicleDetailPage({
               />
             </div>
 
-            <Card className="rounded-[30px] border border-border/80 p-5 lg:p-6">
+            <Card className="rounded-[30px] bg-white p-5 shadow-[0_20px_50px_rgba(15,23,42,0.08)] xl:sticky xl:top-24 lg:p-6">
               <div className="flex flex-wrap gap-2">
                 {detailBadges.map((badge) => (
                   <Badge key={badge.label} variant={badge.variant}>
@@ -650,6 +654,9 @@ export default async function VehicleDetailPage({
                 <VehicleHeroFactGrid facts={heroFacts} />
               </div>
 
+              <p className="mt-4 text-sm font-medium text-text-primary">
+                Ask for price confirmation, viewing, or a quick walk-around video.
+              </p>
               <div className="mt-5 space-y-3">
                 <Button asChild variant="whatsapp" className="w-full rounded-[18px]">
                   <a href={whatsappUrl} target="_blank" rel="noreferrer">
@@ -665,29 +672,29 @@ export default async function VehicleDetailPage({
                   </Link>
                 </Button>
               </div>
+
+              <p className="mt-4 text-sm font-medium text-text-secondary">
+                {heroTrustLine.join(" • ")}
+              </p>
             </Card>
           </section>
 
           <section>
             <VehicleOverviewCard
-              summary={descriptionCopy.preview}
-              details={descriptionCopy.remainder}
+              heading={standoutHeading}
+              summary={vehicleSummary}
+              details={extendedDescription}
               highlights={aboutHighlights}
               features={keyFeatures}
               rows={specificationRows}
             />
           </section>
 
-          <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:items-start">
-            <VehicleFinanceEstimator
-              price={vehicle.price}
-              financingHref={`${vehiclePath}?intent=financing#contact-panel`}
-            />
-
+          <section>
             <VehicleSupportPanel
               averageRating={averageRating}
               confidenceRows={confidenceRows}
-              financingHref={`${vehiclePath}?intent=financing#contact-panel`}
+              askHref={`${vehiclePath}#contact-panel`}
               shareUrl={shareUrl}
               title={vehicle.title}
               tradeInHref={`/trade-in?vehicle=${vehicle.slug}`}
@@ -706,6 +713,11 @@ export default async function VehicleDetailPage({
               phoneDisplay={siteConfig.phoneDisplay}
               whatsappUrl={whatsappUrl}
               tradeInHref={`/trade-in?vehicle=${vehicle.slug}`}
+              compact
+              allowedIntents={["quote", "viewing"]}
+              eyebrow="Sales help"
+              heading="Ask about price, availability, or viewing"
+              description="WhatsApp is fastest, but you can also call or send one short message to confirm viewing time, paperwork support, or your trade-in options."
             />
           </section>
 
@@ -729,9 +741,9 @@ export default async function VehicleDetailPage({
                 </Link>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {similarVehicles.map((item) => (
-                  <VehicleCard key={item.id} vehicle={item} />
+                  <VehicleCard key={item.id} vehicle={item} variant="related" />
                 ))}
               </div>
             </section>

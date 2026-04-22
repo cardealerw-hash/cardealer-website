@@ -80,6 +80,36 @@ function getGalleryImageUrl(
   });
 }
 
+const galleryCategoryMap = [
+  { label: "Exterior", keywords: ["exterior", "front", "rear", "side", "outside"] },
+  { label: "Interior", keywords: ["interior", "cabin", "inside", "rear seat", "door panel"] },
+  { label: "Dashboard", keywords: ["dashboard", "screen", "console", "cluster", "steering"] },
+  { label: "Seats", keywords: ["seat", "seats", "upholstery", "bench"] },
+  { label: "Engine", keywords: ["engine", "bonnet", "hood"] },
+  { label: "Documents", keywords: ["logbook", "document", "documents", "service book", "paperwork"] },
+] as const;
+
+function buildGalleryCategories(images: GalleryImage[], title: string) {
+  const normalizedTitle = title.toLowerCase();
+
+  return galleryCategoryMap.flatMap((category) => {
+    const index = images.findIndex((image, imageIndex) => {
+      const haystack = [
+        getGalleryAltText(image, imageIndex, title),
+        image.cloudinaryPublicId || "",
+        image.imageUrl,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .replace(normalizedTitle, "");
+
+      return category.keywords.some((keyword) => haystack.includes(keyword));
+    });
+
+    return index >= 0 ? [{ label: category.label, index }] : [];
+  });
+}
+
 export function VehicleGallery({
   images,
   heroImageUrl,
@@ -92,6 +122,7 @@ export function VehicleGallery({
   compact?: boolean;
 }) {
   const galleryImages = normalizeGalleryImages(images, title, heroImageUrl);
+  const galleryCategories = buildGalleryCategories(galleryImages, title);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -271,31 +302,66 @@ export function VehicleGallery({
       </div>
 
       {galleryImages.length > 1 ? (
-        <div className="hide-scrollbar flex gap-2.5 overflow-x-auto px-1 pb-2">
-          {galleryImages.map((image, index) => (
+        <div className="space-y-3 px-1 pb-2">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-medium text-text-secondary">
+              Browse the key photos first, then open the full gallery.
+            </p>
             <button
-              key={image.id}
               type="button"
-              className={cn(
-                "relative aspect-[4/3] shrink-0 overflow-hidden rounded-[12px] border-2 shadow-sm transition-all",
-                compact ? "w-24 sm:w-28" : "w-28 sm:w-32",
-                activeImage?.id === image.id
-                  ? "border-accent shadow-[0_10px_24px_rgba(23,58,94,0.12)]"
-                  : "border-transparent hover:border-accent/50 hover:shadow-md",
-              )}
-              aria-label={`Show photo ${index + 1} of ${galleryImages.length}`}
-              aria-pressed={activeImage?.id === image.id}
-              onClick={() => setActiveIndex(index)}
+              className="inline-flex items-center rounded-full border border-border/80 bg-white px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:border-accent/35 hover:text-accent"
+              onClick={() => setIsViewerOpen(true)}
             >
-              <Image
-                src={getGalleryImageUrl(image, "thumb")}
-                alt={getGalleryAltText(image, index, title)}
-                fill
-                sizes="96px"
-                className="object-cover"
-              />
+              View all photos ({galleryImages.length})
             </button>
-          ))}
+          </div>
+
+          {galleryCategories.length ? (
+            <div className="flex flex-wrap gap-2">
+              {galleryCategories.map((category) => (
+                <button
+                  key={category.label}
+                  type="button"
+                  className={cn(
+                    "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
+                    activeIndex === category.index
+                      ? "bg-accent/10 text-accent"
+                      : "bg-surface-elevated text-text-secondary hover:text-text-primary",
+                  )}
+                  onClick={() => setActiveIndex(category.index)}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="hide-scrollbar flex gap-3 overflow-x-auto">
+            {galleryImages.map((image, index) => (
+              <button
+                key={image.id}
+                type="button"
+                className={cn(
+                  "relative aspect-[4/3] shrink-0 overflow-hidden rounded-[14px] border-2 shadow-sm transition-all",
+                  compact ? "w-28 sm:w-32 lg:w-36" : "w-28 sm:w-32",
+                  activeImage?.id === image.id
+                    ? "border-accent shadow-[0_10px_24px_rgba(23,58,94,0.12)]"
+                    : "border-transparent hover:border-accent/50 hover:shadow-md",
+                )}
+                aria-label={`Show photo ${index + 1} of ${galleryImages.length}`}
+                aria-pressed={activeImage?.id === image.id}
+                onClick={() => setActiveIndex(index)}
+              >
+                <Image
+                  src={getGalleryImageUrl(image, "thumb")}
+                  alt={getGalleryAltText(image, index, title)}
+                  fill
+                  sizes="128px"
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
 
