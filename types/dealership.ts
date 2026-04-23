@@ -252,6 +252,14 @@ export interface LeadInboxItem {
   details: LeadInboxDetail[];
 }
 
+export interface LeadInboxQuery {
+  q?: string;
+  type?: LeadInboxFilter;
+  status?: LeadInboxStatusFilter;
+  page?: number;
+  pageSize?: number;
+}
+
 export interface LeadInboxSummary {
   total: number;
   newCount: number;
@@ -262,13 +270,14 @@ export interface LeadInboxSummary {
 
 export interface LeadInboxResult {
   items: LeadInboxItem[];
-  filters: {
-    type: LeadInboxFilter;
-    status: LeadInboxStatusFilter;
-  };
+  filters: Required<LeadInboxQuery>;
   summary: LeadInboxSummary;
   scopedSummary: LeadInboxSummary;
   typeCounts: Record<LeadInboxFilter, number>;
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 export interface ActionState {
@@ -328,6 +337,8 @@ export interface AdminVehicleWorkspaceQuery {
   featured?: "all" | "featured" | "standard";
   fuelType?: string;
   sort?: AdminVehicleSort;
+  page?: number;
+  pageSize?: number;
 }
 
 export interface AdminVehicleWorkspaceSummary {
@@ -343,6 +354,10 @@ export interface AdminVehicleWorkspaceResult {
   locations: Array<Pick<Location, "id" | "name">>;
   fuelTypes: string[];
   summary: AdminVehicleWorkspaceSummary;
+  totalItems: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 export interface HomeStats {

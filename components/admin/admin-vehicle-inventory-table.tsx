@@ -86,7 +86,7 @@ function buildVehicleRowModel(vehicle: Vehicle): InventoryRowViewModel {
     id: vehicle.id,
     title: vehicle.title,
     thumbnailUrl: vehicle.heroImageUrl || vehicle.images[0]?.imageUrl || null,
-    metadata: metadataParts.join(" • "),
+    metadata: metadataParts.join(" - "),
     badges: badges.slice(0, 3),
     priceLabel: formatCurrency(vehicle.price),
     mileageLabel: formatMileage(vehicle.mileage),
@@ -108,7 +108,10 @@ export function AdminVehicleInventoryTable({
   const [pendingConfirmation, setPendingConfirmation] = useState<
     Extract<BulkInventoryAction, "sold" | "delete"> | null
   >(null);
-  const [bulkState, runBulkAction] = useActionState(bulkVehicleAction, initialBulkState);
+  const [bulkState, runBulkAction] = useActionState(
+    bulkVehicleAction,
+    initialBulkState,
+  );
   const [isPending, startTransition] = useTransition();
   const rows = useMemo(() => items.map(buildVehicleRowModel), [items]);
 
@@ -171,36 +174,64 @@ export function AdminVehicleInventoryTable({
   }
 
   return (
-    <div className="space-y-3" data-view-key={viewKey}>
+    <div className="space-y-2.5" data-view-key={viewKey}>
       {selectedCount > 0 ? (
         <div className="hidden rounded-xl border border-border bg-stone-50 px-3 py-2 text-sm lg:block">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="font-medium text-stone-800">{selectedCount} selected</p>
             <div className="flex flex-wrap items-center gap-2">
-              <Button size="sm" variant="secondary" disabled={isPending} onClick={() => runBulk("publish")}>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={isPending}
+                onClick={() => runBulk("publish")}
+              >
                 Publish
               </Button>
-              <Button size="sm" variant="secondary" disabled={isPending} onClick={() => runBulk("unpublish")}>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={isPending}
+                onClick={() => runBulk("unpublish")}
+              >
                 Unpublish
               </Button>
-              <Button size="sm" variant="secondary" disabled={isPending} onClick={() => runBulk("sold")}>
+              <Button
+                size="sm"
+                variant="secondary"
+                disabled={isPending}
+                onClick={() => runBulk("sold")}
+              >
                 Mark sold
               </Button>
-              <Button size="sm" disabled={isPending} className="bg-red-600 hover:bg-red-700" onClick={() => runBulk("delete")}>
+              <Button
+                size="sm"
+                disabled={isPending}
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => runBulk("delete")}
+              >
                 Delete
               </Button>
             </div>
           </div>
 
           {pendingConfirmation ? (
-            <div className="mt-3 rounded-lg border border-border bg-white px-3 py-3">
-              <p className="text-sm font-semibold text-stone-950">{confirmationTitle}</p>
-              <p className="mt-1 text-sm text-stone-600">{confirmationDescription}</p>
+            <div className="mt-2.5 rounded-lg border border-border bg-white px-3 py-3">
+              <p className="text-sm font-semibold text-stone-950">
+                {confirmationTitle}
+              </p>
+              <p className="mt-1 text-sm text-stone-600">
+                {confirmationDescription}
+              </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button
                   size="sm"
                   disabled={isPending}
-                  className={pendingConfirmation === "delete" ? "bg-red-600 hover:bg-red-700" : undefined}
+                  className={
+                    pendingConfirmation === "delete"
+                      ? "bg-red-600 hover:bg-red-700"
+                      : undefined
+                  }
                   onClick={() => submitBulk(pendingConfirmation)}
                 >
                   {confirmationButtonLabel}
@@ -259,46 +290,75 @@ export function AdminVehicleInventoryTable({
 
               return (
                 <tr key={row.id} className="border-b border-border align-top">
-                  <td className="px-3 py-2">
+                  <td className="px-3 py-1.5">
                     <input
                       type="checkbox"
                       aria-label={`Select ${row.title}`}
                       checked={isChecked}
-                      onChange={(event) => toggleRow(row.id, event.currentTarget.checked)}
+                      onChange={(event) =>
+                        toggleRow(row.id, event.currentTarget.checked)
+                      }
                     />
                   </td>
-                  <td className="px-2 py-2">
-                    <div className="relative h-12 w-16 overflow-hidden rounded bg-stone-100">
+                  <td className="px-2 py-1.5">
+                    <div className="relative h-10 w-14 overflow-hidden rounded bg-stone-100">
                       {row.thumbnailUrl ? (
-                        <Image src={row.thumbnailUrl} alt={row.title} fill sizes="64px" className="object-cover" />
+                        <Image
+                          src={row.thumbnailUrl}
+                          alt={row.title}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-[10px] uppercase text-stone-400">None</div>
+                        <div className="flex h-full items-center justify-center text-[10px] uppercase text-stone-400">
+                          None
+                        </div>
                       )}
                     </div>
                   </td>
-                  <td className="max-w-[280px] px-2 py-2">
-                    <p className="truncate font-medium text-stone-900">{row.title}</p>
-                    <p className="truncate text-xs text-stone-500">{row.metadata}</p>
+                  <td className="max-w-[280px] px-2 py-1.5">
+                    <p className="truncate text-sm font-medium text-stone-900">
+                      {row.title}
+                    </p>
+                    <p className="truncate text-xs text-stone-500">
+                      {row.metadata}
+                    </p>
                   </td>
-                  <td className="px-2 py-2">
+                  <td className="px-2 py-1.5">
                     <div className="flex flex-wrap gap-1">
                       {row.badges.map((badge) => (
-                        <Badge key={badge.label} variant={badge.variant} className="text-[10px]">
+                        <Badge
+                          key={badge.label}
+                          variant={badge.variant}
+                          className="px-2 py-0.5 text-[9px]"
+                        >
                           {badge.label}
                         </Badge>
                       ))}
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-2 py-2 font-medium text-stone-900">{row.priceLabel}</td>
-                  <td className="whitespace-nowrap px-2 py-2">{row.mileageLabel}</td>
-                  <td className="whitespace-nowrap px-2 py-2">{row.fuelLabel}</td>
-                  <td className="whitespace-nowrap px-2 py-2 text-xs text-stone-500">{row.updatedLabel}</td>
-                  <td className="px-2 py-2">
+                  <td className="whitespace-nowrap px-2 py-1.5 font-medium text-stone-900">
+                    {row.priceLabel}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-1.5">
+                    {row.mileageLabel}
+                  </td>
+                  <td className="whitespace-nowrap px-2 py-1.5">{row.fuelLabel}</td>
+                  <td className="whitespace-nowrap px-2 py-1.5 text-xs text-stone-500">
+                    {row.updatedLabel}
+                  </td>
+                  <td className="px-2 py-1.5">
                     <div className="flex items-center gap-2">
-                      <Button asChild size="sm" className="h-8 px-2 text-xs">
+                      <Button asChild size="sm" className="h-7 px-2 text-xs">
                         <Link href={`/admin/vehicles/${row.id}`}>Edit</Link>
                       </Button>
-                      <VehicleRowActions vehicleId={row.id} featured={row.featured} status={row.status} compact />
+                      <VehicleRowActions
+                        vehicleId={row.id}
+                        featured={row.featured}
+                        status={row.status}
+                        compact
+                      />
                     </div>
                   </td>
                 </tr>
@@ -309,44 +369,64 @@ export function AdminVehicleInventoryTable({
       </div>
 
       <div className="space-y-2 lg:hidden">
-        {rows.map((row) => {
-          return (
-            <div key={row.id} className="rounded-lg border border-border bg-white px-3 py-2">
-              <div className="flex items-start gap-3">
-                <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded bg-stone-100">
-                  {row.thumbnailUrl ? (
-                    <Image src={row.thumbnailUrl} alt={row.title} fill sizes="80px" className="object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-[10px] uppercase text-stone-400">None</div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-stone-900">{row.title}</p>
-                  <p className="truncate text-xs text-stone-500">{row.metadata}</p>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {row.badges.map((badge) => (
-                      <Badge key={badge.label} variant={badge.variant} className="text-[10px]">
-                        {badge.label}
-                      </Badge>
-                    ))}
+        {rows.map((row) => (
+          <div
+            key={row.id}
+            className="rounded-lg border border-border bg-white px-3 py-2"
+          >
+            <div className="flex items-start gap-3">
+              <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded bg-stone-100">
+                {row.thumbnailUrl ? (
+                  <Image
+                    src={row.thumbnailUrl}
+                    alt={row.title}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-[10px] uppercase text-stone-400">
+                    None
                   </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-stone-900">
+                  {row.title}
+                </p>
+                <p className="truncate text-xs text-stone-500">{row.metadata}</p>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {row.badges.map((badge) => (
+                    <Badge
+                      key={badge.label}
+                      variant={badge.variant}
+                      className="px-2 py-0.5 text-[9px]"
+                    >
+                      {badge.label}
+                    </Badge>
+                  ))}
                 </div>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-700">
-                <span className="font-semibold">{row.priceLabel}</span>
-                <span>{row.mileageLabel}</span>
-                <span>{row.fuelLabel}</span>
-                <span className="text-stone-500">Updated {row.updatedLabel}</span>
-              </div>
-              <div className="mt-2 flex items-center gap-2">
-                <Button asChild size="sm" className="h-8 px-2 text-xs">
-                  <Link href={`/admin/vehicles/${row.id}`}>Edit</Link>
-                </Button>
-                <VehicleRowActions vehicleId={row.id} featured={row.featured} status={row.status} compact />
               </div>
             </div>
-          );
-        })}
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-700">
+              <span className="font-semibold">{row.priceLabel}</span>
+              <span>{row.mileageLabel}</span>
+              <span>{row.fuelLabel}</span>
+              <span className="text-stone-500">Updated {row.updatedLabel}</span>
+            </div>
+            <div className="mt-1.5 flex items-center gap-2">
+              <Button asChild size="sm" className="h-7 px-2 text-xs">
+                <Link href={`/admin/vehicles/${row.id}`}>Edit</Link>
+              </Button>
+              <VehicleRowActions
+                vehicleId={row.id}
+                featured={row.featured}
+                status={row.status}
+                compact
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

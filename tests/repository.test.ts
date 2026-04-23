@@ -257,6 +257,115 @@ describe("repository fail-closed behavior", () => {
     expect(result.fuelTypes).toEqual(["Diesel", "Petrol"]);
   });
 
+  it("paginates the admin vehicle workspace after filters and sorting are applied", async () => {
+    const repository = await loadRepositoryModule({
+      allowLocalDemoMode: true,
+      demoState: {
+        vehicles: [
+          {
+            id: "vehicle-1",
+            title: "2021 Toyota Corolla",
+            stockCode: "COR-001",
+            slug: "2021-toyota-corolla",
+            make: "Toyota",
+            model: "Corolla",
+            year: 2021,
+            condition: "Foreign used",
+            price: 2150000,
+            negotiable: false,
+            mileage: 24000,
+            transmission: "Automatic",
+            fuelType: "Petrol",
+            driveType: null,
+            bodyType: "Sedan",
+            engineCapacity: null,
+            color: "White",
+            locationId: null,
+            location: null,
+            featured: false,
+            status: "published",
+            stockCategory: "used",
+            description: "Corolla",
+            heroImageUrl: null,
+            images: [],
+            createdAt: "2026-03-01T00:00:00.000Z",
+            updatedAt: "2026-03-11T00:00:00.000Z",
+          },
+          {
+            id: "vehicle-2",
+            title: "2019 Mazda CX-5",
+            stockCode: "CX5-001",
+            slug: "2019-mazda-cx5",
+            make: "Mazda",
+            model: "CX-5",
+            year: 2019,
+            condition: "Foreign used",
+            price: 2650000,
+            negotiable: false,
+            mileage: 52000,
+            transmission: "Automatic",
+            fuelType: "Petrol",
+            driveType: null,
+            bodyType: "SUV",
+            engineCapacity: null,
+            color: "Grey",
+            locationId: null,
+            location: null,
+            featured: false,
+            status: "published",
+            stockCategory: "used",
+            description: "CX-5",
+            heroImageUrl: null,
+            images: [],
+            createdAt: "2026-03-01T00:00:00.000Z",
+            updatedAt: "2026-03-10T00:00:00.000Z",
+          },
+          {
+            id: "vehicle-3",
+            title: "2018 Subaru Forester",
+            stockCode: "FOR-001",
+            slug: "2018-subaru-forester",
+            make: "Subaru",
+            model: "Forester",
+            year: 2018,
+            condition: "Locally used",
+            price: 2380000,
+            negotiable: false,
+            mileage: 61000,
+            transmission: "Automatic",
+            fuelType: "Petrol",
+            driveType: null,
+            bodyType: "SUV",
+            engineCapacity: null,
+            color: "Blue",
+            locationId: null,
+            location: null,
+            featured: false,
+            status: "draft",
+            stockCategory: "used",
+            description: "Forester",
+            heroImageUrl: null,
+            images: [],
+            createdAt: "2026-03-01T00:00:00.000Z",
+            updatedAt: "2026-03-09T00:00:00.000Z",
+          },
+        ],
+      },
+    });
+
+    const result = await repository.getAdminVehicleWorkspace({
+      status: "published",
+      page: 2,
+      pageSize: 1,
+    });
+
+    expect(result.totalItems).toBe(2);
+    expect(result.totalPages).toBe(2);
+    expect(result.page).toBe(2);
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].title).toBe("2019 Mazda CX-5");
+  });
+
   it("blocks follow-up until a lead has been contacted", async () => {
     const repository = await loadRepositoryModule({
       allowLocalDemoMode: true,
@@ -316,6 +425,62 @@ describe("repository fail-closed behavior", () => {
       contactedCount: 1,
       followUpCount: 0,
       closedCount: 0,
+    });
+  });
+
+  it("filters and paginates lead inbox results within the active search scope", async () => {
+    const repository = await loadRepositoryModule({
+      allowLocalDemoMode: true,
+      demoState: {
+        leads: [
+          {
+            id: "lead-1",
+            leadType: "quote",
+            name: "John Kamau",
+            phone: "+254700000001",
+            message: "Need the cash price.",
+            createdAt: "2026-03-12T09:00:00.000Z",
+          },
+          {
+            id: "lead-2",
+            leadType: "contact",
+            name: "Mercy Kamau",
+            phone: "+254700000002",
+            message: "Call me after lunch.",
+            createdAt: "2026-03-11T09:00:00.000Z",
+          },
+          {
+            id: "lead-3",
+            leadType: "financing",
+            name: "Brian Otieno",
+            phone: "+254700000003",
+            message: "Share financing terms.",
+            createdAt: "2026-03-10T09:00:00.000Z",
+          },
+        ],
+      },
+    });
+
+    const result = await repository.getLeadInbox({
+      q: "kamau",
+      page: 2,
+      pageSize: 1,
+      status: "all",
+      type: "all",
+    });
+
+    expect(result.totalItems).toBe(2);
+    expect(result.totalPages).toBe(2);
+    expect(result.page).toBe(2);
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].name).toBe("Mercy Kamau");
+    expect(result.typeCounts).toEqual({
+      all: 2,
+      quote: 1,
+      contact: 1,
+      financing: 0,
+      test_drive: 0,
+      trade_in: 0,
     });
   });
 });

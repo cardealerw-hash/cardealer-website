@@ -20,6 +20,7 @@ import type {
   InventoryQuery,
   LeadInboxFilter,
   LeadInboxItem,
+  LeadInboxQuery,
   LeadInboxResult,
   LeadInboxSourceType,
   LeadInboxStatusFilter,
@@ -148,6 +149,37 @@ function defaultLeadStatus(value: LeadInboxStatusFilter | undefined) {
 
 function defaultLeadType(value: LeadInboxFilter | undefined) {
   return value || "all";
+}
+
+const DEFAULT_ADMIN_VEHICLE_PAGE_SIZE = 10;
+const DEFAULT_LEAD_INBOX_PAGE_SIZE = 10;
+
+function normalizePositiveInteger(value: number | undefined, fallback: number) {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  const normalized = Math.floor(value as number);
+  return normalized > 0 ? normalized : fallback;
+}
+
+function paginateAdminItems<T>(items: T[], page: number, pageSize: number) {
+  const normalizedPageSize = Math.max(1, pageSize);
+  const totalItems = items.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / normalizedPageSize));
+  const currentPage = Math.min(
+    normalizePositiveInteger(page, 1),
+    totalPages,
+  );
+  const start = (currentPage - 1) * normalizedPageSize;
+
+  return {
+    items: items.slice(start, start + normalizedPageSize),
+    totalItems,
+    page: currentPage,
+    pageSize: normalizedPageSize,
+    totalPages,
+  };
 }
 
 function handlePublicReadFailure<T>(
@@ -680,6 +712,11 @@ function normalizeAdminVehicleWorkspaceQuery(
     featured: query.featured || "all",
     fuelType: query.fuelType || "",
     sort: query.sort || "updated-desc",
+    page: normalizePositiveInteger(query.page, 1),
+    pageSize: normalizePositiveInteger(
+      query.pageSize,
+      DEFAULT_ADMIN_VEHICLE_PAGE_SIZE,
+    ),
   } satisfies Required<AdminVehicleWorkspaceQuery>;
 }
 
@@ -742,14 +779,23 @@ export async function getAdminVehicleWorkspace(
 ): Promise<AdminVehicleWorkspaceResult> {
   const vehicles = await getAdminVehicles(options);
   const filters = normalizeAdminVehicleWorkspaceQuery(query);
-  const items = sortAdminVehicleWorkspaceItems(
+  const filteredItems = sortAdminVehicleWorkspaceItems(
     vehicles.filter((vehicle) => matchesAdminVehicleWorkspaceQuery(vehicle, filters)),
     filters.sort,
   );
+  const paginatedItems = paginateAdminItems(
+    filteredItems,
+    filters.page,
+    filters.pageSize,
+  );
 
   return {
-    items,
-    filters,
+    items: paginatedItems.items,
+    filters: {
+      ...filters,
+      page: paginatedItems.page,
+      pageSize: paginatedItems.pageSize,
+    },
     locations: vehicles
       .map((vehicle) => vehicle.location)
       .filter((location): location is NonNullable<Vehicle["location"]> => Boolean(location))
@@ -770,6 +816,10 @@ export async function getAdminVehicleWorkspace(
       draft: vehicles.filter((vehicle) => vehicle.status === "draft").length,
       sold: vehicles.filter((vehicle) => vehicle.status === "sold").length,
     },
+    totalItems: paginatedItems.totalItems,
+    page: paginatedItems.page,
+    pageSize: paginatedItems.pageSize,
+    totalPages: paginatedItems.totalPages,
   };
 }
 
@@ -1276,6 +1326,32 @@ function filterLeadInboxItemsByType(
   return items.filter((item) => item.type === type);
 }
 
+function buildLeadInboxSearchText(item: LeadInboxItem) {
+  return [
+    item.name,
+    item.phone,
+    item.email || "",
+    item.vehicleTitle || "",
+    item.message || "",
+    item.source || "",
+    item.type,
+    item.status,
+    ...item.details.flatMap((detail) => [detail.label, detail.value]),
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
+function normalizeLeadInboxQuery(query: LeadInboxQuery = {}) {
+  return {
+    q: query.q?.trim() || "",
+    type: defaultLeadType(query.type),
+    status: defaultLeadStatus(query.status),
+    page: normalizePositiveInteger(query.page, 1),
+    pageSize: normalizePositiveInteger(query.pageSize, DEFAULT_LEAD_INBOX_PAGE_SIZE),
+  } satisfies Required<LeadInboxQuery>;
+}
+
 function getAllowedLeadWorkflowTransitions(
   currentStatus: LeadWorkflowStatus,
 ): LeadWorkflowStatus[] {
@@ -1592,27 +1668,29 @@ async function fetchLeadTables(options: WriteOptions = {}) {
   };
 }
 
-export async function getLeadInbox(query: {
-  status?: LeadInboxStatusFilter;
-  type?: LeadInboxFilter;
-} = {}, options: WriteOptions = {}): Promise<LeadInboxResult> {
+export async function getLeadInbox(
+  query: LeadInboxQuery = {},
+  options: WriteOptions = {},
+): Promise<LeadInboxResult> {
   const tables = await fetchLeadTables(options);
-  const filters = {
-    type: defaultLeadType(query.type),
-    status: defaultLeadStatus(query.status),
-  };
+  const filters = normalizeLeadInboxQuery(query);
   const allItems = toLeadInboxItems(
     tables.leads,
     tables.testDriveRequests,
     tables.tradeInRequests,
     tables.leadWorkflowStates,
   );
+  const searchScopedItems = filters.q
+    ? allItems.filter((item) =>
+        buildLeadInboxSearchText(item).includes(filters.q.toLowerCase()),
+      )
+    : allItems;
   const statusScopedItems =
     filters.status === "all"
-      ? allItems
-      : allItems.filter((item) => item.status === filters.status);
-  const scopedItems = filterLeadInboxItemsByType(allItems, filters.type);
-  const items = scopedItems.filter((item) => {
+      ? searchScopedItems
+      : searchScopedItems.filter((item) => item.status === filters.status);
+  const scopedItems = filterLeadInboxItemsByType(searchScopedItems, filters.type);
+  const filteredItems = scopedItems.filter((item) => {
 
     if (filters.status !== "all" && item.status !== filters.status) {
       return false;
@@ -1620,13 +1698,26 @@ export async function getLeadInbox(query: {
 
     return true;
   });
+  const paginatedItems = paginateAdminItems(
+    filteredItems,
+    filters.page,
+    filters.pageSize,
+  );
 
   return {
-    items,
-    filters,
+    items: paginatedItems.items,
+    filters: {
+      ...filters,
+      page: paginatedItems.page,
+      pageSize: paginatedItems.pageSize,
+    },
     summary: buildLeadInboxSummary(allItems),
     scopedSummary: buildLeadInboxSummary(scopedItems),
     typeCounts: buildLeadInboxTypeCounts(statusScopedItems),
+    totalItems: paginatedItems.totalItems,
+    page: paginatedItems.page,
+    pageSize: paginatedItems.pageSize,
+    totalPages: paginatedItems.totalPages,
   };
 }
 

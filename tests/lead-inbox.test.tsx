@@ -17,6 +17,20 @@ describe("LeadInbox", () => {
       <LeadInbox
         items={[
           {
+            id: "lead-2",
+            type: "quote",
+            sourceType: "lead",
+            sourceId: "lead-2",
+            status: "new",
+            name: "John Kamau",
+            phone: "+254 711 111 111",
+            message: "Need the cash price and financing options.",
+            vehicleTitle: "2019 Subaru Forester",
+            source: "Vehicle enquiry form",
+            createdAt: "2026-03-11T09:00:00.000Z",
+            details: [],
+          },
+          {
             id: "lead-1",
             type: "trade_in",
             sourceType: "trade_in",
@@ -37,20 +51,6 @@ describe("LeadInbox", () => {
                 value: "2016 Mazda CX-5",
               },
             ],
-          },
-          {
-            id: "lead-2",
-            type: "quote",
-            sourceType: "lead",
-            sourceId: "lead-2",
-            status: "new",
-            name: "John Kamau",
-            phone: "+254 711 111 111",
-            message: "Need the cash price and financing options.",
-            vehicleTitle: "2019 Subaru Forester",
-            source: "Vehicle enquiry form",
-            createdAt: "2026-03-11T09:00:00.000Z",
-            details: [],
           },
         ]}
       />,
@@ -95,7 +95,7 @@ describe("LeadInbox", () => {
     ).toBeInTheDocument();
   });
 
-  it("filters the inbox locally with the search field", () => {
+  it("keeps quick actions in the detail view instead of repeating them in every row", () => {
     render(
       <LeadInbox
         items={[
@@ -128,13 +128,11 @@ describe("LeadInbox", () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText(/search leads/i), {
-      target: { value: "Hilux" },
-    });
-
+    expect(screen.getAllByRole("link", { name: /^Call$/i })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: /^WhatsApp$/i })).toHaveLength(1);
     expect(
-      screen.queryByRole("button", { name: /open lead from alice njeri/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: /open lead from alice njeri/i }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /open lead from brian otieno/i }),
     ).toBeInTheDocument();
