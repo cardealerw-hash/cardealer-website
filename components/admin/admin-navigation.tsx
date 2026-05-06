@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { AdminSession } from "@/types/dealership";
 
-const baseNavItems = [
+type AdminNavItem = Readonly<{
+  href: string;
+  label: string;
+  description: string;
+}>;
+
+const baseNavItems: ReadonlyArray<AdminNavItem> = [
   {
     href: "/admin/vehicles",
     label: "Inventory",
@@ -26,13 +32,7 @@ const baseNavItems = [
     label: "Lead inbox",
     description: "Respond to new enquiries quickly.",
   },
-] as const;
-
-type AdminNavItem = {
-  href: string;
-  label: string;
-  description: string;
-};
+];
 
 function getCurrentPageLabel(pathname: string) {
   if (pathname.startsWith("/admin/leads")) {
@@ -189,7 +189,7 @@ export function AdminNavigation({
   const usesFocusedCreateShell = pathname === "/admin/vehicles/new";
   const pageLabel = useMemo(() => getCurrentPageLabel(pathname), [pathname]);
   const showAdminsLink = canManageAdmins || session.mode === "demo";
-  const navItems = useMemo(() => {
+  const navItems = useMemo<ReadonlyArray<AdminNavItem>>(() => {
     if (!showAdminsLink) {
       return baseNavItems;
     }
