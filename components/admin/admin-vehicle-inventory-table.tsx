@@ -231,7 +231,6 @@ export function AdminVehicleInventoryTable({
                 <Button
                   size="sm"
                   disabled={isPending}
-                  variant={pendingConfirmation === "delete" ? undefined : "default"}
                   className={
                     pendingConfirmation === "delete"
                       ? "bg-red-600 hover:bg-red-700"
@@ -256,15 +255,34 @@ export function AdminVehicleInventoryTable({
       ) : null}
 
       {bulkState.message ? (
-        <p
-          className={cn(
-            "text-sm",
-            bulkState.success ? "text-emerald-700" : "text-amber-700",
-          )}
-          role="status"
-        >
-          {bulkState.message}
-        </p>
+        <div className="space-y-2">
+          <p
+            className={cn(
+              "text-sm",
+              bulkState.success ? "text-emerald-700" : "text-amber-700",
+            )}
+            role="status"
+          >
+            {bulkState.message}
+          </p>
+          {bulkState.results && bulkState.results.some((r) => !r.success) ? (
+            <details className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+              <summary className="cursor-pointer text-xs font-semibold uppercase tracking-[0.18em] text-amber-800">
+                View failed operations
+              </summary>
+              <ul className="mt-2 space-y-1 text-xs text-amber-900">
+                {bulkState.results
+                  .filter((r) => !r.success)
+                  .map((result) => (
+                    <li key={result.id} className="flex items-start gap-2">
+                      <span className="font-mono text-amber-700">{result.id}:</span>
+                      <span>{result.message}</span>
+                    </li>
+                  ))}
+              </ul>
+            </details>
+          ) : null}
+        </div>
       ) : null}
 
       <div className="hidden overflow-x-auto lg:block">
