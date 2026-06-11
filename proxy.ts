@@ -1,13 +1,21 @@
-import type { NextRequest } from "next/server";
+// proxy.ts (at the root of your project)
+import { type NextRequest } from 'next/server'
+import { updateSession } from '@/lib/supabase/middleware' // Keep this helper path as is
 
-import { updateSession } from "@/lib/supabase/middleware";
-
+// Change the function name from 'middleware' to 'proxy'
 export async function proxy(request: NextRequest) {
-  return updateSession(request);
+  return await updateSession(request)
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - Any static assets (svg, png, jpg, etc.)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-};
+}
