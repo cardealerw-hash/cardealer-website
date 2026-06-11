@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, Phone, X } from "lucide-react";
+import { LogIn, Menu, Phone, User, X } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -61,13 +61,33 @@ export function SiteHeader() {
             asChild
             variant="secondary"
             size="sm"
-            className="h-9 border-border/70 bg-surface/60 px-3.5 text-text-secondary shadow-none hover:bg-surface-elevated hover:text-text-primary"
+            className="h-9 border-border/70 bg-surface/60 px-3.5 text-text-secondary shadow-none hover:bg-surface-elevated hover:text-text-primary lg:hidden"
           >
             <Link href="/inventory">Inventory</Link>
+          </Button>
+          {/* Sign In Button - Desktop */}
+          <Button
+            asChild
+            variant="secondary"
+            size="sm"
+            className="h-9 border-border/70 bg-surface/60 px-3.5 text-text-secondary shadow-none hover:bg-surface-elevated hover:text-text-primary"
+          >
+            <Link href="/admin">
+              <LogIn className="mr-1.5 size-4" />
+              Sign In
+            </Link>
           </Button>
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
+          {/* Sign In Icon Button - Mobile (quick access) */}
+          <Link
+            href="/admin"
+            className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-surface text-text-primary transition-colors hover:bg-surface-elevated sm:size-11"
+            aria-label="Sign in"
+          >
+            <User className="size-4 sm:size-5" />
+          </Link>
           <button
             type="button"
             className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-surface text-text-primary transition-colors hover:bg-surface-elevated sm:size-11"
@@ -101,6 +121,17 @@ export function SiteHeader() {
                 {link.label}
               </Link>
             ))}
+            {/* Mobile Sign In Link */}
+            <div className="border-t border-border pt-2.5">
+              <Link
+                href="/admin"
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-elevated hover:text-text-primary"
+                onClick={() => setOpen(false)}
+              >
+                <LogIn className="size-4" />
+                Sign In
+              </Link>
+            </div>
           </div>
         </div>
       ) : null}
